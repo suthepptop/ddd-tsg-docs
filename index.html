@@ -867,39 +867,88 @@ function exportXLSX(){
   XLSX.writeFile(wb,'DDD-TSG-'+currentTab.toUpperCase()+'-'+new Date().toISOString().slice(0,10)+'.xlsx');
   showToast('Exported XLSX');
 }
+function fmtDateShort(d){
+  // Convert dd/mm/yyyy or dd Mon yyyy -> dd/mm/yy to keep short
+  if(!d)return '';
+  // already dd/mm/yyyy format
+  const m=d.match(/^(\d{2})\/?(\w+)\/?(\d{2,4})$/);
+  if(m){
+    const yr=m[3].length===4?m[3].slice(2):m[3];
+    // month name -> number
+    const months={Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'};
+    const mn=months[m[2]]||m[2].padStart(2,'0');
+    return m[1]+'/'+mn+'/'+yr;
+  }
+  return d;
+}
 function exportPDF(){
   const {list,label}=getExportData();
   if(!list.length){showToast('No documents to export');return;}
   const {jsPDF}=window.jspdf;
+  // A4 portrait: 210mm wide, margins 10mm each side = 190mm usable
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const pw=doc.internal.pageSize.getWidth();
+  const margin=10;
+  const usable=pw-margin*2; // 190mm
+
+  // Header banner
   doc.setFillColor(26,58,106);
   doc.rect(0,0,pw,22,'F');
   doc.setTextColor(255,255,255);
   doc.setFont('helvetica','bold');
   doc.setFontSize(12);
-  doc.text('DDD-TSG Co-Gen — ENG Document Register',14,10);
+  doc.text('DDD-TSG Co-Gen — ENG Document Register',margin,10);
   doc.setFont('helvetica','normal');
   doc.setFontSize(8);
-  doc.text('Tab: '+label,14,17);
-  doc.text('Exported: '+new Date().toLocaleDateString('en-GB')+'  | '+list.length+' docs',pw-14,17,{align:'right'});
+  doc.text('Tab: '+label,margin,17);
+  doc.text('Exported: '+new Date().toLocaleDateString('en-GB')+' | '+list.length+' docs',pw-margin,17,{align:'right'});
+
+  // Column widths: total must = usable (190mm)
+  // #=6, DocNo=38, Main=10, Sub=10, Desc=70, Rev=11, Status=12, Date=18, Appr=10, ApprDate=18 => 203 too wide
+  // Reduce: #=5, DocNo=36, Main=9, Sub=9, Desc=64, Rev=10, Status=11, Date=18, Appr=9, ApprDate=19 = 190 exact
   doc.autoTable({
     startY:26,
-    head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','Appr.','Appr. Date']],
-    body:list.map((d,i)=>[i+1,d.code,d.main,d.sub,d.desc||'',d.rev,d.status||'',d.date||'',d.approved==='yes'?'Yes':'',d.approved==='yes'?(d.approvedDate||''):'']),
-    styles:{fontSize:7,cellPadding:1.8,font:'helvetica',overflow:'linebreak'},
-    headStyles:{fillColor:[26,58,106],textColor:255,fontStyle:'bold',fontSize:7.5},
+    margin:{left:margin,right:margin},
+    tableWidth:usable,
+    head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','App','App. Date']],
+    body:list.map((d,i)=>[
+      i+1,
+      d.code,
+      d.main,
+      d.sub,
+      d.desc||'',
+      d.rev,
+      d.status||'',
+      fmtDateShort(d.date),
+      d.approved==='yes'?'Yes':'',
+      d.approved==='yes'?fmtDateShort(d.approvedDate||''):''
+    ]),
+    styles:{
+      fontSize:7,
+      cellPadding:{top:2,bottom:2,left:2,right:2},
+      font:'helvetica',
+      overflow:'linebreak',
+      minCellHeight:7
+    },
+    headStyles:{
+      fillColor:[26,58,106],
+      textColor:255,
+      fontStyle:'bold',
+      fontSize:7,
+      halign:'center',
+      overflow:'linebreak'
+    },
     columnStyles:{
-      0:{cellWidth:6,halign:'center'},
+      0:{cellWidth:5, halign:'center'},
       1:{cellWidth:36},
-      2:{cellWidth:9,halign:'center'},
-      3:{cellWidth:9,halign:'center'},
-      4:{cellWidth:54},
-      5:{cellWidth:10,halign:'center'},
-      6:{cellWidth:11,halign:'center'},
-      7:{cellWidth:15,halign:'center'},
-      8:{cellWidth:9,halign:'center'},
-      9:{cellWidth:17,halign:'center'}
+      2:{cellWidth:9,  halign:'center'},
+      3:{cellWidth:9,  halign:'center'},
+      4:{cellWidth:64},
+      5:{cellWidth:10, halign:'center'},
+      6:{cellWidth:11, halign:'center'},
+      7:{cellWidth:18, halign:'center'},
+      8:{cellWidth:9,  halign:'center'},
+      9:{cellWidth:19, halign:'center'}
     },
     alternateRowStyles:{fillColor:[245,246,248]},
     didDrawPage:function(data){
