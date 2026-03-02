@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DDD-TSG Document Numbering System</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface2: #eef0f4;
+    --border: #d0d5dd;
+    --accent: #d48c00;
+    --accent2: #2a9d3a;
+    --accent3: #1a6fd4;
+    --danger: #d93025;
+    --text: #1a1f2e;
+    --text2: #4b5563;
+    --text3: #8a92a0;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; }
+
+  .header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 0 32px; display: flex; align-items: center; justify-content: space-between;
+    height: 56px; position: sticky; top: 0; z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo-mark { width: 28px; height: 28px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 700; font-size: 12px; color: #fff; }
+  .header-title { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: 0.5px; }
+  .header-sub { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+  .badge { font-size: 10px; font-family: var(--mono); background: rgba(212,140,0,0.12); color: var(--accent); border: 1px solid rgba(212,140,0,0.3); padding: 2px 8px; }
+
+  .main { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 56px); }
+
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; max-height: calc(100vh - 56px); }
+  .section-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; color: var(--text3); text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+
+  .format-display { background: var(--bg); border: 1px solid var(--border); padding: 14px 16px; font-family: var(--mono); }
+  .format-line { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: 1px; display: flex; align-items: center; gap: 2px; flex-wrap: wrap; margin-bottom: 8px; }
+  .fmt-sep { color: var(--text3); }
+  .fmt-ddd { color: var(--accent); }
+  .fmt-tsg { color: var(--accent3); }
+  .fmt-main { color: var(--accent2); }
+  .fmt-sub { color: #7a3cb4; }
+  .fmt-num { color: var(--danger); }
+  .format-desc { font-size: 10px; color: var(--text3); }
+
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  .field-label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0.5px; }
+  .field-sub { font-size: 10px; color: var(--text3); margin-top: -4px; }
+
+  select, input[type="number"], input[type="text"] {
+    background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    padding: 8px 12px; font-family: var(--mono); font-size: 13px; width: 100%;
+    appearance: none; transition: border-color 0.2s;
+  }
+  select { cursor: pointer; }
+  select:hover, input:hover { border-color: var(--text3); }
+  select:focus, input:focus { outline: none; border-color: var(--accent); }
+  select option { background: var(--surface); color: var(--text); }
+  .select-wrap { position: relative; }
+  .select-wrap::after { content: '▾'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); pointer-events: none; font-size: 11px; }
+
+  .result-box { background: var(--bg); border: 1px solid var(--accent); padding: 16px; }
+  .result-label { font-size: 10px; color: var(--accent); font-weight: 600; letter-spacing: 1px; margin-bottom: 8px; }
+  .result-code { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: 2px; word-break: break-all; margin-bottom: 8px; }
+  .result-meta { display: flex; flex-direction: column; gap: 3px; }
+  .result-meta-row { font-size: 10px; color: var(--text3); display: flex; gap: 8px; }
+  .result-meta-row span:first-child { color: var(--text2); font-weight: 600; min-width: 60px; }
+
+  .copy-btn { background: transparent; border: 1px solid var(--border); color: var(--text2); padding: 4px 10px; font-size: 10px; font-family: var(--mono); cursor: pointer; transition: all 0.15s; margin-top: 10px; }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--accent2); color: var(--accent2); }
+
+  .gen-btn { background: var(--accent); color: #fff; border: none; padding: 10px 16px; font-family: var(--mono); font-weight: 700; font-size: 12px; letter-spacing: 1px; cursor: pointer; width: 100%; transition: opacity 0.2s; text-transform: uppercase; }
+  .gen-btn:hover { opacity: 0.85; }
+
+  .btn-sm { background: transparent; border: 1px solid var(--border); color: var(--text2); padding: 5px 12px; font-size: 11px; font-family: var(--mono); cursor: pointer; transition: all 0.15s; }
+  .btn-sm:hover { border-color: var(--accent3); color: var(--accent3); }
+  .btn-sm.ok { border-color: var(--accent2); color: var(--accent2); }
+  .btn-sm.ok:hover { background: var(--accent2); color: #fff; }
+  .btn-add { background: var(--accent3); color: #fff; border: none; padding: 7px 14px; font-size: 11px; font-family: var(--mono); cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+  .btn-add:hover { opacity: 0.85; }
+
+  .content { padding: 24px 28px; overflow-y: auto; max-height: calc(100vh - 56px); }
+
+  .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+  .tab { padding: 8px 16px; font-size: 12px; font-weight: 500; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .tab:hover { color: var(--text2); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .log-title { font-size: 13px; font-weight: 600; }
+  .log-count { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+  .log-filter { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-chip { font-size: 10px; font-family: var(--mono); padding: 3px 10px; border: 1px solid var(--border); color: var(--text3); cursor: pointer; transition: all 0.15s; background: transparent; }
+  .filter-chip:hover, .filter-chip.active { border-color: var(--accent3); color: var(--accent3); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th { text-align: left; padding: 8px 12px; font-size: 10px; font-weight: 600; letter-spacing: 1px; color: var(--text3); background: var(--surface2); border-bottom: 1px solid var(--border); text-transform: uppercase; }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 9px 12px; color: var(--text2); }
+  td.doc-code { font-family: var(--mono); font-weight: 600; color: var(--text); font-size: 12px; }
+  td.doc-desc { color: var(--text2); max-width: 220px; }
+
+  .tag { display: inline-block; padding: 1px 7px; font-size: 9px; font-family: var(--mono); font-weight: 600; background: rgba(26,111,212,0.1); color: #1a6fd4; }
+  .rev-badge { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 1px 6px; background: rgba(26,111,212,0.1); color: var(--accent3); border: 1px solid rgba(26,111,212,0.25); }
+  .del-btn { background: transparent; border: 1px solid transparent; color: var(--text3); cursor: pointer; font-size: 11px; padding: 2px 6px; transition: all 0.15s; font-family: var(--mono); }
+  .del-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .edit-btn { background: transparent; border: 1px solid transparent; color: var(--text3); cursor: pointer; font-size: 11px; padding: 2px 6px; transition: all 0.15s; font-family: var(--mono); }
+  .edit-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface2); border: 1px solid var(--border); padding: 14px 16px; }
+  .stat-val { font-family: var(--mono); font-size: 24px; font-weight: 700; color: var(--text); }
+  .stat-label { font-size: 10px; color: var(--text3); letter-spacing: 0.5px; margin-top: 2px; }
+
+  /* MANAGE */
+  .manage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  .manage-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; }
+  .manage-card-title { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .manage-list { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto; margin-bottom: 12px; }
+  .manage-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: var(--bg); border: 1px solid var(--border); cursor: pointer; transition: border-color 0.15s; }
+  .manage-item:hover { border-color: var(--accent3); }
+  .manage-item.selected { border-color: var(--accent3); background: rgba(26,111,212,0.05); }
+  .manage-code { font-family: var(--mono); font-weight: 700; font-size: 12px; color: var(--accent2); min-width: 55px; }
+  .manage-desc { font-size: 11px; color: var(--text2); flex: 1; }
+  .manage-meta { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+  .add-row { display: flex; gap: 6px; }
+  .add-row input { flex: 1; font-size: 11px; padding: 6px 10px; }
+  .add-row input.code-inp { max-width: 80px; text-transform: uppercase; font-weight: 700; }
+
+  .sub-panel { background: var(--surface); border: 1px solid var(--border); padding: 20px; }
+  .sub-tags { display: flex; flex-wrap: wrap; gap: 6px; min-height: 40px; margin-bottom: 12px; }
+  .sub-tag { display: flex; align-items: center; gap: 5px; padding: 4px 9px; background: var(--surface2); border: 1px solid var(--border); font-family: var(--mono); font-size: 11px; }
+  .sub-tag-code { font-weight: 700; color: var(--text); }
+  .sub-tag-desc { color: var(--text3); font-size: 10px; }
+  .remove-sub { cursor: pointer; color: var(--text3); font-size: 10px; margin-left: 2px; }
+  .remove-sub:hover { color: var(--danger); }
+
+  .pool-section { background: var(--surface); border: 1px solid var(--border); padding: 20px; }
+
+  /* REF */
+  .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .ref-card { background: var(--surface2); border: 1px solid var(--border); padding: 16px; }
+  .ref-card-title { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .ref-row { display: flex; align-items: flex-start; gap: 12px; padding: 5px 0; border-bottom: 1px solid rgba(208,213,221,0.5); font-size: 12px; }
+  .ref-row:last-child { border-bottom: none; }
+  .ref-code { font-family: var(--mono); font-weight: 700; color: var(--text); min-width: 60px; font-size: 12px; }
+  .ref-desc { color: var(--text2); font-size: 11px; }
+
+  .empty { text-align: center; padding: 60px 20px; color: var(--text3); }
+  .empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-text { font-size: 13px; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--accent2); color: var(--accent2); padding: 10px 16px; font-size: 12px; font-family: var(--mono); z-index: 999; transform: translateY(80px); opacity: 0; transition: all 0.25s; pointer-events: none; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); padding: 28px; width: 380px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+  .modal-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+  .modal-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+  .modal-label { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+</style>
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDMxqBXDKEBKXAdI1E200V-qodtxxJZgBk",
+    authDomain: "ddd-tsg-docs.firebaseapp.com",
+    projectId: "ddd-tsg-docs",
+    storageBucket: "ddd-tsg-docs.firebasestorage.app",
+    messagingSenderId: "695932302309",
+    appId: "1:695932302309:web:ae4ab1b9b97da821d3350c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const colRef = collection(db, 'documents');
+
+  // Make db functions available globally
+  window._db = db;
+  window._colRef = colRef;
+  window._fbSetDoc = setDoc;
+  window._fbDeleteDoc = deleteDoc;
+  window._fbDoc = doc;
+  window._fbOnSnapshot = onSnapshot;
+  window._fbReady = true;
+
+  // Real-time listener — sync docs array from Firestore
+  onSnapshot(colRef, (snapshot) => {
+    if (snapshot.empty && docs.length > 0 && !window._fbSynced) {
+      // First time: push pre-loaded docs to Firestore
+      docs.forEach(d => {
+        setDoc(doc(db, 'documents', String(d.id)), d);
+      });
+      window._fbSynced = true;
+    } else if (!snapshot.empty) {
+      // Update local docs array from Firestore
+      const remote = [];
+      snapshot.forEach(d => remote.push(d.data()));
+      remote.sort((a,b) => a.id - b.id);
+      docs.length = 0;
+      remote.forEach(d => docs.push(d));
+      window._fbSynced = true;
+      if (typeof renderTable === 'function') { renderTable(); renderFilterChips(); }
+    }
+    // Show sync indicator
+    const el = document.getElementById('syncStatus');
+    if (el) { el.textContent = '🟢 Synced'; el.style.color = '#2A9D3A'; }
+  }, (err) => {
+    const el = document.getElementById('syncStatus');
+    if (el) { el.textContent = '🔴 Offline'; el.style.color = '#D93025'; }
+  });
+</script>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo-mark">DOC</div>
+    <div>
+      <div class="header-title">DDD-TSG Document Numbering System</div>
+      <div class="header-sub">Thai Saree Group · Co-Gen Project</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span id="syncStatus" style="font-size:11px;font-weight:600;color:#888">⏳ Connecting...</span>
+    <div class="badge">ENG · REV.2 · 2026</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <div>
+      <div class="section-label">Document Code Format</div>
+      <div class="format-display">
+        <div class="format-line" id="fmtLineStd">
+          <span class="fmt-ddd">DDD</span><span class="fmt-sep">-</span>
+          <span class="fmt-tsg">TSG</span><span class="fmt-sep">-</span>
+          <span class="fmt-main" id="fmtMain">ELC</span><span class="fmt-sep">-</span>
+          <span class="fmt-sub" id="fmtSub">GND</span><span class="fmt-sep">-</span>
+          <span class="fmt-num" id="fmtNum">001</span><span class="fmt-sep">-</span>
+          <span style="color:var(--text3); font-style:italic">xxxx</span>
+        </div>
+        <div class="format-line" id="fmtLineDES" style="display:none">
+          <span class="fmt-tsg">TSG25</span><span class="fmt-sep">-</span>
+          <span class="fmt-ddd">ECG00</span><span class="fmt-sep">-</span>
+          <span class="fmt-num" id="fmtSeries">40</span>
+        </div>
+        <div class="format-desc" id="fmtDescStd">
+          <span style="color:var(--accent)">DDD</span>=Contractor &nbsp;
+          <span style="color:var(--accent3)">TSG</span>=Project &nbsp;
+          <span style="color:var(--accent2)">MAIN</span>-<span style="color:#7a3cb4">SUB</span>=Type &nbsp;
+          <span style="color:var(--danger)">###</span>=ENG No. &nbsp;
+          <span style="color:var(--text3)">xxxx</span>=DDD Running No.
+        </div>
+        <div class="format-desc" id="fmtDescDES" style="display:none">
+          <span style="color:var(--accent3)">TSG25</span>=Project &nbsp;
+          <span style="color:var(--accent)">ECG00</span>=Elec Co-Gen &nbsp;
+          <span style="color:var(--danger)">XX</span>=Series (Main-Sub)
+        </div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">MAIN DISCIPLINE <span style="color:var(--text3); font-weight:400">(Level 3)</span></div>
+      <div class="select-wrap"><select id="selMain" onchange="populateSub(); updatePreview()"></select></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">SUB DISCIPLINE <span style="color:var(--text3); font-weight:400">(Level 4)</span></div>
+      <div class="select-wrap"><select id="selSub" onchange="updatePreview()"></select></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">DESCRIPTION</div>
+      <div class="field-sub">คำอธิบายเอกสาร (optional)</div>
+      <input type="text" id="inpDesc" placeholder="e.g. BOQ, Drawing, Submittal..." oninput="updatePreview()">
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">REVISION</div>
+      <div class="select-wrap">
+        <select id="selRev" onchange="updatePreview()">
+          <option value="Rev.0">Rev.0</option>
+          <option value="Rev.1">Rev.1</option>
+          <option value="Rev.2">Rev.2</option>
+          <option value="Rev.A">Rev.A</option>
+          <option value="Rev.B">Rev.B</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">STATUS</div>
+      <div class="field-sub">สถานะเอกสาร</div>
+      <div class="select-wrap">
+        <select id="selStatus" onchange="updatePreview()">
+          <option value="IFA">IFA — Issued for Approval</option>
+          <option value="IFR">IFR — Issued for Review</option>
+          <option value="IFC">IFC — Issued for Construction</option>
+          <option value="AFC">AFC — Approved for Construction</option>
+          <option value="SUB">SUB — Submittal</option>
+          <option value="IFI">IFI — Issued for Information</option>
+          <option value="DDD">DDD — Supplied by DDD</option>
+          <option value="VOID">VOID — Void / Cancelled</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">OVERRIDE RUNNING NO.</div>
+      <div class="field-sub">ปล่อยว่าง = Auto</div>
+      <input type="number" id="inpOverride" min="1" max="999" placeholder="Auto" oninput="updatePreview()">
+    </div>
+
+    <div class="result-box">
+      <div class="result-label">GENERATED DOCUMENT CODE</div>
+      <div class="result-code" id="resultCode">—</div>
+      <div class="result-meta" id="resultMeta"></div>
+      <button class="copy-btn" id="copyBtn" onclick="copyCode()">⎘ COPY CODE</button>
+    </div>
+
+    <button class="gen-btn" onclick="addDocument()">+ ADD TO REGISTER</button>
+  </div>
+
+  <div class="content">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('register',event)">Document Register</div>
+      <div class="tab" onclick="switchTab('label',event)">Label Preview</div>
+      <div class="tab" onclick="switchTab('manage',event)">⚙ Manage Codes</div>
+      <div class="tab" onclick="switchTab('reference',event)">Reference</div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="tab-panel active" id="tab-register">
+      <div class="stats">
+        <div class="stat-card"><div class="stat-val" id="statTotal">0</div><div class="stat-label">TOTAL DOCS</div></div>
+        <div class="stat-card"><div class="stat-val" id="statELC" style="color:var(--accent3)">0</div><div class="stat-label">ELECTRICAL</div></div>
+        <div class="stat-card"><div class="stat-val" id="statINS" style="color:#7a3cb4">0</div><div class="stat-label">INSTRUMENT</div></div>
+        <div class="stat-card"><div class="stat-val" id="statOther" style="color:var(--text3)">0</div><div class="stat-label">OTHER</div></div>
+      </div>
+      <div class="log-header">
+        <div class="log-title">Document Register — DDD-TSG Project</div>
+        <div class="log-count" id="logCount">0 documents</div>
+      </div>
+      <div class="log-filter" id="filterRow">
+        <button class="filter-chip active" onclick="filterDocs('ALL',this)">ALL</button>
+      </div>
+      <div id="tableWrap">
+        <div class="empty" id="emptyState">
+          <div class="empty-icon">📄</div>
+          <div class="empty-text">No documents yet.<br>Generate a code and click <strong>ADD TO REGISTER</strong>.</div>
+        </div>
+        <table id="docTable" style="display:none">
+          <thead><tr>
+            <th>#</th><th>Document Code</th><th>Main</th><th>Sub</th>
+            <th>Description</th><th>Rev</th><th>Status</th><th>Date Issued</th><th>Approved</th><th style="width:72px"></th>
+          </tr></thead>
+          <tbody id="docTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LABEL -->
+    <div class="tab-panel" id="tab-label">
+      <div style="margin-bottom:20px">
+        <div class="section-label" style="border:none; padding-bottom:4px">Document Header / Title Block Preview</div>
+        <div style="font-size:12px; color:var(--text3)">ตัวอย่าง Document Code บน Header และ Title Block</div>
+      </div>
+      <div style="background:var(--surface2); border:1px solid var(--border); padding:20px; margin-bottom:20px;">
+        <div style="font-size:10px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;">▶ DOCUMENT HEADER</div>
+        <div style="background:#fff; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:3px solid #d48c00;">
+          <div>
+            <div style="font-family:var(--mono); font-size:12px; font-weight:700; color:#000;">ENERGY SERVICES CO., LTD.</div>
+            <div style="font-size:10px; color:#666; margin-top:2px" id="hdrTitle">—</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--mono); font-size:15px; font-weight:700; color:#000; letter-spacing:2px" id="hdrCode">—</div>
+            <div style="font-size:9px; color:#888; margin-top:2px" id="hdrRev">—</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:var(--surface2); border:1px solid var(--border); padding:20px;">
+        <div style="font-size:10px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;">▶ TITLE BLOCK</div>
+        <div style="background:#fff; display:inline-block; border:1px solid #ccc; font-family:monospace; font-size:11px;">
+          <table style="border-collapse:collapse; min-width:400px;">
+            <tr><td style="border:1px solid #ccc; padding:4px 10px; background:#1a3a6a; color:white; font-weight:bold; font-size:10px;" colspan="3">DDD CORPORATION CO., LTD. — THAI SAREE GROUP PROJECT</td></tr>
+            <tr>
+              <td style="border:1px solid #ccc; padding:6px 10px; width:160px;"><div style="font-size:8px; color:#888">PROJECT</div><div style="font-size:10px; font-weight:600">Thai Saree Co-Gen</div></td>
+              <td style="border:1px solid #ccc; padding:6px 10px; width:100px;"><div style="font-size:8px; color:#888">CONTRACT NO.</div><div style="font-size:10px; font-weight:600">O-TSGRO-DD-01</div></td>
+              <td style="border:1px solid #ccc; padding:6px 10px; width:140px; background:#fffbe6;"><div style="font-size:8px; color:#888">DOCUMENT NO.</div><div style="font-size:13px; font-weight:700; letter-spacing:1px" id="tbCode">—</div></td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #ccc; padding:6px 10px;"><div style="font-size:8px; color:#888">DESCRIPTION</div><div style="font-size:10px" id="tbDesc">—</div></td>
+              <td style="border:1px solid #ccc; padding:6px 10px;"><div style="font-size:8px; color:#888">DATE</div><div style="font-size:10px" id="tbDate">—</div></td>
+              <td style="border:1px solid #ccc; padding:6px 10px; background:#fffbe6;"><div style="font-size:8px; color:#888">REVISION</div><div style="font-size:11px; font-weight:600" id="tbRev">—</div></td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #ccc; padding:6px 10px;"><div style="font-size:8px; color:#888">PREPARED BY</div><div style="font-size:10px">ENG</div></td>
+              <td style="border:1px solid #ccc; padding:6px 10px;"><div style="font-size:8px; color:#888">CHECKED BY</div><div style="font-size:10px">____________</div></td>
+              <td style="border:1px solid #ccc; padding:6px 10px;"><div style="font-size:8px; color:#888">APPROVED BY</div><div style="font-size:10px">____________</div></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGE CODES -->
+    <div class="tab-panel" id="tab-manage">
+      <div style="margin-bottom:20px">
+        <div class="section-label" style="border:none; padding-bottom:4px">⚙ Manage Discipline Codes</div>
+        <div style="font-size:12px; color:var(--text3)">เพิ่ม / ลบ Main Discipline (Level 3) และ Sub Discipline (Level 4) ได้เองตามต้องการ</div>
+      </div>
+
+      <div class="manage-grid">
+        <!-- MAIN -->
+        <div class="manage-card">
+          <div class="manage-card-title">
+            <span>Main Discipline — Level 3</span>
+            <span id="mainCount" style="font-size:10px; color:var(--accent2)">0 items</span>
+          </div>
+          <div class="manage-list" id="mainList"></div>
+          <div class="add-row">
+            <input class="code-inp" type="text" id="newMainCode" placeholder="CODE" maxlength="6" style="max-width:80px">
+            <input type="text" id="newMainDesc" placeholder="Description">
+            <button class="btn-add" onclick="addMain()">+ Add</button>
+          </div>
+          <div style="font-size:10px; color:var(--text3); margin-top:8px">👆 คลิกที่ Main เพื่อแก้ไข Sub ด้านขวา</div>
+        </div>
+
+        <!-- SUB EDITOR -->
+        <div class="manage-card">
+          <div class="manage-card-title">
+            <span>Sub Discipline — Level 4</span>
+            <span id="subEditorLabel" style="font-size:10px; color:#7a3cb4">เลือก Main ก่อน</span>
+          </div>
+          <div id="subEditorWrap">
+            <div style="color:var(--text3); font-size:12px; padding:20px 0; text-align:center">← คลิกที่ Main Discipline ทางซ้าย</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB POOL -->
+      <div class="pool-section">
+        <div style="font-size:11px; font-weight:600; color:var(--text3); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between">
+          <span>Sub Code Pool (ทั้งหมด)</span>
+          <span style="font-size:10px; font-weight:400">เพิ่ม Sub Code ใหม่เข้า Pool ก่อน แล้วค่อย assign ให้ Main</span>
+        </div>
+        <div class="sub-tags" id="allSubTags"></div>
+        <div class="add-row" style="max-width:440px; margin-top:8px">
+          <input class="code-inp" type="text" id="newSubPoolCode" placeholder="CODE" maxlength="6" style="max-width:80px">
+          <input type="text" id="newSubPoolDesc" placeholder="Description">
+          <button class="btn-add" onclick="addSubPool()">+ Add to Pool</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REFERENCE -->
+    <div class="tab-panel" id="tab-reference">
+      <div style="margin-bottom:16px">
+        <div class="section-label" style="border:none; padding-bottom:4px">Code Reference Table</div>
+        <div style="font-size:12px; color:var(--text3)">อัปเดตอัตโนมัติจาก Manage Codes</div>
+      </div>
+      <div id="refContent"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-title">✏ Edit Document Entry</div>
+    <input type="hidden" id="editDocId">
+    <div class="modal-field">
+      <div class="modal-label">Description</div>
+      <input type="text" id="editDesc" placeholder="Document description">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Revision</div>
+      <div class="select-wrap">
+        <select id="editRev">
+          <option value="Rev.0">Rev.0</option><option value="Rev.1">Rev.1</option>
+          <option value="Rev.2">Rev.2</option><option value="Rev.A">Rev.A</option>
+          <option value="Rev.B">Rev.B</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Status</div>
+      <div class="select-wrap">
+        <select id="editStatus">
+          <option value="IFA">IFA — Issued for Approval</option>
+          <option value="IFR">IFR — Issued for Review</option>
+          <option value="IFC">IFC — Issued for Construction</option>
+          <option value="AFC">AFC — Approved for Construction</option>
+          <option value="SUB">SUB — Submittal</option>
+          <option value="IFI">IFI — Issued for Information</option>
+          <option value="DDD">DDD — Supplied by DDD</option>
+          <option value="VOID">VOID — Void / Cancelled</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Approved</div>
+      <div style="display:flex;gap:12px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+          <input type="radio" name="editApproved" id="editApprovedYes" value="yes"> 
+          <span style="color:#2A9D3A;font-weight:700">✓ Approved</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+          <input type="radio" name="editApproved" id="editApprovedNo" value="no" checked>
+          <span style="color:#888">✗ Not yet</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-field" id="approvedDateField" style="display:none">
+      <div class="modal-label">Approved Date</div>
+      <input type="date" id="editApprovedDate" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg2);color:var(--text)">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn-sm ok" onclick="saveEdit()">✓ Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────
+let mainDiscs = [
+  {code:'DES',desc:'Design & Drawing'},
+  {code:'ELC',desc:'Electrical'},
+  {code:'INS',desc:'Instrument'},
+  {code:'GND',desc:'Grounding & Lightning'},
+  {code:'LGT',desc:'Lighting'},
+  {code:'CCTV',desc:'CCTV System'},
+  {code:'MAT',desc:'Material & Equipment'},
+  {code:'PRG',desc:'Programming'},
+  {code:'COM',desc:'Commissioning'},
+  {code:'DOC',desc:'Documentation'},
+];
+
+let subPool = {
+  SLD:'Single Line Diagram', LAY:'Layout/Drawing', SCH:'Schedule',
+  HOK:'Hook-up Drawing', PNL:'Panel Drawing', GND:'Grounding System',
+  LTG:'Lightning Protection', LGT:'Lighting Layout', CCL:'CCTV Layout',
+  MR:'Material Requisition', BOQ:'Bill of Quantities',
+  SUB:'Submittal', GEN:'General',
+  FLD:'Field Instrument', IMP:'Impulse Line',
+  PLC:'PLC Programming', HMI:'HMI Programming',
+  LOG:'Control Logic', USR:'User Management',
+  FAT:'Factory Acceptance Test', SAT:'Site Acceptance Test', PRE:'Pre-Commissioning',
+  ABD:'As-Built Drawing', MNL:'Operation Manual', TRN:'Training Material',
+  CBL:'Cable', TRY:'Cable Tray', CDT:'Conduit', FDN:'Foundation', STR:'Structure',
+};
+
+let subMap = {
+  DES:['SLD','SCH','LAY','HOK','PNL','LTG','GND','LGT','CCL','MR','GEN'],
+  ELC:['SUB','GEN'],
+  INS:['SUB','GEN'],
+  GND:['SUB','GEN'],
+  LGT:['SUB','GEN'],
+  CCTV:['SUB','SCH','GEN'],
+  MAT:['SUB','GEN'],
+  PRG:['PLC','HMI','LOG','USR','GEN'],
+  COM:['FAT','SAT','PRE','GEN'],
+  DOC:['ABD','GEN'],
+};
+
+let counters = {}, filterActive = 'ALL', selMain4Sub = null;
+
+// Pre-loaded DDD drawings (from List of Drawing 26/02/2026)
+let docs = [
+  {id:1001, code:'TSG25-ECG00-00', main:'DES', sub:'GEN', desc:'List of Drawing',                                    rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1002, code:'TSG25-ECG00-05', main:'DES', sub:'LTG', desc:'Diagram for Lightning Protection',                   rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1003, code:'TSG25-ECG00-30', main:'DES', sub:'LTG', desc:'Lightning Protection System Reference Plan',         rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1004, code:'TSG25-ECG00-31', main:'DES', sub:'LTG', desc:'AC1 Lightning Protection System Ground Level',       rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1005, code:'TSG25-ECG00-32', main:'DES', sub:'LTG', desc:'AC1 Lightning Protection System 1st Level',          rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1006, code:'TSG25-ECG00-33', main:'DES', sub:'LTG', desc:'AC1 Lightning Protection System Roof Level',         rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1007, code:'TSG25-ECG00-34', main:'DES', sub:'LTG', desc:'AC1 Lightning Protection System Section A-A',        rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1008, code:'TSG25-ECG00-35', main:'DES', sub:'LTG', desc:'AC2 Lightning Protection System 1st Level',          rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1009, code:'TSG25-ECG00-36', main:'DES', sub:'LTG', desc:'Lightning Protection Typical Detail',                rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1010, code:'TSG25-ECG00-40', main:'DES', sub:'GND', desc:'Grounding and Bonding System Reference Plan',        rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1011, code:'TSG25-ECG00-41', main:'DES', sub:'GND', desc:'Grounding and Bonding System Sheet 1 of 12',         rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1012, code:'TSG25-ECG00-42', main:'DES', sub:'GND', desc:'Grounding and Bonding System Sheet 2 of 12',         rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1013, code:'TSG25-ECG00-43', main:'DES', sub:'GND', desc:'Grounding and Bonding System Sheet 3 of 12',         rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1014, code:'TSG25-ECG00-44', main:'DES', sub:'GND', desc:'Grounding and Bonding System Sheet 4 of 12',         rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1015, code:'TSG25-ECG00-45', main:'DES', sub:'GND', desc:'Grounding and Bonding System Sheet 5 of 12',         rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1016, code:'TSG25-ECG00-46', main:'DES', sub:'GND', desc:'Grounding and Bonding System Sheet 6 of 12',         rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1017, code:'TSG25-ECG00-47', main:'DES', sub:'GND', desc:'Grounding and Bonding System Sheet 7 of 12',         rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1018, code:'TSG25-ECG00-48', main:'DES', sub:'GND', desc:'Grounding and Bonding System Sheet 8 of 12',         rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1019, code:'TSG25-ECG00-49', main:'DES', sub:'GND', desc:'Grounding and Bonding System Sheet 9 of 12',         rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1020, code:'TSG25-ECG00-50', main:'DES', sub:'GND', desc:'Grounding and Bonding System Sheet 10 of 12',        rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1021, code:'TSG25-ECG00-51', main:'DES', sub:'GND', desc:'Grounding and Bonding System Sheet 11 of 12',        rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1022, code:'TSG25-ECG00-52', main:'DES', sub:'GND', desc:'Grounding and Bonding System Sheet 12 of 12',        rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+  {id:1023, code:'TSG25-ECG00-53', main:'DES', sub:'GND', desc:'Grounding and Bonding System Typical Detail',        rev:'Rev.0', status:'IFA', date:'26/02/2026'},
+];
+
+// DES Drawing series map: sub → starting series number
+const DES_SERIES = {
+  'SLD':  1,   // 01: Single Line Diagram
+  'SCH':  2,   // 02-03: Cable Schedule, I/O List
+  'LAY': 10,   // 10-15: Cable Arrangement zones
+  'HOK': 20,   // 20: Hook-up Drawing
+  'PNL': 21,   // 21-27: Panel GA/Wiring, 110-111: Panel Detail
+  'LTG': 30,   // 30-36: Lightning Protection (matches DDD)
+  'GND': 40,   // 40-51: Grounding (matches DDD)
+  'LGT': 60,   // 60-62: Lighting Layout
+  'CCL': 80,   // 80-86: CCTV Layout
+};
+const DES_DRAWING_SUBS = ['SLD','SCH','LAY','HOK','PNL','LTG','GND','LGT','CCL'];
+
+function isDesDrw(main, sub) {
+  return main === 'DES' && DES_DRAWING_SUBS.includes(sub);
+}
+
+function getDesCode(sub, num) {
+  // PNL: first 7 use 21-27, after that use 110+
+  let base;
+  if (sub === 'PNL' && num > 7) {
+    base = 110 + (num - 8);
+  } else {
+    base = DES_SERIES[sub] || 1;
+  }
+  const series = String(base + (sub === 'PNL' && num > 7 ? 0 : (num - 1))).padStart(2, '0');
+  return `TSG25-ECG00-${series}`;
+}
+
+// ── INIT ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  rebuildMainSelect(); populateSub(); updatePreview();
+  renderManage(); renderFilterChips(); renderReference();
+});
+
+// ── SIDEBAR ───────────────────────────────────────────
+function rebuildMainSelect() {
+  const sel = document.getElementById('selMain');
+  const cur = sel.value;
+  sel.innerHTML = mainDiscs.map(m=>`<option value="${m.code}">${m.code} — ${m.desc}</option>`).join('');
+  if (cur && mainDiscs.find(m=>m.code===cur)) sel.value = cur;
+}
+
+function populateSub() {
+  const main = document.getElementById('selMain').value;
+  const sel = document.getElementById('selSub');
+  const cur = sel.value;
+  const subs = subMap[main] || ['GEN'];
+  sel.innerHTML = subs.map(s=>`<option value="${s}">${s} — ${subPool[s]||s}</option>`).join('');
+  if (cur && subs.includes(cur)) sel.value = cur;
+}
+
+function peekNum(m,s){return (counters[m+'-'+s]||0)+1;}
+function getNextNum(m,s){const k=m+'-'+s; counters[k]=(counters[k]||0)+1; return counters[k];}
+function fmt3(n){return String(n).padStart(3,'0');}
+
+function updatePreview() {
+  const main=document.getElementById('selMain').value;
+  const sub=document.getElementById('selSub').value;
+  const rev=document.getElementById('selRev').value;
+  const status=document.getElementById('selStatus').value;
+  const desc=document.getElementById('inpDesc').value;
+  const ov=document.getElementById('inpOverride').value;
+  const num=ov?parseInt(ov):peekNum(main,sub);
+  const md=mainDiscs.find(m=>m.code===main)?.desc||main;
+  const sd=subPool[sub]||sub;
+  const desDrw = isDesDrw(main, sub);
+  const code = desDrw ? getDesCode(sub, num) : `DDD-TSG-${main}-${sub}-${fmt3(num)}-xxxx`;
+
+  // Toggle format display
+  document.getElementById('fmtLineStd').style.display = desDrw ? 'none' : 'flex';
+  document.getElementById('fmtLineDES').style.display = desDrw ? 'flex' : 'none';
+  document.getElementById('fmtDescStd').style.display = desDrw ? 'none' : 'block';
+  document.getElementById('fmtDescDES').style.display = desDrw ? 'block' : 'none';
+
+  if (desDrw) {
+    const base = DES_SERIES[sub] || 1;
+    document.getElementById('fmtSeries').textContent = String(base + (num-1)).padStart(2,'0');
+  } else {
+    document.getElementById('fmtMain').textContent=main;
+    document.getElementById('fmtSub').textContent=sub;
+    document.getElementById('fmtNum').textContent=fmt3(num);
+  }
+  document.getElementById('resultCode').textContent=code;
+
+  const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('resultMeta').innerHTML=`
+    <div class="result-meta-row"><span>Main:</span>${md}</div>
+    <div class="result-meta-row"><span>Sub:</span>${sd}</div>
+    <div class="result-meta-row"><span>Rev:</span>${rev}&nbsp;|&nbsp;<span>Status:</span>${status}&nbsp;|&nbsp;<span>Date:</span>${ds}</div>
+    ${desc?`<div class="result-meta-row"><span>Desc:</span>${desc}</div>`:''}
+  `;
+  const mo=new Date().toLocaleString('en-GB',{month:'long',year:'numeric'});
+  document.getElementById('hdrCode').textContent=code;
+  document.getElementById('hdrRev').textContent=`${rev} · ${status} · ${mo}`;
+  document.getElementById('hdrTitle').textContent=desc||`${md} — ${sd}`;
+  document.getElementById('tbCode').textContent=code;
+  document.getElementById('tbRev').textContent=rev;
+  document.getElementById('tbDesc').textContent=desc||`${md} ${sd}`.trim();
+  document.getElementById('tbDate').textContent=mo;
+}
+
+function addDocument() {
+  const main=document.getElementById('selMain').value;
+  const sub=document.getElementById('selSub').value;
+  const rev=document.getElementById('selRev').value;
+  const status=document.getElementById('selStatus').value;
+  const desc=document.getElementById('inpDesc').value;
+  const ov=document.getElementById('inpOverride').value;
+  let num;
+  if(ov){num=parseInt(ov); const k=main+'-'+sub; if(num>(counters[k]||0))counters[k]=num;}
+  else{num=getNextNum(main,sub);}
+  const desDrw = isDesDrw(main, sub);
+  const code = desDrw ? getDesCode(sub, num) : `DDD-TSG-${main}-${sub}-${fmt3(num)}-xxxx`;
+  const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:''};
+  docs.push(newDoc);
+  // Save to Firestore
+  if(window._fbReady) window._fbSetDoc(window._fbDoc(window._db,'documents',String(newDoc.id)), newDoc);
+  document.getElementById('inpDesc').value='';
+  document.getElementById('inpOverride').value='';
+  renderTable(); updatePreview(); renderFilterChips();
+  showToast('✓ Added: '+code);
+  switchTab('register',{target:document.querySelector('.tab')});
+}
+
+// ── REGISTER ──────────────────────────────────────────
+function renderFilterChips() {
+  const existing=new Set(docs.map(d=>d.main));
+  let html=`<button class="filter-chip ${filterActive==='ALL'?'active':''}" onclick="filterDocs('ALL',this)">ALL</button>`;
+  mainDiscs.forEach(m=>{if(existing.has(m.code))html+=`<button class="filter-chip ${filterActive===m.code?'active':''}" onclick="filterDocs('${m.code}',this)">${m.code}</button>`;});
+  document.getElementById('filterRow').innerHTML=html;
+}
+
+function renderTable() {
+  const tbody=document.getElementById('docTbody');
+  const table=document.getElementById('docTable');
+  const empty=document.getElementById('emptyState');
+  const filtered=filterActive==='ALL'?docs:docs.filter(d=>d.main===filterActive);
+  document.getElementById('logCount').textContent=`${filtered.length} document${filtered.length!==1?'s':''}`;
+  if(docs.length===0){table.style.display='none'; empty.style.display='block';}
+  else{table.style.display='table'; empty.style.display='none';}
+  const STATUS_C={'IFA':'#D48C00','IFR':'#7A3CB4','IFC':'#1A6FD4','AFC':'#2A9D3A','SUB':'#1A6FD4','IFI':'#4A4A4A','DDD':'#AAAAAA','VOID':'#D93025'};
+  tbody.innerHTML=filtered.map((d,i)=>{
+    const appCell = d.approved==='yes'
+      ? `<td style="text-align:center"><span style="color:#2A9D3A;font-weight:700;font-size:11px">✓</span><br><span style="font-size:9px;color:#2A9D3A">${d.approvedDate||''}</span></td>`
+      : `<td style="text-align:center;color:#CCC;font-size:11px">—</td>`;
+    return `<tr>
+      <td style="color:var(--text3);font-family:var(--mono);font-size:11px">${String(i+1).padStart(2,'0')}</td>
+      <td class="doc-code">${d.code}</td>
+      <td><span class="tag">${d.main}</span></td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${d.sub}</td>
+      <td class="doc-desc">${d.desc||'—'}</td>
+      <td><span class="rev-badge">${d.rev}</span></td>
+      <td style="font-family:var(--mono);font-size:10px;font-weight:700;color:${STATUS_C[d.status]||'#888'}">${d.status||'—'}</td>
+      <td style="font-size:11px;color:var(--text3);white-space:nowrap">${d.date}</td>
+      ${appCell}
+      <td style="white-space:nowrap">
+        <button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button>
+        <button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('statTotal').textContent=docs.length;
+  document.getElementById('statELC').textContent=docs.filter(d=>d.main==='ELC').length;
+  document.getElementById('statINS').textContent=docs.filter(d=>d.main==='INS').length;
+  document.getElementById('statOther').textContent=docs.filter(d=>d.main!=='ELC'&&d.main!=='INS').length;
+}
+
+function delDoc(id){
+  if(!confirm('Delete this entry?'))return;
+  docs=docs.filter(d=>d.id!==id);
+  // Delete from Firestore
+  if(window._fbReady) window._fbDeleteDoc(window._fbDoc(window._db,'documents',String(id)));
+  renderTable(); renderFilterChips(); showToast('✓ Deleted');
+}
+function filterDocs(cat,el){
+  filterActive=cat;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active'); renderTable();
+}
+
+// ── EDIT MODAL ────────────────────────────────────────
+function openModal(id){
+  const d=docs.find(x=>x.id===id); if(!d)return;
+  document.getElementById('editDocId').value=id;
+  document.getElementById('editDesc').value=d.desc;
+  document.getElementById('editRev').value=d.rev;
+  document.getElementById('editStatus').value=d.status||'IFA';
+  const approved=d.approved==='yes';
+  document.getElementById('editApprovedYes').checked=approved;
+  document.getElementById('editApprovedNo').checked=!approved;
+  document.getElementById('approvedDateField').style.display=approved?'block':'none';
+  document.getElementById('editApprovedDate').value=d.approvedDate||'';
+  document.getElementById('editModal').classList.add('open');
+}
+function closeModal(){document.getElementById('editModal').classList.remove('open');}
+function saveEdit(){
+  const id=parseInt(document.getElementById('editDocId').value);
+  const d=docs.find(x=>x.id===id); if(!d)return;
+  d.desc=document.getElementById('editDesc').value;
+  d.rev=document.getElementById('editRev').value;
+  d.status=document.getElementById('editStatus').value;
+  d.approved=document.getElementById('editApprovedYes').checked?'yes':'no';
+  d.approvedDate=d.approved==='yes'?document.getElementById('editApprovedDate').value:'';
+  // Save to Firestore
+  if(window._fbReady) window._fbSetDoc(window._fbDoc(window._db,'documents',String(d.id)), d);
+  closeModal(); renderTable(); showToast('✓ Updated');
+}
+// Toggle approved date field
+document.addEventListener('change',e=>{
+  if(e.target.name==='editApproved'){
+    document.getElementById('approvedDateField').style.display=
+      e.target.value==='yes'?'block':'none';
+  }
+});
+
+// ── MANAGE CODES ──────────────────────────────────────
+function renderManage() {
+  // Main list
+  document.getElementById('mainList').innerHTML=mainDiscs.map(m=>`
+    <div class="manage-item ${selMain4Sub===m.code?'selected':''}" onclick="selectMain('${m.code}')">
+      <span class="manage-code">${m.code}</span>
+      <span class="manage-desc">${m.desc}</span>
+      <span class="manage-meta">[${(subMap[m.code]||[]).length}]</span>
+      <button class="del-btn" onclick="event.stopPropagation();delMain('${m.code}')" title="Delete">✕</button>
+    </div>`).join('');
+  document.getElementById('mainCount').textContent=`${mainDiscs.length} items`;
+
+  // Sub pool
+  document.getElementById('allSubTags').innerHTML=Object.entries(subPool).map(([c,d])=>`
+    <div class="sub-tag">
+      <span class="sub-tag-code">${c}</span>
+      <span class="sub-tag-desc">— ${d}</span>
+      <span class="remove-sub" onclick="delSubPool('${c}')" title="Remove">✕</span>
+    </div>`).join('');
+
+  renderSubEditor();
+  rebuildMainSelect(); populateSub(); updatePreview(); renderReference();
+}
+
+function selectMain(code){
+  selMain4Sub=code; renderManage();
+}
+
+function renderSubEditor(){
+  const wrap=document.getElementById('subEditorWrap');
+  const lbl=document.getElementById('subEditorLabel');
+  if(!selMain4Sub){
+    wrap.innerHTML='<div style="color:var(--text3);font-size:12px;padding:20px 0;text-align:center">← คลิกที่ Main Discipline ทางซ้าย</div>';
+    lbl.textContent='เลือก Main ก่อน'; return;
+  }
+  const m=mainDiscs.find(x=>x.code===selMain4Sub);
+  lbl.textContent=`${selMain4Sub} — ${m?.desc||''}`;
+  const subs=subMap[selMain4Sub]||[];
+  const available=Object.keys(subPool).filter(s=>!subs.includes(s));
+  wrap.innerHTML=`
+    <div style="font-size:10px;color:var(--text3);margin-bottom:8px;letter-spacing:0.5px">Sub Codes ที่ assign แล้ว:</div>
+    <div class="sub-tags">
+      ${subs.length?subs.map(s=>`
+        <div class="sub-tag">
+          <span class="sub-tag-code">${s}</span>
+          <span class="sub-tag-desc">— ${subPool[s]||s}</span>
+          <span class="remove-sub" onclick="removeSubFromMain('${selMain4Sub}','${s}')">✕</span>
+        </div>`).join(''):'<span style="color:var(--text3);font-size:11px">ยังไม่มี Sub assigned</span>'}
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin:10px 0 6px">เพิ่ม Sub จาก Pool:</div>
+    ${available.length?`
+    <div class="add-row">
+      <div class="select-wrap" style="flex:1">
+        <select id="selAddSub" style="font-size:11px;padding:6px 10px">
+          ${available.map(s=>`<option value="${s}">${s} — ${subPool[s]}</option>`).join('')}
+        </select>
+      </div>
+      <button class="btn-add" onclick="addSubToMain('${selMain4Sub}')">+ Add</button>
+    </div>`:'<div style="color:var(--text3);font-size:11px">Sub ทุกตัวถูก assign แล้ว</div>'}
+  `;
+}
+
+function addMain(){
+  const code=document.getElementById('newMainCode').value.trim().toUpperCase();
+  const desc=document.getElementById('newMainDesc').value.trim();
+  if(!code||!desc){showToast('⚠ กรอก Code และ Description');return;}
+  if(mainDiscs.find(m=>m.code===code)){showToast('⚠ Code นี้มีอยู่แล้ว');return;}
+  mainDiscs.push({code,desc});
+  if(!subMap[code])subMap[code]=['GEN'];
+  document.getElementById('newMainCode').value='';
+  document.getElementById('newMainDesc').value='';
+  renderManage(); renderFilterChips();
+  showToast('✓ Added Main: '+code);
+}
+
+function delMain(code){
+  if(docs.some(d=>d.main===code)){showToast('⚠ ลบไม่ได้ มีเอกสารใช้งานอยู่');return;}
+  if(!confirm(`Delete Main Discipline "${code}"?`))return;
+  mainDiscs=mainDiscs.filter(m=>m.code!==code);
+  delete subMap[code];
+  if(selMain4Sub===code)selMain4Sub=null;
+  renderManage(); renderFilterChips();
+  showToast('✓ Deleted: '+code);
+}
+
+function addSubPool(){
+  const code=document.getElementById('newSubPoolCode').value.trim().toUpperCase();
+  const desc=document.getElementById('newSubPoolDesc').value.trim();
+  if(!code||!desc){showToast('⚠ กรอก Code และ Description');return;}
+  if(subPool[code]){showToast('⚠ Sub code นี้มีอยู่แล้ว');return;}
+  subPool[code]=desc;
+  document.getElementById('newSubPoolCode').value='';
+  document.getElementById('newSubPoolDesc').value='';
+  renderManage(); showToast('✓ Added to Pool: '+code);
+}
+
+function delSubPool(code){
+  if(Object.values(subMap).some(arr=>arr.includes(code))){
+    showToast('⚠ Sub นี้ยังถูกใช้งานอยู่ ลบออกจาก Main ก่อน');return;
+  }
+  if(!confirm(`Remove "${code}" from Sub Pool?`))return;
+  delete subPool[code];
+  renderManage(); showToast('✓ Removed: '+code);
+}
+
+function addSubToMain(mainCode){
+  const sel=document.getElementById('selAddSub'); if(!sel)return;
+  const sub=sel.value; if(!sub)return;
+  if(!subMap[mainCode])subMap[mainCode]=[];
+  if(!subMap[mainCode].includes(sub))subMap[mainCode].push(sub);
+  renderManage(); showToast(`✓ Added ${sub} → ${mainCode}`);
+}
+
+function removeSubFromMain(mainCode,sub){
+  subMap[mainCode]=(subMap[mainCode]||[]).filter(s=>s!==sub);
+  renderManage(); showToast(`✓ Removed ${sub} from ${mainCode}`);
+}
+
+// ── REFERENCE ─────────────────────────────────────────
+function renderReference(){
+  document.getElementById('refContent').innerHTML=`
+    <div style="background:var(--surface2);border:1px solid var(--border);padding:14px 16px;margin-bottom:20px;font-family:var(--mono);">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:6px;letter-spacing:1px">FORMAT</div>
+      <div style="font-size:20px;font-weight:700;letter-spacing:2px">
+        <span style="color:var(--accent)">DDD</span><span style="color:var(--text3)">-</span>
+        <span style="color:var(--accent3)">TSG</span><span style="color:var(--text3)">-</span>
+        <span style="color:var(--accent2)">[MAIN]</span><span style="color:var(--text3)">-</span>
+        <span style="color:#7a3cb4">[SUB]</span><span style="color:var(--text3)">-</span>
+        <span style="color:var(--danger)">[001~999]</span>
+      </div>
+    </div>
+    <div class="ref-grid">
+      <div class="ref-card">
+        <div class="ref-card-title">Main Discipline (Level 3)</div>
+        ${mainDiscs.map(m=>`<div class="ref-row"><span class="ref-code" style="color:var(--accent2)">${m.code}</span><span class="ref-desc">${m.desc}</span></div>`).join('')}
+      </div>
+      <div class="ref-card">
+        <div class="ref-card-title">Sub Discipline Pool (Level 4)</div>
+        ${Object.entries(subPool).map(([c,d])=>`<div class="ref-row"><span class="ref-code">${c}</span><span class="ref-desc">${d}</span></div>`).join('')}
+      </div>
+      <div class="ref-card" style="grid-column:1/-1">
+        <div class="ref-card-title">Main → Sub Mapping</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px">
+          ${mainDiscs.map(m=>`
+            <div style="padding:10px;background:var(--bg);border:1px solid var(--border)">
+              <div style="font-family:var(--mono);font-weight:700;color:var(--accent2);font-size:12px;margin-bottom:6px">${m.code} <span style="color:var(--text3);font-weight:400;font-size:10px">— ${m.desc}</span></div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px">
+                ${(subMap[m.code]||[]).map(s=>`<span style="font-size:10px;font-family:var(--mono);padding:1px 6px;background:var(--surface);border:1px solid var(--border);color:var(--text2)">${s}</span>`).join('')}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── HELPERS ───────────────────────────────────────────
+function switchTab(name,evt){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector('#tab-'+name).classList.add('active');
+  if(evt&&evt.target)evt.target.classList.add('active');
+  if(name==='manage')renderManage();
+  if(name==='reference')renderReference();
+}
+function copyCode(){
+  const code=document.getElementById('resultCode').textContent;
+  navigator.clipboard.writeText(code).catch(()=>{});
+  const btn=document.getElementById('copyBtn');
+  btn.textContent='✓ COPIED'; btn.classList.add('copied');
+  setTimeout(()=>{btn.textContent='⎘ COPY CODE'; btn.classList.remove('copied');},1500);
+  showToast('✓ Copied: '+code);
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+</script>
+</body>
+</html>
