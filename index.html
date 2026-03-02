@@ -906,11 +906,12 @@ function exportPDF(){
   // Column widths: total must = usable (190mm)
   // #=6, DocNo=38, Main=10, Sub=10, Desc=70, Rev=11, Status=12, Date=18, Appr=10, ApprDate=18 => 203 too wide
   // Reduce: #=5, DocNo=36, Main=9, Sub=9, Desc=64, Rev=10, Status=11, Date=18, Appr=9, ApprDate=19 = 190 exact
+  // Per-cell styles: wrap only Description (col 4), all others clip to 1 line
   doc.autoTable({
     startY:26,
     margin:{left:margin,right:margin},
     tableWidth:usable,
-    head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','App','App. Date']],
+    head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','App','App.Date']],
     body:list.map((d,i)=>[
       i+1,
       d.code,
@@ -924,35 +925,44 @@ function exportPDF(){
       d.approved==='yes'?fmtDateShort(d.approvedDate||''):''
     ]),
     styles:{
-      fontSize:7,
-      cellPadding:{top:2,bottom:2,left:2,right:2},
+      fontSize:6,
+      cellPadding:{top:1.5,bottom:1.5,left:1.8,right:1.8},
       font:'helvetica',
-      overflow:'linebreak',
-      minCellHeight:7
+      overflow:'hidden',
+      minCellHeight:0,
+      lineColor:[208,213,221],
+      lineWidth:0.2
     },
     headStyles:{
       fillColor:[26,58,106],
       textColor:255,
       fontStyle:'bold',
-      fontSize:7,
+      fontSize:6.5,
       halign:'center',
-      overflow:'linebreak'
+      overflow:'hidden',
+      minCellHeight:0
     },
     columnStyles:{
-      0:{cellWidth:5, halign:'center'},
-      1:{cellWidth:36},
+      0:{cellWidth:5,  halign:'center'},
+      1:{cellWidth:35, overflow:'hidden'},
       2:{cellWidth:9,  halign:'center'},
       3:{cellWidth:9,  halign:'center'},
-      4:{cellWidth:64},
+      4:{cellWidth:62, overflow:'linebreak'},
       5:{cellWidth:10, halign:'center'},
-      6:{cellWidth:11, halign:'center'},
+      6:{cellWidth:12, halign:'center'},
       7:{cellWidth:18, halign:'center'},
       8:{cellWidth:9,  halign:'center'},
-      9:{cellWidth:19, halign:'center'}
+      9:{cellWidth:21, halign:'center'}
     },
     alternateRowStyles:{fillColor:[245,246,248]},
+    didParseCell:function(data){
+      // Force single line for all columns except Description (col 4)
+      if(data.section==='body' && data.column.index !== 4){
+        data.cell.styles.overflow='hidden';
+      }
+    },
     didDrawPage:function(data){
-      doc.setFontSize(7);
+      doc.setFontSize(6.5);
       doc.setTextColor(140,146,160);
       doc.text('Energy Services Co., Ltd.  |  Page '+data.pageNumber,pw/2,doc.internal.pageSize.getHeight()-5,{align:'center'});
     }
