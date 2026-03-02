@@ -187,6 +187,9 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     if(el){el.textContent='🔴 Offline';el.style.color='#D93025';}
   });
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -220,6 +223,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       <div class="tab" onclick="switchTab('reference',this)">Reference</div>
     </div>
 
+      <div class="export-bar">
+        <span class="export-label">EXPORT</span>
+        <button class="btn-export btn-xlsx" onclick="exportXLSX()">&#8600; XLSX</button>
+        <button class="btn-export btn-pdf" onclick="exportPDF()">&#8600; PDF</button>
+      </div>
     <!-- TAB: ALL -->
     <div class="tab-panel active" id="tab-all">
       <div class="stats">
@@ -826,6 +834,82 @@ function renderReference(){
         </div>
       </div>
     </div>`;
+}
+
+// ── EXPORT ───────────────────────────────────────────
+const TAB_LABELS={all:'All Documents',des:'Design & Drawing',mat:'Material Supply',install:'Installation & Commissioning',rq:'Requisition (RQ)'};
+function getExportData(){
+  const map={
+    all:docs,
+    des:docs.filter(d=>d.main==='DES'),
+    mat:docs.filter(d=>MAT_MAINS.includes(d.main)),
+    install:docs.filter(d=>INSTALL_MAINS.includes(d.main)),
+    rq:docs.filter(isRQ)
+  };
+  return {list:map[currentTab]||docs, label:TAB_LABELS[currentTab]||'Documents'};
+}
+function exportXLSX(){
+  const {list,label}=getExportData();
+  if(!list.length){showToast('No documents to export');return;}
+  const head=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','Approved','Approved Date'];
+  const rows=list.map((d,i)=>[i+1,d.code,d.main,d.sub,d.desc||'',d.rev,d.status||'',d.date||'',d.approved==='yes'?'Yes':'No',d.approved==='yes'?(d.approvedDate||''):'']);
+  const titleRows=[
+    ['DDD-TSG Co-Gen Project — ENG Document Register'],
+    ['Tab: '+label+' | Exported: '+new Date().toLocaleDateString('en-GB')+'  | Total: '+list.length+' docs'],
+    [],
+    head,
+    ...rows
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(titleRows);
+  ws['!cols']=[{wch:4},{wch:30},{wch:7},{wch:7},{wch:50},{wch:7},{wch:9},{wch:13},{wch:9},{wch:14}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,label.substring(0,31));
+  XLSX.writeFile(wb,'DDD-TSG-'+currentTab.toUpperCase()+'-'+new Date().toISOString().slice(0,10)+'.xlsx');
+  showToast('Exported XLSX');
+}
+function exportPDF(){
+  const {list,label}=getExportData();
+  if(!list.length){showToast('No documents to export');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const pw=doc.internal.pageSize.getWidth();
+  doc.setFillColor(26,58,106);
+  doc.rect(0,0,pw,22,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(12);
+  doc.text('DDD-TSG Co-Gen — ENG Document Register',14,10);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.text('Tab: '+label,14,17);
+  doc.text('Exported: '+new Date().toLocaleDateString('en-GB')+'  | '+list.length+' docs',pw-14,17,{align:'right'});
+  doc.autoTable({
+    startY:26,
+    head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','Appr.','Appr. Date']],
+    body:list.map((d,i)=>[i+1,d.code,d.main,d.sub,d.desc||'',d.rev,d.status||'',d.date||'',d.approved==='yes'?'Yes':'',d.approved==='yes'?(d.approvedDate||''):'']),
+    styles:{fontSize:7,cellPadding:1.8,font:'helvetica',overflow:'linebreak'},
+    headStyles:{fillColor:[26,58,106],textColor:255,fontStyle:'bold',fontSize:7.5},
+    columnStyles:{
+      0:{cellWidth:6,halign:'center'},
+      1:{cellWidth:36},
+      2:{cellWidth:9,halign:'center'},
+      3:{cellWidth:9,halign:'center'},
+      4:{cellWidth:54},
+      5:{cellWidth:10,halign:'center'},
+      6:{cellWidth:11,halign:'center'},
+      7:{cellWidth:15,halign:'center'},
+      8:{cellWidth:9,halign:'center'},
+      9:{cellWidth:17,halign:'center'}
+    },
+    alternateRowStyles:{fillColor:[245,246,248]},
+    didDrawPage:function(data){
+      doc.setFontSize(7);
+      doc.setTextColor(140,146,160);
+      doc.text('Energy Services Co., Ltd.  |  Page '+data.pageNumber,pw/2,doc.internal.pageSize.getHeight()-5,{align:'center'});
+    }
+  });
+  doc.save('DDD-TSG-'+currentTab.toUpperCase()+'-'+new Date().toISOString().slice(0,10)+'.pdf');
+  showToast('Exported PDF');
 }
 </script>
 </body>
