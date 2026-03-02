@@ -868,16 +868,22 @@ function exportXLSX(){
   showToast('Exported XLSX');
 }
 function fmtDateShort(d){
-  // Convert dd/mm/yyyy or dd Mon yyyy -> dd/mm/yy to keep short
   if(!d)return '';
-  // already dd/mm/yyyy format
-  const m=d.match(/^(\d{2})\/?(\w+)\/?(\d{2,4})$/);
-  if(m){
-    const yr=m[3].length===4?m[3].slice(2):m[3];
-    // month name -> number
-    const months={Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'};
-    const mn=months[m[2]]||m[2].padStart(2,'0');
-    return m[1]+'/'+mn+'/'+yr;
+  const months={Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',
+                Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'};
+  // Format: "02 Mar 2026" or "02 Mar 26"
+  const m1=d.match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{2,4})$/);
+  if(m1){
+    const dd=m1[1].padStart(2,'0');
+    const mm=months[m1[2]]||'00';
+    const yy=m1[3].length===4?m1[3].slice(2):m1[3];
+    return dd+'/'+mm+'/'+yy;
+  }
+  // Format: "26/02/2026" or "26/02/26"
+  const m2=d.match(/^(\d{2})\/(\d{2})\/(\d{2,4})$/);
+  if(m2){
+    const yy=m2[3].length===4?m2[3].slice(2):m2[3];
+    return m2[1]+'/'+m2[2]+'/'+yy;
   }
   return d;
 }
