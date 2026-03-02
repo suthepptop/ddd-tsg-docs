@@ -215,6 +215,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       <div class="tab" onclick="switchTab('des',this)">DES</div>
       <div class="tab" onclick="switchTab('mat',this)">MAT</div>
       <div class="tab" onclick="switchTab('install',this)">INSTALL</div>
+      <div class="tab" onclick="switchTab('rq',this)">RQ</div>
       <div class="tab" onclick="switchTab('manage',this)">⚙ Codes</div>
       <div class="tab" onclick="switchTab('reference',this)">Reference</div>
     </div>
@@ -246,6 +247,16 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="log-count" id="cntMat">0 docs</div>
       </div>
       <div class="tbl-wrap" id="wrapMat"></div>
+    </div>
+
+
+    <!-- TAB: RQ -->
+    <div class="tab-panel" id="tab-rq">
+      <div class="log-header">
+        <div class="log-title">Requisition Documents</div>
+        <div class="log-count" id="cntRq">0 docs</div>
+      </div>
+      <div class="tbl-wrap" id="wrapRq"></div>
     </div>
 
     <!-- TAB: INSTALL -->
@@ -311,8 +322,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
           <span class="fmt-tsg">TSG</span><span class="fmt-sep">-</span>
           <span class="fmt-main" id="fmtMain">ELC</span><span class="fmt-sep">-</span>
           <span class="fmt-sub" id="fmtSub">SUB</span><span class="fmt-sep">-</span>
-          <span class="fmt-num" id="fmtNum">001</span><span class="fmt-sep">-</span>
-          <span style="color:var(--text3);font-style:italic">xxxx</span>
+          <span class="fmt-num" id="fmtNum">001</span>
         </div>
         <div class="format-line" id="fmtLineDES" style="display:none">
           <span class="fmt-tsg">TSG25</span><span class="fmt-sep">-</span>
@@ -483,6 +493,8 @@ let subMap = {
 
 // MAT disciplines
 const MAT_MAINS = ['ELC','INS','GND','LGT','CCTV','MAT'];
+// RQ filter: DES with sub RQ
+function isRQ(d){ return d.main==='DES' && d.sub==='RQ'; }
 // INSTALL disciplines
 const INSTALL_MAINS = ['PRG','COM','DOC'];
 
@@ -536,7 +548,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 // ── HELPERS ──────────────────────────────────────────
 function peekNum(m,s){return(counters[m+'-'+s]||0)+1;}
 function getNextNum(m,s){const k=m+'-'+s;counters[k]=(counters[k]||0)+1;return counters[k];}
-function fmt3(n){return String(n).padStart(3,'0');}
+function fmt4(n){return String(n).padStart(4,'0');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 // ── TABS ─────────────────────────────────────────────
@@ -591,6 +603,9 @@ function renderAllTabs(){
   document.getElementById('wrapMat').innerHTML=buildTable(matDocs);
   document.getElementById('cntInstall').textContent=`${instDocs.length} docs`;
   document.getElementById('wrapInstall').innerHTML=buildTable(instDocs);
+  const rqDocs=docs.filter(isRQ);
+  document.getElementById('cntRq').textContent=`${rqDocs.length} docs`;
+  document.getElementById('wrapRq').innerHTML=buildTable(rqDocs);
 }
 function renderTable(){renderAllTabs();}
 function renderFilterChips(){}
@@ -619,13 +634,13 @@ function updatePreview(){
   const md=mainDiscs.find(m=>m.code===main)?.desc||main;
   const sd=subPool[sub]||sub;
   const desDrw=isDesDrw(main,sub);
-  const code=desDrw?getDesCode(sub,num):`DDD-TSG-${main}-${sub}-${fmt3(num)}-xxxx`;
+  const code=desDrw?getDesCode(sub,num):`DDD-TSG-${main}-${sub}-${fmt4(num)}`;
   document.getElementById('fmtLineStd').style.display=desDrw?'none':'flex';
   document.getElementById('fmtLineDES').style.display=desDrw?'flex':'none';
   document.getElementById('fmtDescStd').style.display=desDrw?'none':'block';
   document.getElementById('fmtDescDES').style.display=desDrw?'block':'none';
   if(desDrw){document.getElementById('fmtSeries').textContent=String((DES_SERIES[sub]||1)+(num-1)).padStart(2,'0');}
-  else{document.getElementById('fmtMain').textContent=main;document.getElementById('fmtSub').textContent=sub;document.getElementById('fmtNum').textContent=fmt3(num);}
+  else{document.getElementById('fmtMain').textContent=main;document.getElementById('fmtSub').textContent=sub;document.getElementById('fmtNum').textContent=fmt4(num);}
   document.getElementById('resultCode').textContent=code;
   const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   document.getElementById('resultMeta').innerHTML=`
@@ -646,7 +661,7 @@ function addDocument(){
   if(ov){num=parseInt(ov);const k=main+'-'+sub;if(num>(counters[k]||0))counters[k]=num;}
   else{num=getNextNum(main,sub);}
   const desDrw=isDesDrw(main,sub);
-  const code=desDrw?getDesCode(sub,num):`DDD-TSG-${main}-${sub}-${fmt3(num)}-xxxx`;
+  const code=desDrw?getDesCode(sub,num):`DDD-TSG-${main}-${sub}-${fmt4(num)}`;
   const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:''};
   docs.push(newDoc);
