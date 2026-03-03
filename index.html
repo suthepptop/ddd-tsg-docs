@@ -76,6 +76,10 @@ td.doc-desc{color:var(--text2);max-width:300px;}
 .del-btn{color:var(--text3);} .del-btn:hover{border-color:var(--danger);color:var(--danger);}
 .edit-btn{color:var(--text3);} .edit-btn:hover{border-color:var(--accent3);color:var(--accent3);}
 
+/* FILE ICON LINK */
+.file-icon{text-decoration:none;font-size:14px;display:inline-block;transition:all 0.15s;}
+.file-icon:hover{transform:scale(1.1);opacity:0.8;}
+
 /* LOG HEADERS */
 .log-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .log-title{font-size:13px;font-weight:600;}
@@ -180,7 +184,6 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   const colRef = collection(db, 'documents');
   
   // ============================================
-  // HARDCODED ADMIN EMAIL
   const ADMIN_EMAIL = "suthepp.top@gmail.com"; 
   // ============================================
 
@@ -417,6 +420,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       <input type="text" id="inpDate" placeholder="เช่น 03 Mar 2026 หรือ 26/02/2026" oninput="updatePreview()">
     </div>
     <div class="field-group">
+      <div class="field-label">FILE LINK (URL)</div>
+      <div class="field-sub">Google Drive, OneDrive, ฯลฯ</div>
+      <input type="text" id="inpFileUrl" placeholder="https://..." oninput="updatePreview()">
+    </div>
+    <div class="field-group">
       <div class="field-label">OVERRIDE NO.</div>
       <div class="field-sub">ปล่อยว่าง = Auto</div>
       <input type="number" id="inpOverride" min="1" max="999" placeholder="Auto" oninput="updatePreview()">
@@ -471,6 +479,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     <div class="modal-field">
       <div class="modal-label">Date Issued</div>
       <input type="text" id="editIssuedDate" placeholder="dd/mm/yyyy" style="width:100%;padding:7px;border:1px solid var(--border);font-size:12px;background:var(--bg);color:var(--text)">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">File Link (URL)</div>
+      <input type="text" id="editFileUrl" placeholder="https://..." style="width:100%;padding:7px;border:1px solid var(--border);font-size:12px;background:var(--bg);color:var(--text)">
     </div>
     <div class="modal-field">
       <div class="modal-label">Approved</div>
@@ -545,35 +557,35 @@ let activeFilters = { code:'', main:'', sub:'', desc:'', rev:'', status:'' };
 
 // ── PRE-LISTED DOCUMENTS FROM IMAGE ──────────────────
 let docs = [
-  {id:1001,code:'TSG25-ECG00-00',main:'DES',sub:'GEN',desc:'List of Drawing',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1002,code:'TSG25-ECG00-01',main:'DES',sub:'SLD',desc:'SINGLE LINE DIAGRAM',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1003,code:'TSG25-ECG00-02',main:'DES',sub:'SLD',desc:'LOAD SCHEDULE SHEET 1 OF 2',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1004,code:'TSG25-ECG00-03',main:'DES',sub:'SLD',desc:'LOAD SCHEDULE SHEET 2 OF 2',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1005,code:'TSG25-ECG00-04',main:'DES',sub:'SLD',desc:'RISER DIAGRAM',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1006,code:'TSG25-ECG00-05',main:'DES',sub:'LTG',desc:'Diagram for Lightning Protection',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1007,code:'TSG25-ECG00-30',main:'DES',sub:'LTG',desc:'Lightning Protection System Reference Plan',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1008,code:'TSG25-ECG00-31',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Ground Level',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1009,code:'TSG25-ECG00-32',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System 1st Level',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1010,code:'TSG25-ECG00-33',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Roof Level',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1011,code:'TSG25-ECG00-34',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Section A-A',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1012,code:'TSG25-ECG00-35',main:'DES',sub:'LTG',desc:'AC2 Lightning Protection System 1st Level',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1013,code:'TSG25-ECG00-36',main:'DES',sub:'LTG',desc:'Lightning Protection Typical Detail',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1014,code:'TSG25-ECG00-40',main:'DES',sub:'GND',desc:'Grounding and Bonding System Reference Plan',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1015,code:'TSG25-ECG00-41',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 1 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1016,code:'TSG25-ECG00-42',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 2 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1017,code:'TSG25-ECG00-43',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 3 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1018,code:'TSG25-ECG00-44',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 4 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1019,code:'TSG25-ECG00-45',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 5 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1020,code:'TSG25-ECG00-46',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 6 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1021,code:'TSG25-ECG00-47',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 7 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1022,code:'TSG25-ECG00-48',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 8 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1023,code:'TSG25-ECG00-49',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 9 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1024,code:'TSG25-ECG00-50',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 10 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1025,code:'TSG25-ECG00-51',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 11 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1026,code:'TSG25-ECG00-52',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 12 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1027,code:'TSG25-ECG00-53',main:'DES',sub:'GND',desc:'Grounding and Bonding System Typical Detail',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1028,code:'DDD-TSG-DES-GEN-0001',main:'DES',sub:'GEN',desc:'คำนวณความต้านทานดิน',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1029,code:'DDD-TSG-DES-RQ-02-0001',main:'DES',sub:'RQ02',desc:'Material for steam transformaer building ground grid installation',rev:'Rev.0',status:'IFA',date:'03 Mar 2026',approved:'no',approvedDate:''}
+  {id:1001,code:'TSG25-ECG00-00',main:'DES',sub:'GEN',desc:'List of Drawing',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1002,code:'TSG25-ECG00-01',main:'DES',sub:'SLD',desc:'SINGLE LINE DIAGRAM',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1003,code:'TSG25-ECG00-02',main:'DES',sub:'SLD',desc:'LOAD SCHEDULE SHEET 1 OF 2',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1004,code:'TSG25-ECG00-03',main:'DES',sub:'SLD',desc:'LOAD SCHEDULE SHEET 2 OF 2',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1005,code:'TSG25-ECG00-04',main:'DES',sub:'SLD',desc:'RISER DIAGRAM',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1006,code:'TSG25-ECG00-05',main:'DES',sub:'LTG',desc:'Diagram for Lightning Protection',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1007,code:'TSG25-ECG00-30',main:'DES',sub:'LTG',desc:'Lightning Protection System Reference Plan',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1008,code:'TSG25-ECG00-31',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Ground Level',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1009,code:'TSG25-ECG00-32',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System 1st Level',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1010,code:'TSG25-ECG00-33',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Roof Level',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1011,code:'TSG25-ECG00-34',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Section A-A',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1012,code:'TSG25-ECG00-35',main:'DES',sub:'LTG',desc:'AC2 Lightning Protection System 1st Level',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1013,code:'TSG25-ECG00-36',main:'DES',sub:'LTG',desc:'Lightning Protection Typical Detail',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1014,code:'TSG25-ECG00-40',main:'DES',sub:'GND',desc:'Grounding and Bonding System Reference Plan',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1015,code:'TSG25-ECG00-41',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 1 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1016,code:'TSG25-ECG00-42',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 2 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1017,code:'TSG25-ECG00-43',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 3 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1018,code:'TSG25-ECG00-44',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 4 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1019,code:'TSG25-ECG00-45',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 5 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1020,code:'TSG25-ECG00-46',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 6 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1021,code:'TSG25-ECG00-47',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 7 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1022,code:'TSG25-ECG00-48',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 8 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1023,code:'TSG25-ECG00-49',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 9 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1024,code:'TSG25-ECG00-50',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 10 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1025,code:'TSG25-ECG00-51',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 11 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1026,code:'TSG25-ECG00-52',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 12 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1027,code:'TSG25-ECG00-53',main:'DES',sub:'GND',desc:'Grounding and Bonding System Typical Detail',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1028,code:'DDD-TSG-DES-GEN-0001',main:'DES',sub:'GEN',desc:'คำนวณความต้านทานดิน',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
+  {id:1029,code:'DDD-TSG-DES-RQ-02-0001',main:'DES',sub:'RQ02',desc:'Material for steam transformaer building ground grid installation',rev:'Rev.0',status:'IFA',date:'03 Mar 2026',approved:'no',approvedDate:'',fileUrl:''}
 ];
 
 const DES_SERIES = {SLD:1,SCH:2,LAY:10,HOK:20,PNL:21,LTG:30,GND:40,LGT:60,CCL:80};
@@ -658,6 +670,7 @@ function buildTable(list){
         <th style="cursor:pointer" onclick="handleSort('rev')">Rev ↕</th>
         <th style="cursor:pointer" onclick="handleSort('status')">Status ↕</th>
         <th style="cursor:pointer" onclick="handleSort('date')">Date Issued ↕</th>
+        <th style="text-align:center">File</th>
         <th>Approved</th>
         <th>App. Date</th>
         <th></th>
@@ -670,7 +683,7 @@ function buildTable(list){
         <th><input type="text" placeholder="Filter..." style="padding:4px;font-size:9px;width:100%" oninput="handleFilter('desc', this.value)" value="${activeFilters.desc}"></th>
         <th><input type="text" placeholder="Filter..." style="padding:4px;font-size:9px;width:40px" oninput="handleFilter('rev', this.value)" value="${activeFilters.rev}"></th>
         <th><input type="text" placeholder="Filter..." style="padding:4px;font-size:9px;width:50px" oninput="handleFilter('status', this.value)" value="${activeFilters.status}"></th>
-        <th colspan="4"></th>
+        <th colspan="5"></th>
       </tr>
     </thead>
     <tbody>
@@ -683,6 +696,11 @@ function buildTable(list){
     <td><span class="rev-badge">${d.rev}</span></td>
     <td style="font-family:var(--mono);font-size:10px;font-weight:700;color:${STATUS_C[d.status]||'#888'}">${d.status||'—'}</td>
     <td style="font-size:10px;color:var(--text3);white-space:nowrap">${d.date||'—'}</td>
+    
+    <td style="text-align:center">
+      ${d.fileUrl ? `<a href="${d.fileUrl}" target="_blank" class="file-icon" title="Open Document">📄</a>` : `<span style="color:#ccc">-</span>`}
+    </td>
+
     <td style="text-align:center;font-size:11px;font-weight:700;color:${d.approved==='yes'?'#2A9D3A':'#CCC'}">${d.approved==='yes'?'✓':'—'}</td>
     <td style="font-size:10px;color:#2A9D3A;white-space:nowrap">${d.approved==='yes'?(d.approvedDate||''):'—'}</td>
     <td style="white-space:nowrap">
@@ -766,6 +784,7 @@ function addDocument(){
   const desc=document.getElementById('inpDesc').value;
   const ov=document.getElementById('inpOverride').value;
   const inputDate = document.getElementById('inpDate').value.trim();
+  const fileUrl = document.getElementById('inpFileUrl').value.trim();
   
   let num;
   if(ov){num=parseInt(ov);const k=main+'-'+sub;if(num>(counters[k]||0))counters[k]=num;}
@@ -775,13 +794,14 @@ function addDocument(){
   const code=desDrw?getDesCode(sub,num):`DDD-TSG-${main}-${sub}-${fmt4(num)}`;
   const ds=inputDate || new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   
-  const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:''};
+  const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:'',fileUrl};
   docs.push(newDoc);
   if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(newDoc.id)),newDoc);
   
   document.getElementById('inpDesc').value='';
   document.getElementById('inpOverride').value='';
   document.getElementById('inpDate').value='';
+  document.getElementById('inpFileUrl').value='';
   renderAllTabs(); updatePreview();
   showToast('✓ Added: '+code);
 }
@@ -804,6 +824,7 @@ function openModal(id){
   document.getElementById('editRev').value=d.rev;
   document.getElementById('editStatus').value=d.status||'IFA';
   document.getElementById('editIssuedDate').value=d.date||'';
+  document.getElementById('editFileUrl').value=d.fileUrl||'';
   
   const approved=d.approved==='yes';
   document.getElementById('editApprovedYes').checked=approved;
@@ -821,6 +842,7 @@ function saveEdit(){
   d.rev=document.getElementById('editRev').value;
   d.status=document.getElementById('editStatus').value;
   d.date=document.getElementById('editIssuedDate').value.trim();
+  d.fileUrl=document.getElementById('editFileUrl').value.trim();
   d.approved=document.getElementById('editApprovedYes').checked?'yes':'no';
   d.approvedDate=d.approved==='yes'?document.getElementById('editApprovedDate').value:'';
   if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(d.id)),d);
@@ -970,8 +992,8 @@ function exportXLSX(){
   const {list,label}=getExportData();
   const processed = processList(list); 
   if(!processed.length){showToast('No documents to export');return;}
-  const head=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','Approved','Approved Date'];
-  const rows=processed.map((d,i)=>[i+1,d.code,d.main,d.sub,d.desc||'',d.rev,d.status||'',d.date||'',d.approved==='yes'?'Yes':'No',d.approved==='yes'?(d.approvedDate||''):'']);
+  const head=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','File URL','Approved','Approved Date'];
+  const rows=processed.map((d,i)=>[i+1,d.code,d.main,d.sub,d.desc||'',d.rev,d.status||'',d.date||'',d.fileUrl||'',d.approved==='yes'?'Yes':'No',d.approved==='yes'?(d.approvedDate||''):'']);
   const titleRows=[
     ['DDD-TSG Co-Gen Project — ENG Document Register'],
     ['Tab: '+label+' | Exported: '+new Date().toLocaleDateString('en-GB')+'  | Total: '+processed.length+' docs'],
@@ -980,7 +1002,7 @@ function exportXLSX(){
     ...rows
   ];
   const ws=XLSX.utils.aoa_to_sheet(titleRows);
-  ws['!cols']=[{wch:4},{wch:30},{wch:7},{wch:7},{wch:50},{wch:7},{wch:9},{wch:13},{wch:9},{wch:14}];
+  ws['!cols']=[{wch:4},{wch:30},{wch:7},{wch:7},{wch:50},{wch:7},{wch:9},{wch:13},{wch:40},{wch:9},{wch:14}];
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,label.substring(0,31));
   XLSX.writeFile(wb,'DDD-TSG-'+currentTab.toUpperCase()+'-'+new Date().toISOString().slice(0,10)+'.xlsx');
@@ -1009,7 +1031,7 @@ function exportPDF(){
   const processed = processList(list); 
   if(!processed.length){showToast('No documents to export');return;}
   const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
   const pw=doc.internal.pageSize.getWidth();
   const margin=10;
   const usable=pw-margin*2; 
@@ -1029,7 +1051,7 @@ function exportPDF(){
     startY:26,
     margin:{left:margin,right:margin},
     tableWidth:usable,
-    head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','App','App.Date']],
+    head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','File Link','App','App.Date']],
     body:processed.map((d,i)=>[
       i+1,
       d.code,
@@ -1039,6 +1061,7 @@ function exportPDF(){
       d.rev,
       d.status||'',
       fmtDateShort(d.date),
+      d.fileUrl||'',
       d.approved==='yes'?'Yes':'',
       d.approved==='yes'?fmtDateShort(d.approvedDate||''):''
     ]),
@@ -1061,16 +1084,17 @@ function exportPDF(){
       minCellHeight:0
     },
     columnStyles:{
-      0:{cellWidth:10, halign:'center'},
+      0:{cellWidth:8, halign:'center'},
       1:{cellWidth:30, overflow:'hidden'},
       2:{cellWidth:9,  halign:'center'},
       3:{cellWidth:9,  halign:'center'},
-      4:{cellWidth:62, overflow:'linebreak'},
+      4:{cellWidth:60, overflow:'linebreak'},
       5:{cellWidth:10, halign:'center'},
       6:{cellWidth:12, halign:'center'},
-      7:{cellWidth:18, halign:'center'},
-      8:{cellWidth:9,  halign:'center'},
-      9:{cellWidth:21, halign:'center'}
+      7:{cellWidth:15, halign:'center'},
+      8:{cellWidth:40, overflow:'hidden'},
+      9:{cellWidth:8,  halign:'center'},
+      10:{cellWidth:15, halign:'center'}
     },
     alternateRowStyles:{fillColor:[245,246,248]},
     didParseCell:function(data){
