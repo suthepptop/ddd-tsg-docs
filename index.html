@@ -180,7 +180,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   const colRef = collection(db, 'documents');
   
   // ============================================
-  // CHANGE THIS TO YOUR ACTUAL GOOGLE EMAIL
+  // HARDCODED ADMIN EMAIL
   const ADMIN_EMAIL = "suthepp.top@gmail.com"; 
   // ============================================
 
@@ -412,6 +412,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       </div>
     </div>
     <div class="field-group">
+      <div class="field-label">DATE ISSUED</div>
+      <div class="field-sub">ปล่อยว่าง = อัตโนมัติ (วันนี้)</div>
+      <input type="text" id="inpDate" placeholder="เช่น 03 Mar 2026 หรือ 26/02/2026" oninput="updatePreview()">
+    </div>
+    <div class="field-group">
       <div class="field-label">OVERRIDE NO.</div>
       <div class="field-sub">ปล่อยว่าง = Auto</div>
       <input type="number" id="inpOverride" min="1" max="999" placeholder="Auto" oninput="updatePreview()">
@@ -462,6 +467,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
           <option value="VOID">VOID — Void / Cancelled</option>
         </select>
       </div>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Date Issued</div>
+      <input type="text" id="editIssuedDate" placeholder="dd/mm/yyyy" style="width:100%;padding:7px;border:1px solid var(--border);font-size:12px;background:var(--bg);color:var(--text)">
     </div>
     <div class="modal-field">
       <div class="modal-label">Approved</div>
@@ -725,6 +734,9 @@ function updatePreview(){
   const status=document.getElementById('selStatus').value;
   const desc=document.getElementById('inpDesc').value;
   const ov=document.getElementById('inpOverride').value;
+  const inputDate = document.getElementById('inpDate').value.trim();
+  const ds = inputDate || new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  
   const num=ov?parseInt(ov):peekNum(main,sub);
   const md=mainDiscs.find(m=>m.code===main)?.desc||main;
   const sd=subPool[sub]||sub;
@@ -741,6 +753,7 @@ function updatePreview(){
     <div class="result-meta-row"><span>Main:</span>${md}</div>
     <div class="result-meta-row"><span>Sub:</span>${sd}</div>
     <div class="result-meta-row"><span>Rev:</span>${rev} | <span>Status:</span>${status}</div>
+    <div class="result-meta-row"><span>Date:</span>${ds}</div>
     ${desc?`<div class="result-meta-row"><span>Desc:</span>${desc}</div>`:''}`;
 }
 
@@ -752,17 +765,23 @@ function addDocument(){
   const status=document.getElementById('selStatus').value;
   const desc=document.getElementById('inpDesc').value;
   const ov=document.getElementById('inpOverride').value;
+  const inputDate = document.getElementById('inpDate').value.trim();
+  
   let num;
   if(ov){num=parseInt(ov);const k=main+'-'+sub;if(num>(counters[k]||0))counters[k]=num;}
   else{num=getNextNum(main,sub);}
+  
   const desDrw=isDesDrw(main,sub);
   const code=desDrw?getDesCode(sub,num):`DDD-TSG-${main}-${sub}-${fmt4(num)}`;
-  const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const ds=inputDate || new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  
   const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:''};
   docs.push(newDoc);
   if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(newDoc.id)),newDoc);
+  
   document.getElementById('inpDesc').value='';
   document.getElementById('inpOverride').value='';
+  document.getElementById('inpDate').value='';
   renderAllTabs(); updatePreview();
   showToast('✓ Added: '+code);
 }
@@ -784,6 +803,8 @@ function openModal(id){
   document.getElementById('editDesc').value=d.desc;
   document.getElementById('editRev').value=d.rev;
   document.getElementById('editStatus').value=d.status||'IFA';
+  document.getElementById('editIssuedDate').value=d.date||'';
+  
   const approved=d.approved==='yes';
   document.getElementById('editApprovedYes').checked=approved;
   document.getElementById('editApprovedNo').checked=!approved;
@@ -799,6 +820,7 @@ function saveEdit(){
   d.desc=document.getElementById('editDesc').value;
   d.rev=document.getElementById('editRev').value;
   d.status=document.getElementById('editStatus').value;
+  d.date=document.getElementById('editIssuedDate').value.trim();
   d.approved=document.getElementById('editApprovedYes').checked?'yes':'no';
   d.approvedDate=d.approved==='yes'?document.getElementById('editApprovedDate').value:'';
   if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(d.id)),d);
@@ -946,7 +968,7 @@ function getExportData(){
 }
 function exportXLSX(){
   const {list,label}=getExportData();
-  const processed = processList(list); // Use the sorted/filtered list
+  const processed = processList(list); 
   if(!processed.length){showToast('No documents to export');return;}
   const head=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','Approved','Approved Date'];
   const rows=processed.map((d,i)=>[i+1,d.code,d.main,d.sub,d.desc||'',d.rev,d.status||'',d.date||'',d.approved==='yes'?'Yes':'No',d.approved==='yes'?(d.approvedDate||''):'']);
@@ -984,7 +1006,7 @@ function fmtDateShort(d){
 }
 function exportPDF(){
   const {list,label}=getExportData();
-  const processed = processList(list); // Use sorted/filtered list
+  const processed = processList(list); 
   if(!processed.length){showToast('No documents to export');return;}
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
