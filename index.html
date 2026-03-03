@@ -59,6 +59,7 @@ tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
 tbody tr:hover{background:var(--surface2);}
 tbody td{padding:7px 10px;color:var(--text2);vertical-align:middle;}
 td.doc-code{font-family:var(--mono);font-weight:600;color:var(--text);font-size:11px;white-space:nowrap;}
+
 .tag{display:inline-block;padding:1px 6px;font-size:9px;font-family:var(--mono);font-weight:600;background:rgba(26,111,212,0.1);color:#1a6fd4;}
 .rev-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:1px 5px;background:rgba(26,111,212,0.08);color:var(--accent3);border:1px solid rgba(26,111,212,0.2);}
 .del-btn,.edit-btn{background:transparent;border:1px solid transparent;cursor:pointer;font-size:11px;padding:2px 5px;transition:all 0.15s;font-family:var(--mono);}
@@ -73,26 +74,25 @@ td.doc-code{font-family:var(--mono);font-weight:600;color:var(--text);font-size:
 .btn-xlsx{color:#2A9D3A;border-color:rgba(42,157,58,0.4);}
 .btn-pdf{color:#D93025;border-color:rgba(217,48,37,0.4);}
 
-/* ADD PANEL ELEMENTS */
+/* ADD PANEL */
 .section-label{font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:4px;}
 .field-group{display:flex;flex-direction:column;gap:5px;}
 .field-label{font-size:10px;font-weight:600;color:var(--text2);letter-spacing:0.5px;}
 .field-sub{font-size:9px;color:var(--text3);margin-top:-3px;}
 select,input[type="number"],input[type="text"]{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-family:var(--mono);font-size:12px;width:100%;appearance:none;}
+select:focus,input:focus{outline:none;border-color:var(--accent);}
 .select-wrap{position:relative;}
 .select-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;font-size:10px;}
 .result-box{background:var(--bg);border:1px solid var(--accent);padding:12px;}
 .result-label{font-size:9px;color:var(--accent);font-weight:600;letter-spacing:1px;margin-bottom:6px;}
 .result-code{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);letter-spacing:1px;word-break:break-all;margin-bottom:6px;}
+.result-meta{display:flex;flex-direction:column;gap:2px;}
+.result-meta-row{font-size:9px;color:var(--text3);display:flex;gap:6px;}
+.result-meta-row span:first-child{color:var(--text2);font-weight:600;min-width:50px;}
 .copy-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:3px 8px;font-size:9px;font-family:var(--mono);cursor:pointer;margin-top:8px;}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
 .gen-btn{background:var(--accent);color:#fff;border:none;padding:9px;font-family:var(--mono);font-weight:700;font-size:11px;cursor:pointer;width:100%;text-transform:uppercase;}
-
-/* TOAST & MODAL */
-.toast{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--accent2);color:var(--accent2);padding:8px 14px;font-size:11px;font-family:var(--mono);z-index:999;transform:translateY(80px);opacity:0;transition:all 0.25s;pointer-events:none;box-shadow:0 2px 12px rgba(0,0,0,0.1);}
-.toast.show{transform:translateY(0);opacity:1;}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:200;align-items:center;justify-content:center;}
-.modal-overlay.open{display:flex;}
-.modal{background:var(--surface);border:1px solid var(--border);padding:24px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.15);}
+.gen-btn:hover{opacity:0.85;}
 
 /* FORMAT DISPLAY */
 .format-display{background:var(--bg);border:1px solid var(--border);padding:10px 12px;font-family:var(--mono);margin-bottom:4px;}
@@ -136,6 +136,20 @@ select,input[type="number"],input[type="text"]{background:var(--bg);border:1px s
 
 .empty{text-align:center;padding:50px 20px;color:var(--text3);}
 .empty-icon{font-size:28px;margin-bottom:10px;opacity:0.4;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--accent2);color:var(--accent2);padding:8px 14px;font-size:11px;font-family:var(--mono);z-index:999;transform:translateY(80px);opacity:0;transition:all 0.25s;pointer-events:none;box-shadow:0 2px 12px rgba(0,0,0,0.1);}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);padding:24px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.15);}
+.modal-title{font-size:13px;font-weight:600;margin-bottom:14px;}
+.modal-field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.modal-label{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+
 </style>
 
 <script type="module">
@@ -543,6 +557,37 @@ window.sortCol = 'id';
 window.sortAsc = true;
 window.activeFilters = { code:'', main:'', sub:'', desc:'', rev:'', status:'' };
 
+// ── FIXED TABLE HEADERS (Preserves Input Focus) ──
+const tableHeaderHTML = `
+  <thead>
+    <tr>
+      <th>#</th>
+      <th style="cursor:pointer" onclick="handleSort('code')">Doc No. ↕</th>
+      <th style="cursor:pointer" onclick="handleSort('main')">Main ↕</th>
+      <th style="cursor:pointer" onclick="handleSort('sub')">Sub ↕</th>
+      <th style="cursor:pointer" onclick="handleSort('desc')">Description ↕</th>
+      <th style="cursor:pointer" onclick="handleSort('rev')">Rev ↕</th>
+      <th style="cursor:pointer" onclick="handleSort('status')">Status ↕</th>
+      <th style="cursor:pointer" onclick="handleSort('date')">Date Issued ↕</th>
+      <th style="text-align:center">File</th>
+      <th>Appr</th>
+      <th>App. Date</th>
+      <th>TAT</th>
+      <th></th>
+    </tr>
+    <tr>
+      <th></th>
+      <th><input type="text" class="flt-code" oninput="handleFilter('code', this.value)" style="width:100%;font-size:9px" placeholder="Filter..."></th>
+      <th><input type="text" class="flt-main" oninput="handleFilter('main', this.value)" style="width:100%;font-size:9px" placeholder="Filter..."></th>
+      <th><input type="text" class="flt-sub" oninput="handleFilter('sub', this.value)" style="width:100%;font-size:9px" placeholder="Filter..."></th>
+      <th><input type="text" class="flt-desc" oninput="handleFilter('desc', this.value)" style="width:100%;font-size:9px" placeholder="Filter..."></th>
+      <th><input type="text" class="flt-rev" oninput="handleFilter('rev', this.value)" style="width:100%;font-size:9px" placeholder="Filter..."></th>
+      <th><input type="text" class="flt-status" oninput="handleFilter('status', this.value)" style="width:100%;font-size:9px" placeholder="Filter..."></th>
+      <th colspan="6"></th>
+    </tr>
+  </thead>
+`;
+
 document.addEventListener('DOMContentLoaded', () => {
   rebuildMainSelect(); populateSub(); updatePreview();
   window.renderAllTabs(); renderManage(); renderReference();
@@ -586,6 +631,12 @@ function handleSort(col) {
 
 function handleFilter(col, val) {
   window.activeFilters[col] = val.toLowerCase();
+  
+  // Sync inputs across all tabs to prevent jumping
+  document.querySelectorAll('.flt-' + col).forEach(inp => {
+    if (inp.value !== val) inp.value = val;
+  });
+  
   window.renderAllTabs();
 }
 
@@ -608,40 +659,11 @@ function processList(list) {
 }
 
 // ── UI RENDERING ──────────────────────────────────────
-function buildTable(list) {
+function buildTableRows(list) {
   const processed = processList(list);
-  if(!processed.length) return '<div class="empty"><div class="empty-icon">📄</div><div>No documents found</div></div>';
+  if(!processed.length) return `<tr><td colspan="13"><div class="empty"><div class="empty-icon">📄</div><div>No documents found</div></div></td></tr>`;
   
-  return `<table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th style="cursor:pointer" onclick="handleSort('code')">Document No. ↕</th>
-        <th style="cursor:pointer" onclick="handleSort('main')">Main ↕</th>
-        <th style="cursor:pointer" onclick="handleSort('sub')">Sub ↕</th>
-        <th style="cursor:pointer" onclick="handleSort('desc')">Description ↕</th>
-        <th style="cursor:pointer" onclick="handleSort('rev')">Rev ↕</th>
-        <th style="cursor:pointer" onclick="handleSort('status')">Status ↕</th>
-        <th style="cursor:pointer" onclick="handleSort('date')">Date Issued ↕</th>
-        <th style="text-align:center">File</th>
-        <th>Appr</th>
-        <th>App. Date</th>
-        <th>TAT</th>
-        <th></th>
-      </tr>
-      <tr>
-        <th></th>
-        <th><input type="text" placeholder="Filter..." style="padding:4px;font-size:9px;width:100%" oninput="handleFilter('code', this.value)" value="${window.activeFilters.code}"></th>
-        <th><input type="text" placeholder="Filter..." style="padding:4px;font-size:9px;width:100%" oninput="handleFilter('main', this.value)" value="${window.activeFilters.main}"></th>
-        <th><input type="text" placeholder="Filter..." style="padding:4px;font-size:9px;width:100%" oninput="handleFilter('sub', this.value)" value="${window.activeFilters.sub}"></th>
-        <th><input type="text" placeholder="Filter..." style="padding:4px;font-size:9px;width:100%" oninput="handleFilter('desc', this.value)" value="${window.activeFilters.desc}"></th>
-        <th><input type="text" placeholder="Filter..." style="padding:4px;font-size:9px;width:100%" oninput="handleFilter('rev', this.value)" value="${window.activeFilters.rev}"></th>
-        <th><input type="text" placeholder="Filter..." style="padding:4px;font-size:9px;width:100%" oninput="handleFilter('status', this.value)" value="${window.activeFilters.status}"></th>
-        <th colspan="6"></th>
-      </tr>
-    </thead>
-    <tbody>
-  ${processed.map((d,i)=>{
+  return processed.map((d,i)=>{
     const tat = d.approved === 'yes' && d.date && d.approvedDate ? calculateTAT(d.date, d.approvedDate) : '—';
     return `<tr>
     <td style="color:var(--text3);font-family:var(--mono);font-size:10px">${String(i+1).padStart(2,'0')}</td>
@@ -661,8 +683,18 @@ function buildTable(list) {
       <button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button>
       <button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>
     </td>
-  </tr>`}).join('')}
-  </tbody></table>`;
+  </tr>`}).join('');
+}
+
+function updateTableDOM(wrapId, list) {
+  const wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  let table = wrap.querySelector('table');
+  if (!table) {
+    wrap.innerHTML = `<table>${tableHeaderHTML}<tbody></tbody></table>`;
+    table = wrap.querySelector('table');
+  }
+  table.querySelector('tbody').innerHTML = buildTableRows(list);
 }
 
 window.renderAllTabs = function() {
@@ -676,19 +708,19 @@ window.renderAllTabs = function() {
   document.getElementById('statMAT').textContent = matDocs.length;
   document.getElementById('statINS').textContent = instDocs.length;
   
-  document.getElementById('wrapAll').innerHTML = buildTable(window.docs);
+  updateTableDOM('wrapAll', window.docs);
   
   const cntDes = document.getElementById('cntDes'); if(cntDes) cntDes.textContent = `${desDocs.length} docs`;
-  const wrapDes = document.getElementById('wrapDes'); if(wrapDes) wrapDes.innerHTML = buildTable(desDocs);
+  updateTableDOM('wrapDes', desDocs);
   
   const cntMat = document.getElementById('cntMat'); if(cntMat) cntMat.textContent = `${matDocs.length} docs`;
-  const wrapMat = document.getElementById('wrapMat'); if(wrapMat) wrapMat.innerHTML = buildTable(matDocs);
+  updateTableDOM('wrapMat', matDocs);
   
   const cntInstall = document.getElementById('cntInstall'); if(cntInstall) cntInstall.textContent = `${instDocs.length} docs`;
-  const wrapInstall = document.getElementById('wrapInstall'); if(wrapInstall) wrapInstall.innerHTML = buildTable(instDocs);
+  updateTableDOM('wrapInstall', instDocs);
   
   const cntRq = document.getElementById('cntRq'); if(cntRq) cntRq.textContent = `${rqDocs.length} docs`;
-  const wrapRq = document.getElementById('wrapRq'); if(wrapRq) wrapRq.innerHTML = buildTable(rqDocs);
+  updateTableDOM('wrapRq', rqDocs);
 };
 
 function switchTab(name, el) {
