@@ -1033,6 +1033,7 @@ async function exportPDF(){
     const processed = processList(list); 
     if(!processed.length){showToast('No documents to export');return;}
     
+    // Show loading message
     showToast('⏳ Generating PDF & loading Thai font...');
 
     const {jsPDF}=window.jspdf;
@@ -1041,20 +1042,19 @@ async function exportPDF(){
     const margin=10;
     const usable=pw-margin*2; 
 
+    // 1. Download font & convert using native browser tools (Crash-Proof Method)
     let hasThaiFont = false;
     try {
-      const fontUrl = 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/sarabun/Sarabun-Regular.ttf';
+      const fontUrl = 'https://fonts.gstatic.com/s/sarabun/v14/DtVmJx26TKEr37c9aAFJn2QN.ttf';
       const response = await fetch(fontUrl);
-      
       if (!response.ok) throw new Error("Network response was not ok");
       
-      const buffer = await response.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      let binary = '';
-      for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      const base64Font = window.btoa(binary);
+      const blob = await response.blob();
+      const base64Font = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.readAsDataURL(blob);
+      });
       
       doc.addFileToVFS('Sarabun.ttf', base64Font);
       doc.addFont('Sarabun.ttf', 'Sarabun', 'normal');
@@ -1062,8 +1062,92 @@ async function exportPDF(){
       hasThaiFont = true; 
     } catch (fontErr) {
       console.error('Font loading error:', fontErr);
+      doc.setFont('helvetica'); // Fallback to English if internet fails
       alert('Could not download the Thai font. The PDF will still generate, but Thai characters may not display correctly.');
     }
+
+    // 2. Build the PDF Header
+    doc.setFillColor(26,58,106);
+    doc.rect(0,0,pw,22,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(12);
+    doc.text('DDD-TSG Co-Gen — ENG Document Submittal',margin,10);
+    doc.setFontSize(8);
+    doc.text('Tab: '+label,margin,17);
+    doc.text('Exported: '+new Date().toLocaleDateString('en-GB')+' | '+processed.length+' docs',pw-margin,17,{align:'right'});
+
+    // 3. Build the PDF Table
+    doc.autoTable({
+      startY:26,
+      margin:{left:margin,right:margin},
+      tableWidth:usable,
+      head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','File Link','App','App.Date']],
+      body:processed.map((d,i)=>[
+        i+1,
+        d.code,
+        d.main,
+        d.sub,
+        d.desc||'',
+        d.rev,
+        d.status||'',
+        fmtDateShort(d.date),
+        d.fileUrl||'',
+        d.approved==='yes'?'Yes':'',
+        d.approved==='yes'?fmtDateShort(d.approvedDate||''):''
+      ]),
+      styles:{
+        fontSize:6,
+        cellPadding:{top:1.5,bottom:1.5,left:1.8,right:1.8},
+        font: hasThaiFont ? 'Sarabun' : 'helvetica', // Use Thai font here
+        overflow:'hidden',
+        minCellHeight:0,
+        lineColor:[208,213,221],
+        lineWidth:0.2
+      },
+      headStyles:{
+        fillColor:[26,58,106],
+        textColor:255,
+        fontStyle:'normal',
+        fontSize:6.5,
+        halign:'center',
+        overflow:'hidden',
+        minCellHeight:0
+      },
+      columnStyles:{
+        0:{cellWidth:8, halign:'center'},
+        1:{cellWidth:30, overflow:'hidden'},
+        2:{cellWidth:9,  halign:'center'},
+        3:{cellWidth:9,  halign:'center'},
+        4:{cellWidth:60, overflow:'linebreak'},
+        5:{cellWidth:10, halign:'center'},
+        6:{cellWidth:12, halign:'center'},
+        7:{cellWidth:15, halign:'center'},
+        8:{cellWidth:40, overflow:'hidden'},
+        9:{cellWidth:8,  halign:'center'},
+        10:{cellWidth:15, halign:'center'}
+      },
+      alternateRowStyles:{fillColor:[245,246,248]},
+      didParseCell:function(data){
+        if(data.section==='body' && data.column.index !== 4){
+          data.cell.styles.overflow='hidden';
+        }
+      },
+      didDrawPage:function(data){
+        doc.setFontSize(6.5);
+        doc.setTextColor(140,146,160);
+        doc.text('Energy Services Co., Ltd.  |  Page '+data.pageNumber,pw/2,doc.internal.pageSize.getHeight()-5,{align:'center'});
+      }
+    });
+    
+    // Save the file
+    doc.save('DDD-TSG-'+currentTab.toUpperCase()+'-'+new Date().toISOString().slice(0,10)+'.pdf');
+    showToast('✓ Exported PDF');
+    
+  } catch (mainErr) {
+    console.error("PDF Export failed:", mainErr);
+    alert("An error occurred while generating the PDF. Please check the console (F12) for details.");
+  }
+}
 
     doc.setFillColor(26,58,106);
     doc.rect(0,0,pw,22,'F');
