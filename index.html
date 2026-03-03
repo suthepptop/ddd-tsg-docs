@@ -555,7 +555,7 @@ let sortCol = 'id';
 let sortAsc = true;
 let activeFilters = { code:'', main:'', sub:'', desc:'', rev:'', status:'' };
 
-// ── PRE-LISTED DOCUMENTS FROM IMAGE ──────────────────
+// ── PRE-LISTED DOCUMENTS ─────────────────────────────
 let docs = [
   {id:1001,code:'TSG25-ECG00-00',main:'DES',sub:'GEN',desc:'List of Drawing',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
   {id:1002,code:'TSG25-ECG00-01',main:'DES',sub:'SLD',desc:'SINGLE LINE DIAGRAM',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
@@ -585,7 +585,7 @@ let docs = [
   {id:1026,code:'TSG25-ECG00-52',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 12 of 12',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
   {id:1027,code:'TSG25-ECG00-53',main:'DES',sub:'GND',desc:'Grounding and Bonding System Typical Detail',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
   {id:1028,code:'DDD-TSG-DES-GEN-0001',main:'DES',sub:'GEN',desc:'คำนวณความต้านทานดิน',rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:'',fileUrl:''},
-  {id:1029,code:'DDD-TSG-DES-RQ-02-0001',main:'DES',sub:'RQ02',desc:'Material for steam transformaer building ground grid installation',rev:'Rev.0',status:'IFA',date:'03 Mar 2026',approved:'no',approvedDate:'',fileUrl:''}
+  {id:1029,code:'DDD-TSG-DES-RQ-02-0001',main:'DES',sub:'RQ02',desc:'Material for steam transformer building ground grid installation',rev:'Rev.0',status:'IFA',date:'03 Mar 2026',approved:'no',approvedDate:'',fileUrl:''}
 ];
 
 const DES_SERIES = {SLD:1,SCH:2,LAY:10,HOK:20,PNL:21,LTG:30,GND:40,LGT:60,CCL:80};
@@ -611,6 +611,20 @@ function peekNum(m,s){return(counters[m+'-'+s]||0)+1;}
 function getNextNum(m,s){const k=m+'-'+s;counters[k]=(counters[k]||0)+1;return counters[k];}
 function fmt4(n){return String(n).padStart(4,'0');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+function calculateTAT(issuedStr, approvedStr) {
+  try {
+    const parseDate = (str) => {
+      const parts = str.split('/');
+      if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]);
+      return new Date(str); 
+    };
+    const start = parseDate(issuedStr);
+    const end = new Date(approvedStr);
+    const diffTime = Math.abs(end - start);
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + "d";
+  } catch (e) { return "—"; }
+}
 
 // ── FILTERING AND SORTING LOGIC ──────────────────────
 function handleSort(col) {
@@ -673,6 +687,7 @@ function buildTable(list){
         <th style="text-align:center">File</th>
         <th>Approved</th>
         <th>App. Date</th>
+        <th>TAT</th>
         <th></th>
       </tr>
       <tr>
@@ -683,11 +698,13 @@ function buildTable(list){
         <th><input type="text" placeholder="Filter..." style="padding:4px;font-size:9px;width:100%" oninput="handleFilter('desc', this.value)" value="${activeFilters.desc}"></th>
         <th><input type="text" placeholder="Filter..." style="padding:4px;font-size:9px;width:40px" oninput="handleFilter('rev', this.value)" value="${activeFilters.rev}"></th>
         <th><input type="text" placeholder="Filter..." style="padding:4px;font-size:9px;width:50px" oninput="handleFilter('status', this.value)" value="${activeFilters.status}"></th>
-        <th colspan="5"></th>
+        <th colspan="6"></th>
       </tr>
     </thead>
     <tbody>
-  ${processed.map((d,i)=>`<tr>
+  ${processed.map((d,i)=>{
+    const tat = d.approved === 'yes' && d.date && d.approvedDate ? calculateTAT(d.date, d.approvedDate) : '—';
+    return `<tr>
     <td style="color:var(--text3);font-family:var(--mono);font-size:10px">${String(i+1).padStart(2,'0')}</td>
     <td class="doc-code">${d.code}</td>
     <td><span class="tag">${d.main}</span></td>
@@ -696,18 +713,16 @@ function buildTable(list){
     <td><span class="rev-badge">${d.rev}</span></td>
     <td style="font-family:var(--mono);font-size:10px;font-weight:700;color:${STATUS_C[d.status]||'#888'}">${d.status||'—'}</td>
     <td style="font-size:10px;color:var(--text3);white-space:nowrap">${d.date||'—'}</td>
-    
-    <td style="text-align:center">
-      ${d.fileUrl ? `<a href="${d.fileUrl}" target="_blank" class="file-icon" title="Open Document">📄</a>` : `<span style="color:#ccc">-</span>`}
-    </td>
-
+    <td style="text-align:center">${d.fileUrl ? `<a href="${d.fileUrl}" target="_blank" class="file-icon" title="Open Document">📄</a>` : `<span style="color:#ccc">-</span>`}</td>
     <td style="text-align:center;font-size:11px;font-weight:700;color:${d.approved==='yes'?'#2A9D3A':'#CCC'}">${d.approved==='yes'?'✓':'—'}</td>
     <td style="font-size:10px;color:#2A9D3A;white-space:nowrap">${d.approved==='yes'?(d.approvedDate||''):'—'}</td>
+    <td style="font-size:10px;font-family:var(--mono);text-align:center">${tat}</td>
     <td style="white-space:nowrap">
+      <button class="edit-btn" onclick="reviseDoc(${d.id})" title="Revise (Create New Rev)">⎘</button>
       <button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button>
       <button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>
     </td>
-  </tr>`).join('')}
+  </tr>`}).join('')}
   </tbody></table>`;
 }
 
@@ -804,6 +819,35 @@ function addDocument(){
   document.getElementById('inpFileUrl').value='';
   renderAllTabs(); updatePreview();
   showToast('✓ Added: '+code);
+}
+
+function reviseDoc(id) {
+  if (!window._isAdmin) return;
+  const d = docs.find(x => x.id === id);
+  if (!d) return;
+
+  document.getElementById('selMain').value = d.main;
+  populateSub();
+  document.getElementById('selSub').value = d.sub;
+  document.getElementById('inpDesc').value = d.desc;
+  
+  const currentRevMatch = d.rev.match(/\d+/);
+  if (currentRevMatch) {
+    const nextRev = parseInt(currentRevMatch[0]) + 1;
+    document.getElementById('selRev').value = `Rev.${nextRev}`;
+  } else {
+    document.getElementById('selRev').value = 'Rev.1';
+  }
+  
+  document.getElementById('selStatus').value = 'IFA';
+  
+  const codeParts = d.code.split('-');
+  const numPart = codeParts[codeParts.length - 1];
+  document.getElementById('inpOverride').value = parseInt(numPart);
+
+  updatePreview();
+  showToast('📋 Data copied for revision: '+d.code);
+  document.querySelector('.add-panel').scrollIntoView({ behavior: 'smooth' });
 }
 
 function copyCode(){
@@ -952,7 +996,6 @@ function removeSubFromMain(mainCode,sub){
   renderManage();showToast(`✓ Removed ${sub} from ${mainCode}`);
 }
 
-// ── REFERENCE ────────────────────────────────────────
 function renderReference(){
   document.getElementById('refContent').innerHTML=`
     <div class="ref-grid">
@@ -992,8 +1035,11 @@ function exportXLSX(){
   const {list,label}=getExportData();
   const processed = processList(list); 
   if(!processed.length){showToast('No documents to export');return;}
-  const head=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','File URL','Approved','Approved Date'];
-  const rows=processed.map((d,i)=>[i+1,d.code,d.main,d.sub,d.desc||'',d.rev,d.status||'',d.date||'',d.fileUrl||'',d.approved==='yes'?'Yes':'No',d.approved==='yes'?(d.approvedDate||''):'']);
+  const head=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','File URL','Approved','Approved Date','TAT'];
+  const rows=processed.map((d,i)=>{
+    const tat = d.approved === 'yes' && d.date && d.approvedDate ? calculateTAT(d.date, d.approvedDate) : '';
+    return [i+1,d.code,d.main,d.sub,d.desc||'',d.rev,d.status||'',d.date||'',d.fileUrl||'',d.approved==='yes'?'Yes':'No',d.approved==='yes'?(d.approvedDate||''):'',tat];
+  });
   const titleRows=[
     ['DDD-TSG Co-Gen Project — ENG Document Submittal'],
     ['Tab: '+label+' | Exported: '+new Date().toLocaleDateString('en-GB')+'  | Total: '+processed.length+' docs'],
@@ -1002,7 +1048,7 @@ function exportXLSX(){
     ...rows
   ];
   const ws=XLSX.utils.aoa_to_sheet(titleRows);
-  ws['!cols']=[{wch:4},{wch:30},{wch:7},{wch:7},{wch:50},{wch:7},{wch:9},{wch:13},{wch:40},{wch:9},{wch:14}];
+  ws['!cols']=[{wch:4},{wch:30},{wch:7},{wch:7},{wch:50},{wch:7},{wch:9},{wch:13},{wch:40},{wch:9},{wch:14},{wch:6}];
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,label.substring(0,31));
   XLSX.writeFile(wb,'DDD-TSG-'+currentTab.toUpperCase()+'-'+new Date().toISOString().slice(0,10)+'.xlsx');
@@ -1033,7 +1079,6 @@ async function exportPDF(){
     const processed = processList(list); 
     if(!processed.length){showToast('No documents to export');return;}
     
-    // Show loading message
     showToast('⏳ Generating PDF & loading Thai font...');
 
     const {jsPDF}=window.jspdf;
@@ -1042,7 +1087,6 @@ async function exportPDF(){
     const margin=10;
     const usable=pw-margin*2; 
 
-    // 1. Download font & convert using native browser tools (Crash-Proof Method)
     let hasThaiFont = false;
     try {
       const fontUrl = 'https://fonts.gstatic.com/s/sarabun/v14/DtVmJx26TKEr37c9aAFJn2QN.ttf';
@@ -1062,100 +1106,15 @@ async function exportPDF(){
       hasThaiFont = true; 
     } catch (fontErr) {
       console.error('Font loading error:', fontErr);
-      doc.setFont('helvetica'); // Fallback to English if internet fails
-      alert('Could not download the Thai font. The PDF will still generate, but Thai characters may not display correctly.');
+      doc.setFont('helvetica');
+      alert('Could not download the Thai font. PDF will generate but Thai text might be missing.');
     }
 
-    // 2. Build the PDF Header
     doc.setFillColor(26,58,106);
     doc.rect(0,0,pw,22,'F');
     doc.setTextColor(255,255,255);
     doc.setFontSize(12);
-    doc.text('DDD-TSG Co-Gen — ENG Document Submittal',margin,10);
-    doc.setFontSize(8);
-    doc.text('Tab: '+label,margin,17);
-    doc.text('Exported: '+new Date().toLocaleDateString('en-GB')+' | '+processed.length+' docs',pw-margin,17,{align:'right'});
-
-    // 3. Build the PDF Table
-    doc.autoTable({
-      startY:26,
-      margin:{left:margin,right:margin},
-      tableWidth:usable,
-      head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','File Link','App','App.Date']],
-      body:processed.map((d,i)=>[
-        i+1,
-        d.code,
-        d.main,
-        d.sub,
-        d.desc||'',
-        d.rev,
-        d.status||'',
-        fmtDateShort(d.date),
-        d.fileUrl||'',
-        d.approved==='yes'?'Yes':'',
-        d.approved==='yes'?fmtDateShort(d.approvedDate||''):''
-      ]),
-      styles:{
-        fontSize:6,
-        cellPadding:{top:1.5,bottom:1.5,left:1.8,right:1.8},
-        font: hasThaiFont ? 'Sarabun' : 'helvetica', // Use Thai font here
-        overflow:'hidden',
-        minCellHeight:0,
-        lineColor:[208,213,221],
-        lineWidth:0.2
-      },
-      headStyles:{
-        fillColor:[26,58,106],
-        textColor:255,
-        fontStyle:'normal',
-        fontSize:6.5,
-        halign:'center',
-        overflow:'hidden',
-        minCellHeight:0
-      },
-      columnStyles:{
-        0:{cellWidth:8, halign:'center'},
-        1:{cellWidth:30, overflow:'hidden'},
-        2:{cellWidth:9,  halign:'center'},
-        3:{cellWidth:9,  halign:'center'},
-        4:{cellWidth:60, overflow:'linebreak'},
-        5:{cellWidth:10, halign:'center'},
-        6:{cellWidth:12, halign:'center'},
-        7:{cellWidth:15, halign:'center'},
-        8:{cellWidth:40, overflow:'hidden'},
-        9:{cellWidth:8,  halign:'center'},
-        10:{cellWidth:15, halign:'center'}
-      },
-      alternateRowStyles:{fillColor:[245,246,248]},
-      didParseCell:function(data){
-        if(data.section==='body' && data.column.index !== 4){
-          data.cell.styles.overflow='hidden';
-        }
-      },
-      didDrawPage:function(data){
-        doc.setFontSize(6.5);
-        doc.setTextColor(140,146,160);
-        doc.text('Energy Services Co., Ltd.  |  Page '+data.pageNumber,pw/2,doc.internal.pageSize.getHeight()-5,{align:'center'});
-      }
-    });
-    
-    // Save the file
-    doc.save('DDD-TSG-'+currentTab.toUpperCase()+'-'+new Date().toISOString().slice(0,10)+'.pdf');
-    showToast('✓ Exported PDF');
-    
-  } catch (mainErr) {
-    console.error("PDF Export failed:", mainErr);
-    alert("An error occurred while generating the PDF. Please check the console (F12) for details.");
-  }
-}
-
-    doc.setFillColor(26,58,106);
-    doc.rect(0,0,pw,22,'F');
-    doc.setTextColor(255,255,255);
-    doc.setFontSize(12);
-    
     if (!hasThaiFont) doc.setFont('helvetica');
-    
     doc.text('DDD-TSG Co-Gen — ENG Document Submittal',margin,10);
     doc.setFontSize(8);
     doc.text('Tab: '+label,margin,17);
@@ -1165,7 +1124,7 @@ async function exportPDF(){
       startY:26,
       margin:{left:margin,right:margin},
       tableWidth:usable,
-      head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','File Link','App','App.Date']],
+      head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','TAT','App','App.Date']],
       body:processed.map((d,i)=>[
         i+1,
         d.code,
@@ -1175,7 +1134,7 @@ async function exportPDF(){
         d.rev,
         d.status||'',
         fmtDateShort(d.date),
-        d.fileUrl||'',
+        d.approved === 'yes' ? calculateTAT(d.date, d.approvedDate) : '—',
         d.approved==='yes'?'Yes':'',
         d.approved==='yes'?fmtDateShort(d.approvedDate||''):''
       ]),
@@ -1202,11 +1161,11 @@ async function exportPDF(){
         1:{cellWidth:30, overflow:'hidden'},
         2:{cellWidth:9,  halign:'center'},
         3:{cellWidth:9,  halign:'center'},
-        4:{cellWidth:60, overflow:'linebreak'},
+        4:{cellWidth:75, overflow:'linebreak'},
         5:{cellWidth:10, halign:'center'},
         6:{cellWidth:12, halign:'center'},
         7:{cellWidth:15, halign:'center'},
-        8:{cellWidth:40, overflow:'hidden'},
+        8:{cellWidth:8,  halign:'center'},
         9:{cellWidth:8,  halign:'center'},
         10:{cellWidth:15, halign:'center'}
       },
@@ -1225,10 +1184,8 @@ async function exportPDF(){
     
     doc.save('DDD-TSG-'+currentTab.toUpperCase()+'-'+new Date().toISOString().slice(0,10)+'.pdf');
     showToast('✓ Exported PDF');
-    
   } catch (mainErr) {
     console.error("PDF Export failed:", mainErr);
-    alert("An error occurred while generating the PDF. Please check the console (F12) for details.");
   }
 }
 </script>
