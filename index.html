@@ -995,7 +995,7 @@ function exportXLSX(){
   const head=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','File URL','Approved','Approved Date'];
   const rows=processed.map((d,i)=>[i+1,d.code,d.main,d.sub,d.desc||'',d.rev,d.status||'',d.date||'',d.fileUrl||'',d.approved==='yes'?'Yes':'No',d.approved==='yes'?(d.approvedDate||''):'']);
   const titleRows=[
-    ['DDD-TSG Co-Gen Project — ENG Document Register'],
+    ['DDD-TSG Co-Gen Project — ENG Document Submittal'],
     ['Tab: '+label+' | Exported: '+new Date().toLocaleDateString('en-GB')+'  | Total: '+processed.length+' docs'],
     [],
     head,
@@ -1026,114 +1026,126 @@ function fmtDateShort(d){
   }
   return d;
 }
+
 async function exportPDF(){
-  const {list,label}=getExportData();
-  if(!list.length){showToast('No documents to export');return;}
-  
-  // Show a loading message while downloading the Thai font
-  showToast('⏳ Generating PDF & loading Thai font...');
-
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-  const pw=doc.internal.pageSize.getWidth();
-  const margin=10;
-  const usable=pw-margin*2; 
-
-  // --- 1. DOWNLOAD AND APPLY THAI FONT (SARABUN) ---
   try {
-    const fontUrl = 'https://fonts.gstatic.com/s/sarabun/v14/DtVmJx26TKEr37c9aAFJn2QN.ttf';
-    const response = await fetch(fontUrl);
-    const buffer = await response.arrayBuffer();
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    const base64Font = window.btoa(binary);
+    const {list,label}=getExportData();
+    const processed = processList(list); 
+    if(!processed.length){showToast('No documents to export');return;}
     
-    doc.addFileToVFS('Sarabun.ttf', base64Font);
-    doc.addFont('Sarabun.ttf', 'Sarabun', 'normal');
-    doc.setFont('Sarabun'); // Set default font to Thai
-  } catch (e) {
-    console.error('Failed to load Thai font', e);
-    showToast('⚠ Warning: Thai font failed to load');
-  }
-  // -------------------------------------------------
+    showToast('⏳ Generating PDF & loading Thai font...');
 
-  // Header banner
-  doc.setFillColor(26,58,106);
-  doc.rect(0,0,pw,22,'F');
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(12);
-  doc.text('DDD-TSG Co-Gen — ENG Document Register',margin,10);
-  doc.setFontSize(8);
-  doc.text('Tab: '+label,margin,17);
-  doc.text('Exported: '+new Date().toLocaleDateString('en-GB')+' | '+list.length+' docs',pw-margin,17,{align:'right'});
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    const pw=doc.internal.pageSize.getWidth();
+    const margin=10;
+    const usable=pw-margin*2; 
 
-  doc.autoTable({
-    startY:26,
-    margin:{left:margin,right:margin},
-    tableWidth:usable,
-    head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','File Link','App','App.Date']],
-    body:list.map((d,i)=>[
-      i+1,
-      d.code,
-      d.main,
-      d.sub,
-      d.desc||'',
-      d.rev,
-      d.status||'',
-      fmtDateShort(d.date),
-      d.fileUrl||'',
-      d.approved==='yes'?'Yes':'',
-      d.approved==='yes'?fmtDateShort(d.approvedDate||''):''
-    ]),
-    styles:{
-      fontSize:6,
-      cellPadding:{top:1.5,bottom:1.5,left:1.8,right:1.8},
-      font:'Sarabun', // USE THAI FONT HERE
-      overflow:'hidden',
-      minCellHeight:0,
-      lineColor:[208,213,221],
-      lineWidth:0.2
-    },
-    headStyles:{
-      fillColor:[26,58,106],
-      textColor:255,
-      fontStyle:'normal', // Must be normal so it doesn't try to look for a non-existent bold file
-      fontSize:6.5,
-      halign:'center',
-      overflow:'hidden',
-      minCellHeight:0
-    },
-    columnStyles:{
-      0:{cellWidth:8, halign:'center'},
-      1:{cellWidth:30, overflow:'hidden'},
-      2:{cellWidth:9,  halign:'center'},
-      3:{cellWidth:9,  halign:'center'},
-      4:{cellWidth:60, overflow:'linebreak'},
-      5:{cellWidth:10, halign:'center'},
-      6:{cellWidth:12, halign:'center'},
-      7:{cellWidth:15, halign:'center'},
-      8:{cellWidth:40, overflow:'hidden'},
-      9:{cellWidth:8,  halign:'center'},
-      10:{cellWidth:15, halign:'center'}
-    },
-    alternateRowStyles:{fillColor:[245,246,248]},
-    didParseCell:function(data){
-      if(data.section==='body' && data.column.index !== 4){
-        data.cell.styles.overflow='hidden';
+    let hasThaiFont = false;
+    try {
+      const fontUrl = 'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/sarabun/Sarabun-Regular.ttf';
+      const response = await fetch(fontUrl);
+      
+      if (!response.ok) throw new Error("Network response was not ok");
+      
+      const buffer = await response.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
       }
-    },
-    didDrawPage:function(data){
-      doc.setFontSize(6.5);
-      doc.setTextColor(140,146,160);
-      doc.text('Energy Services Co., Ltd.  |  Page '+data.pageNumber,pw/2,doc.internal.pageSize.getHeight()-5,{align:'center'});
+      const base64Font = window.btoa(binary);
+      
+      doc.addFileToVFS('Sarabun.ttf', base64Font);
+      doc.addFont('Sarabun.ttf', 'Sarabun', 'normal');
+      doc.setFont('Sarabun'); 
+      hasThaiFont = true; 
+    } catch (fontErr) {
+      console.error('Font loading error:', fontErr);
+      alert('Could not download the Thai font. The PDF will still generate, but Thai characters may not display correctly.');
     }
-  });
-  
-  doc.save('DDD-TSG-'+currentTab.toUpperCase()+'-'+new Date().toISOString().slice(0,10)+'.pdf');
-  showToast('✓ Exported PDF');
+
+    doc.setFillColor(26,58,106);
+    doc.rect(0,0,pw,22,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(12);
+    
+    if (!hasThaiFont) doc.setFont('helvetica');
+    
+    doc.text('DDD-TSG Co-Gen — ENG Document Submittal',margin,10);
+    doc.setFontSize(8);
+    doc.text('Tab: '+label,margin,17);
+    doc.text('Exported: '+new Date().toLocaleDateString('en-GB')+' | '+processed.length+' docs',pw-margin,17,{align:'right'});
+
+    doc.autoTable({
+      startY:26,
+      margin:{left:margin,right:margin},
+      tableWidth:usable,
+      head:[['#','Document No.','Main','Sub','Description','Rev','Status','Date','File Link','App','App.Date']],
+      body:processed.map((d,i)=>[
+        i+1,
+        d.code,
+        d.main,
+        d.sub,
+        d.desc||'',
+        d.rev,
+        d.status||'',
+        fmtDateShort(d.date),
+        d.fileUrl||'',
+        d.approved==='yes'?'Yes':'',
+        d.approved==='yes'?fmtDateShort(d.approvedDate||''):''
+      ]),
+      styles:{
+        fontSize:6,
+        cellPadding:{top:1.5,bottom:1.5,left:1.8,right:1.8},
+        font: hasThaiFont ? 'Sarabun' : 'helvetica',
+        overflow:'hidden',
+        minCellHeight:0,
+        lineColor:[208,213,221],
+        lineWidth:0.2
+      },
+      headStyles:{
+        fillColor:[26,58,106],
+        textColor:255,
+        fontStyle:'normal',
+        fontSize:6.5,
+        halign:'center',
+        overflow:'hidden',
+        minCellHeight:0
+      },
+      columnStyles:{
+        0:{cellWidth:8, halign:'center'},
+        1:{cellWidth:30, overflow:'hidden'},
+        2:{cellWidth:9,  halign:'center'},
+        3:{cellWidth:9,  halign:'center'},
+        4:{cellWidth:60, overflow:'linebreak'},
+        5:{cellWidth:10, halign:'center'},
+        6:{cellWidth:12, halign:'center'},
+        7:{cellWidth:15, halign:'center'},
+        8:{cellWidth:40, overflow:'hidden'},
+        9:{cellWidth:8,  halign:'center'},
+        10:{cellWidth:15, halign:'center'}
+      },
+      alternateRowStyles:{fillColor:[245,246,248]},
+      didParseCell:function(data){
+        if(data.section==='body' && data.column.index !== 4){
+          data.cell.styles.overflow='hidden';
+        }
+      },
+      didDrawPage:function(data){
+        doc.setFontSize(6.5);
+        doc.setTextColor(140,146,160);
+        doc.text('Energy Services Co., Ltd.  |  Page '+data.pageNumber,pw/2,doc.internal.pageSize.getHeight()-5,{align:'center'});
+      }
+    });
+    
+    doc.save('DDD-TSG-'+currentTab.toUpperCase()+'-'+new Date().toISOString().slice(0,10)+'.pdf');
+    showToast('✓ Exported PDF');
+    
+  } catch (mainErr) {
+    console.error("PDF Export failed:", mainErr);
+    alert("An error occurred while generating the PDF. Please check the console (F12) for details.");
+  }
 }
 </script>
 </body>
