@@ -486,12 +486,12 @@ let subPool = {
   HOK:'Hook-up Drawing', PNL:'Panel Drawing', GND:'Grounding System',
   LTG:'Lightning Protection', LGT:'Lighting Layout', CCL:'CCTV Layout',
   // RQ sub-categories (DDD-TSG-DES-RQ-XXX-XXXX)
-  RQ001:'RQ-001 Electrical (Cable Tray, Conduit, Cable)',
-  RQ002:'RQ-002 Grounding & Lightning System',
-  RQ003:'RQ-003 Field Instrument',
-  RQ004:'RQ-004 Lighting System',
-  RQ005:'RQ-005 CCTV System',
-  RQ006:'RQ-006 Panel & Control System',
+  RQ01:'RQ-01 Electrical (Cable Tray, Conduit, Cable)',
+  RQ02:'RQ-02 Grounding & Lightning System',
+  RQ03:'RQ-03 Field Instrument',
+  RQ04:'RQ-04 Lighting System',
+  RQ05:'RQ-05 CCTV System',
+  RQ06:'RQ-06 Panel & Control System',
   // ELC — Electrical subs (3-letter abbreviation of item)
   CNF:'Conduit & Fitting', CAC:'Cable Accessories', JBX:'Junction Box',
   // INS — Instrument subs
@@ -515,7 +515,7 @@ let subPool = {
 };
 
 let subMap = {
-  DES: ['SLD','SCH','LAY','HOK','PNL','LTG','GND','LGT','CCL','RQ001','RQ002','RQ003','RQ004','RQ005','RQ006','GEN'],
+  DES: ['SLD','SCH','LAY','HOK','PNL','LTG','GND','LGT','CCL','RQ01','RQ02','RQ03','RQ04','RQ05','RQ06','GEN'],
   ELC: ['CNF','CAC','JBX','GEN'],
   INS: ['IAC','GEN'],
   GND: ['GTB','GAC','GEN'],
@@ -736,7 +736,7 @@ function updatePreview(){
   const md=mainDiscs.find(m=>m.code===main)?.desc||main;
   const sd=subPool[sub]||sub;
   const desDrw=isDesDrw(main,sub);
-  const isRqSub = main==='DES' && sub && sub.startsWith('RQ') && sub.length===5;
+  const isRqSub = main==='DES' && sub && sub.startsWith('RQ') && sub.length===4;
   let code;
   if(desDrw){ code=getDesCode(sub,num); }
   else if(isRqSub){ code=`DDD-TSG-DES-RQ-${sub.slice(2)}-${fmt4(num)}`; }
@@ -767,7 +767,7 @@ function addDocument(){
   if(ov){num=parseInt(ov);const k=main+'-'+sub;if(num>(counters[k]||0))counters[k]=num;}
   else{num=getNextNum(main,sub);}
   const desDrw=isDesDrw(main,sub);
-  const isRqSub = main==='DES' && sub && sub.startsWith('RQ') && sub.length===5;
+  const isRqSub = main==='DES' && sub && sub.startsWith('RQ') && sub.length===4;
   let code;
   if(desDrw){ code=getDesCode(sub,num); }
   else if(isRqSub){ code=`DDD-TSG-DES-RQ-${sub.slice(2)}-${fmt4(num)}`; }
