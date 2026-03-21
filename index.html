@@ -194,8 +194,20 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     // Store sign-out function globally
     window._signOut = () => signOut(auth);
     window._signIn = () => {
-      // Always use redirect on mobile/tablet, popup on desktop
-      const isMobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+      const ua = navigator.userAgent;
+      // Detect WebView / in-app browser (LINE, FB, Instagram, etc.)
+      const isWebView = /FBAN|FBAV|Instagram|Line|Twitter|MicroMessenger|WebView|wv|GSA/.test(ua)
+        || ((/iPhone|iPad|Android/.test(ua)) && !/Safari/.test(ua))
+        || (/Android/.test(ua) && /Version\//.test(ua));
+      if(isWebView){
+        // Can't sign in inside WebView — ask user to open in Chrome/Safari
+        const msg = 'เพื่อ Sign In กรุณาเปิดลิงก์นี้ใน Chrome หรือ Safari\n\n' + window.location.href;
+        if(confirm('⚠️ ไม่สามารถ Sign In ใน browser นี้ได้\nกด OK เพื่อคัดลอก URL แล้วเปิดใน Chrome/Safari')){
+          navigator.clipboard.writeText(window.location.href).then(()=>alert('✓ คัดลอก URL แล้ว — เปิดใน Chrome หรือ Safari')).catch(()=>alert(window.location.href));
+        }
+        return;
+      }
+      const isMobile = /Android|iPhone|iPad|Mobile/i.test(ua);
       if(isMobile){
         signInWithRedirect(auth, provider).catch(e => alert(e.message));
       } else {
