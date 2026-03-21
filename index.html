@@ -184,7 +184,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   window._db=db; window._fbSetDoc=setDoc; window._fbDeleteDoc=deleteDoc; window._fbDoc=doc; window._fbReady=true;
 
   // ── Handle redirect result (mobile sign-in) ─────────
-  getRedirectResult(auth).catch(e => console.warn('Redirect result:', e.message));
+  getRedirectResult(auth).then(result => {
+    if(result && result.user){
+      console.log('Redirect sign-in success:', result.user.email);
+    }
+  }).catch(e => console.warn('Redirect result error:', e.message));
 
   // ── Auth state listener ──────────────────────────────
   onAuthStateChanged(auth, (user) => {
@@ -194,30 +198,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     // Store sign-out function globally
     window._signOut = () => signOut(auth);
     window._signIn = () => {
-      const ua = navigator.userAgent;
-      const isAndroid = /Android/i.test(ua);
-      const isIOS = /iPhone|iPad/i.test(ua);
-      // Detect in-app WebView (LINE, FB, IG etc.) — Google blocks OAuth in these
-      const isWebView = /FBAN|FBAV|Instagram|Line|Twitter|MicroMessenger|wv/.test(ua)
-        || (isAndroid && /wv/.test(ua))
-        || (isIOS && !/Safari/.test(ua));
-      if(isWebView){
-        // Android: use intent:// to force open in Chrome
-        if(isAndroid){
-          const url = window.location.href;
-          window.location.href = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
-          return;
-        }
-        // iOS: prompt to open in Safari
-        alert('กรุณาเปิดลิงก์นี้ใน Safari:\n' + window.location.href);
-        return;
-      }
-      // Normal browser
-      const isMobile = isAndroid || isIOS;
+      const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
       if(isMobile){
-        signInWithRedirect(auth, provider).catch(e => alert(e.message));
+        signInWithRedirect(auth, provider).catch(e => alert('Sign in error: ' + e.message));
       } else {
-        signInWithPopup(auth, provider).catch(e => alert(e.message));
+        signInWithPopup(auth, provider).catch(e => alert('Sign in error: ' + e.message));
       }
     };
     // Call global handler (defined in main script)
@@ -268,7 +253,6 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 
   <!-- MAIN PANEL (LEFT) -->
   <div class="main-panel">
-    <div class="lock-banner" id="lockBanner">🔒 View-only mode — Sign in as admin to add or edit documents</div>
     <!-- 4 TABS -->
     <div class="tabs">
       <div class="tab active" onclick="switchTab('all',this)">ALL</div>
@@ -895,9 +879,6 @@ window.onAuthReady = function(user, isAdmin){
   // Add panel
   const addPanel = document.getElementById('addPanel');
   if(addPanel) addPanel.style.display = isAdmin ? 'flex' : 'none';
-  // Lock banner
-  const banner = document.getElementById('lockBanner');
-  if(banner) banner.style.display = isAdmin ? 'none' : 'flex';
   // ⚙ Codes tab
   const manageTab = document.querySelector('.tab[onclick*="manage"]');
   if(manageTab) manageTab.style.display = isAdmin ? '' : 'none';
