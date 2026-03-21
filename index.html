@@ -162,7 +162,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 
   const firebaseConfig = {
     apiKey:"AIzaSyDMxqBXDKEBKXAdI1E200V-qodtxxJZgBk",
-    authDomain:"suthepptop.github.io",
+    authDomain:"ddd-tsg-docs.firebaseapp.com",
     projectId:"ddd-tsg-docs",
     storageBucket:"ddd-tsg-docs.firebasestorage.app",
     messagingSenderId:"695932302309",
@@ -198,7 +198,24 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     // Store sign-out function globally
     window._signOut = () => signOut(auth);
     window._signIn = () => {
-      const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+      const ua = navigator.userAgent;
+      const isAndroid = /Android/i.test(ua);
+      const isIOS = /iPhone|iPad/i.test(ua);
+      const isMobile = isAndroid || isIOS;
+      // Check if running in a restricted browser (not Chrome/Safari)
+      const isChrome = /Chrome\//.test(ua) && !/Chromium|EdgA|OPR/.test(ua);
+      const isSafari = /Safari\//.test(ua) && !/Chrome/.test(ua);
+      const isOkBrowser = !isMobile || isChrome || isSafari;
+      if(isMobile && !isOkBrowser){
+        // Not Chrome/Safari on mobile — open in Chrome
+        if(isAndroid){
+          window.open('googlechrome://' + window.location.href.replace('https://',''), '_blank');
+          setTimeout(()=>{ window.location.href = window.location.href; }, 500);
+        } else {
+          alert('Please open this page in Safari to sign in');
+        }
+        return;
+      }
       if(isMobile){
         signInWithRedirect(auth, provider).catch(e => alert('Sign in error: ' + e.message));
       } else {
