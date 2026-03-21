@@ -715,8 +715,7 @@ function buildTable(list,sortCol,sortDir){
       ${d.docUrl?`<a href="${d.docUrl}" target="_blank" style="font-size:10px;color:var(--accent3);font-family:var(--mono);text-decoration:none;border:1px solid var(--accent3);padding:1px 6px;" title="${d.docUrl}">🔗 Open</a>`:'<span style="color:var(--border);font-size:10px">—</span>'}
     </td>
     <td style="white-space:nowrap">
-      <button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button>
-      <button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>
+      ${window._isAdmin?`<button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button><button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>`:''}
     </td>
   </tr>`).join('')}
   </tbody></table>`;
@@ -865,10 +864,7 @@ function applyAuthUI(){
   // Lock banner
   const banner = document.getElementById('lockBanner');
   if(banner) banner.classList.toggle('show', !isAdmin);
-  // Edit/delete buttons — hide if not admin
-  document.querySelectorAll('.edit-btn,.del-btn').forEach(btn=>{
-    btn.style.display = isAdmin ? '' : 'none';
-  });
+  // Edit/delete buttons handled inside buildTable
   // ⚙ Codes tab — hide if not admin
   const manageTab = document.querySelector('.tab[onclick*="manage"]');
   if(manageTab) manageTab.style.display = isAdmin ? '' : 'none';
