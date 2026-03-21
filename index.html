@@ -236,6 +236,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="stat-card"><div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material</div></div>
         <div class="stat-card"><div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install</div></div>
       </div>
+      <div class="search-bar">
+        <input type="text" id="search-all" placeholder="Search… (space = AND, e.g. GND IFA)" oninput="applySearch('all')">
+        <button class="search-clear" onclick="clearSearch('all')" title="Clear">✕</button>
+      </div>
+      <div class="search-hint" id="hint-all"></div>
       <div class="tbl-wrap" id="wrapAll"></div>
     </div>
 
@@ -245,6 +250,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="log-title">Design & Drawing Documents</div>
         <div class="log-count" id="cntDes">0 docs</div>
       </div>
+      <div class="search-bar">
+        <input type="text" id="search-des" placeholder="Search… (space = AND, e.g. GND IFA)" oninput="applySearch('des')">
+        <button class="search-clear" onclick="clearSearch('des')" title="Clear">✕</button>
+      </div>
+      <div class="search-hint" id="hint-des"></div>
       <div class="tbl-wrap" id="wrapDes"></div>
     </div>
 
@@ -254,6 +264,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="log-title">Material Supply Documents</div>
         <div class="log-count" id="cntMat">0 docs</div>
       </div>
+      <div class="search-bar">
+        <input type="text" id="search-mat" placeholder="Search… (space = AND, e.g. GND IFA)" oninput="applySearch('mat')">
+        <button class="search-clear" onclick="clearSearch('mat')" title="Clear">✕</button>
+      </div>
+      <div class="search-hint" id="hint-mat"></div>
       <div class="tbl-wrap" id="wrapMat"></div>
     </div>
 
@@ -264,6 +279,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="log-title">Requisition Documents</div>
         <div class="log-count" id="cntRq">0 docs</div>
       </div>
+      <div class="search-bar">
+        <input type="text" id="search-rq" placeholder="Search… (space = AND, e.g. GND IFA)" oninput="applySearch('rq')">
+        <button class="search-clear" onclick="clearSearch('rq')" title="Clear">✕</button>
+      </div>
+      <div class="search-hint" id="hint-rq"></div>
       <div class="tbl-wrap" id="wrapRq"></div>
     </div>
 
@@ -273,6 +293,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="log-title">Installation & Commissioning Documents</div>
         <div class="log-count" id="cntInstall">0 docs</div>
       </div>
+      <div class="search-bar">
+        <input type="text" id="search-install" placeholder="Search… (space = AND, e.g. GND IFA)" oninput="applySearch('install')">
+        <button class="search-clear" onclick="clearSearch('install')" title="Clear">✕</button>
+      </div>
+      <div class="search-hint" id="hint-install"></div>
       <div class="tbl-wrap" id="wrapInstall"></div>
     </div>
 
@@ -674,13 +699,27 @@ function switchTab(name,el){
 }
 
 // ── RENDER TABLE ─────────────────────────────────────
-function buildTable(list){
+function buildTable(list,sortCol,sortDir){
   if(!list.length) return '<div class="empty"><div class="empty-icon">📄</div><div>No documents</div></div>';
+  // Apply sort
+  let sorted=[...list];
+  if(sortCol!==undefined){
+    const keys=['#','code','main','sub','desc','rev','status','date','approved','approvedDate'];
+    const k=keys[sortCol];
+    sorted.sort((a,b)=>{
+      let va=k==='#'?0:(a[k]||'').toString().toLowerCase();
+      let vb=k==='#'?0:(b[k]||'').toString().toLowerCase();
+      if(va<vb)return sortDir==='asc'?-1:1;
+      if(va>vb)return sortDir==='asc'?1:-1;
+      return 0;
+    });
+  }
+  const sc=(col,label)=>`<th class="sortable${sortCol===col?(sortDir==='asc'?' sort-asc':' sort-desc'):''}" onclick="sortTable(this,${col})">${label}</th>`;
   return `<table><thead><tr>
-    <th>#</th><th>Document No.</th><th>Main</th><th>Sub</th><th>Description</th>
-    <th>Rev</th><th>Status</th><th>Date Issued</th><th>Approved</th><th>Approved Date</th><th></th>
+    <th>#</th>${sc(1,'Document No.')}${sc(2,'Main')}${sc(3,'Sub')}${sc(4,'Description')}
+    ${sc(5,'Rev')}${sc(6,'Status')}${sc(7,'Date Issued')}${sc(8,'Approved')}${sc(9,'Approved Date')}<th></th>
   </tr></thead><tbody>
-  ${list.map((d,i)=>`<tr>
+  ${sorted.map((d,i)=>`<tr>
     <td style="color:var(--text3);font-family:var(--mono);font-size:10px">${String(i+1).padStart(2,'0')}</td>
     <td class="doc-code">${d.code}</td>
     <td><span class="tag">${d.main}</span></td>
@@ -700,23 +739,15 @@ function buildTable(list){
 }
 
 function renderAllTabs(){
-  const desDocs=docs.filter(d=>d.main==='DES');
+  const desDocs=docs.filter(d=>d.main==='DES'&&!isRQ(d));
   const matDocs=docs.filter(d=>MAT_MAINS.includes(d.main));
   const instDocs=docs.filter(d=>INSTALL_MAINS.includes(d.main));
+  const rqDocs=docs.filter(isRQ);
   document.getElementById('statTotal').textContent=docs.length;
   document.getElementById('statDES').textContent=desDocs.length;
   document.getElementById('statMAT').textContent=matDocs.length;
   document.getElementById('statINS').textContent=instDocs.length;
-  document.getElementById('wrapAll').innerHTML=buildTable(docs);
-  document.getElementById('cntDes').textContent=`${desDocs.length} docs`;
-  document.getElementById('wrapDes').innerHTML=buildTable(desDocs);
-  document.getElementById('cntMat').textContent=`${matDocs.length} docs`;
-  document.getElementById('wrapMat').innerHTML=buildTable(matDocs);
-  document.getElementById('cntInstall').textContent=`${instDocs.length} docs`;
-  document.getElementById('wrapInstall').innerHTML=buildTable(instDocs);
-  const rqDocs=docs.filter(isRQ);
-  document.getElementById('cntRq').textContent=`${rqDocs.length} docs`;
-  document.getElementById('wrapRq').innerHTML=buildTable(rqDocs);
+  ['all','des','mat','rq','install'].forEach(t=>renderTab(t));
 }
 function renderTable(){renderAllTabs();}
 function renderFilterChips(){}
@@ -954,6 +985,75 @@ function renderReference(){
     </div>`;
 }
 
+
+// ── SEARCH & SORT ─────────────────────────────────
+const searchState={};
+const sortState={};  // {tabId: {col, dir}}
+
+function getTabDocs(tabId){
+  if(tabId==='all') return docs;
+  if(tabId==='des') return docs.filter(d=>d.main==='DES' && !isRQ(d));
+  if(tabId==='mat') return docs.filter(d=>MAT_MAINS.includes(d.main));
+  if(tabId==='rq')  return docs.filter(isRQ);
+  if(tabId==='install') return docs.filter(d=>INSTALL_MAINS.includes(d.main));
+  return docs;
+}
+
+function applySearch(tabId){
+  const q=(document.getElementById('search-'+tabId)?.value||'').trim().toLowerCase();
+  searchState[tabId]=q;
+  renderTab(tabId);
+}
+
+function clearSearch(tabId){
+  const el=document.getElementById('search-'+tabId);
+  if(el)el.value='';
+  searchState[tabId]='';
+  renderTab(tabId);
+}
+
+function sortTable(thEl,col){
+  // Find which tab this table belongs to
+  const wrap=thEl.closest('.tbl-wrap');
+  const tabId=wrap?wrap.id.replace('wrap','').toLowerCase():'all';
+  const cur=sortState[tabId]||{};
+  const dir=(cur.col===col && cur.dir==='asc')?'desc':'asc';
+  sortState[tabId]={col,dir};
+  renderTab(tabId);
+}
+
+function filterDocs(tabId){
+  let list=getTabDocs(tabId);
+  const q=searchState[tabId]||'';
+  if(q){
+    const terms=q.split(/\s+/).filter(Boolean);
+    list=list.filter(d=>{
+      const hay=[d.code,d.main,d.sub,d.desc,d.rev,d.status,d.date].join(' ').toLowerCase();
+      return terms.every(t=>hay.includes(t));
+    });
+  }
+  return list;
+}
+
+function renderTab(tabId){
+  const list=filterDocs(tabId);
+  const ss=sortState[tabId]||{};
+  const wrap=document.getElementById('wrap'+tabId.charAt(0).toUpperCase()+tabId.slice(1));
+  if(wrap) wrap.innerHTML=buildTable(list,ss.col,ss.dir);
+  const hint=document.getElementById('hint-'+tabId);
+  const total=getTabDocs(tabId).length;
+  if(hint){
+    const q=searchState[tabId]||'';
+    hint.textContent=q?(list.length===total?'':list.length+' of '+total+' docs matched'):'';
+  }
+  // update count badge
+  const cntMap={des:'cntDes',mat:'cntMat',rq:'cntRq',install:'cntInstall'};
+  if(cntMap[tabId]){
+    const el=document.getElementById(cntMap[tabId]);
+    const q=searchState[tabId]||'';
+    if(el) el.textContent=(q?list.length+'/'+total:total)+' docs';
+  }
+}
 // ── EXPORT ───────────────────────────────────────────
 const TAB_LABELS={all:'All Documents',des:'Design & Drawing',mat:'Material Supply',install:'Installation & Commissioning',rq:'Requisition (RQ)'};
 function getExportData(){
