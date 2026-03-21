@@ -412,6 +412,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       <div class="select-wrap">
         <select id="selStatus" onchange="updatePreview()">
           <option value="IFA" selected>IFA — Issued for Approval</option>
+          <option value="WIP">WIP — Work in Progress</option>
           <option value="IFR">IFR — Issued for Review</option>
           <option value="IFC">IFC — Issued for Construction</option>
           <option value="AFC">AFC — Approved for Construction</option>
@@ -469,6 +470,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       <div class="select-wrap">
         <select id="editStatus">
           <option value="IFA">IFA — Issued for Approval</option>
+          <option value="WIP">WIP — Work in Progress</option>
           <option value="IFR">IFR — Issued for Review</option>
           <option value="IFC">IFC — Issued for Construction</option>
           <option value="AFC">AFC — Approved for Construction</option>
@@ -612,7 +614,7 @@ function getDesCode(sub,num){
   return `TSG25-${series}-${String(base+(num-1)).padStart(2,'0')}`;
 }
 
-const STATUS_C={IFA:'#D48C00',IFR:'#7A3CB4',IFC:'#1A6FD4',AFC:'#2A9D3A',SUB:'#1A6FD4',IFI:'#4A4A4A',DDD:'#AAAAAA',VOID:'#D93025'};
+const STATUS_C={IFA:'#D48C00',IFR:'#7A3CB4',IFC:'#1A6FD4',AFC:'#2A9D3A',SUB:'#1A6FD4',IFI:'#4A4A4A',WIP:'#E07B00',DDD:'#AAAAAA',VOID:'#D93025'};
 
 // ── INIT ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
