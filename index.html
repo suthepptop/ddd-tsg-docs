@@ -579,12 +579,24 @@ let docs = [];
 
 // Pre-seed counters from pre-loaded docs so auto-increment continues correctly
 function seedCounters(){
+  counters={};
   docs.forEach(d=>{
-    if(!d.code.startsWith('TSG25')){
-      const k=d.main+'-'+d.sub;
-      const m=d.code.match(/(\d{4})$/);
-      if(m){const n=parseInt(m[1]); if(n>(counters[k]||0))counters[k]=n;}
+    const k=d.main+'-'+d.sub;
+    let n=0;
+    if(d.code.startsWith('TSG25')){
+      // TSG25-ECG00-01 or TSG25-OCG00-01 → extract last number
+      const m=d.code.match(/-(\d+)$/);
+      if(m) n=parseInt(m[1]);
+    } else if(d.code.match(/DDD-TSG-DES-RQ-(\d{4})$/)){
+      // DDD-TSG-DES-RQ-0001 format
+      const m=d.code.match(/DDD-TSG-DES-RQ-(\d{4})$/);
+      if(m) n=parseInt(m[1]);
+    } else {
+      // DDD-TSG-MAIN-SUB-XXXX
+      const m=d.code.match(/-(\d{4})$/);
+      if(m) n=parseInt(m[1]);
     }
+    if(n>(counters[k]||0)) counters[k]=n;
   });
 }
 
@@ -716,6 +728,7 @@ function updatePreview(){
   const desc=document.getElementById('inpDesc').value;
   const docUrl=(document.getElementById('inpDocUrl')?.value||'').trim();
   const ov=document.getElementById('inpOverride').value;
+  seedCounters();
   const num=ov?parseInt(ov):peekNum(main,sub);
   const md=mainDiscs.find(m=>m.code===main)?.desc||main;
   const sd=subPool[sub]||sub;
@@ -755,14 +768,34 @@ function addDocument(){
   const docUrl=(document.getElementById('inpDocUrl')?.value||'').trim();
   const ov=document.getElementById('inpOverride').value;
   let num;
-  if(ov){num=parseInt(ov);const k=main+'-'+sub;if(num>(counters[k]||0))counters[k]=num;}
-  else{num=getNextNum(main,sub);}
+  if(ov){
+    num=parseInt(ov);
+    const k=main+'-'+sub;
+    // Check if override number would produce a duplicate
+    let testCode;
+    if(isDesDrw(main,sub)){ testCode=getDesCode(sub,num); }
+    else if(main==='DES'&&sub==='RQ'){ testCode=`DDD-TSG-DES-RQ-${fmt4(num)}`; }
+    else{ testCode=`DDD-TSG-${main}-${sub}-${fmt4(num)}`; }
+    if(docs.some(d=>d.code===testCode)){
+      showToast(`⚠ ${testCode} already exists!`);
+      return;
+    }
+    if(num>(counters[k]||0))counters[k]=num;
+  } else{num=getNextNum(main,sub);}
   const desDrw=isDesDrw(main,sub);
   const isRqSub = main==='DES' && sub==='RQ';
   let code;
   if(desDrw){ code=getDesCode(sub,num); }
   else if(isRqSub){ code=`DDD-TSG-DES-RQ-${fmt4(num)}`; }
   else{ code=`DDD-TSG-${main}-${sub}-${fmt4(num)}`; }
+  // Duplicate check — auto-increment until unique
+  while(docs.some(d=>d.code===code)){
+    num++;
+    const k=main+'-'+sub; counters[k]=num;
+    if(desDrw){ code=getDesCode(sub,num); }
+    else if(isRqSub){ code=`DDD-TSG-DES-RQ-${fmt4(num)}`; }
+    else{ code=`DDD-TSG-${main}-${sub}-${fmt4(num)}`; }
+  }
   const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:'',docUrl:docUrl||''};
   docs.push(newDoc);
