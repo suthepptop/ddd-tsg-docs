@@ -38,7 +38,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 
 /* STATS */
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);padding:12px 14px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);padding:12px 14px;cursor:default;transition:border-color 0.15s;}
+  .stat-card.clickable{cursor:pointer;}
+  .stat-card.clickable:hover{border-color:var(--accent);background:var(--bg);}
 .stat-val{font-family:var(--mono);font-size:22px;font-weight:700;}
 .stat-label{font-size:9px;color:var(--text3);letter-spacing:0.5px;margin-top:2px;text-transform:uppercase;}
 
@@ -232,10 +234,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     <div class="tab-panel active" id="tab-all">
       <div class="stats">
         <div class="stat-card"><div class="stat-val" id="statTotal">0</div><div class="stat-label">Total</div></div>
-        <div class="stat-card"><div class="stat-val" id="statDES" style="color:var(--accent)">0</div><div class="stat-label">Design</div></div>
-        <div class="stat-card"><div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material</div></div>
-        <div class="stat-card"><div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install</div></div>
-        <div class="stat-card"><div class="stat-val" id="statRQ" style="color:#8B4500">0</div><div class="stat-label">RQ</div></div>
+        <div class="stat-card clickable" onclick="jumpTab('des')"><div class="stat-val" id="statDES" style="color:var(--accent)">0</div><div class="stat-label">Design ↗</div></div>
+        <div class="stat-card clickable" onclick="jumpTab('mat')"><div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material ↗</div></div>
+        <div class="stat-card clickable" onclick="jumpTab('install')"><div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install ↗</div></div>
+        <div class="stat-card clickable" onclick="jumpTab('rq')"><div class="stat-val" id="statRQ" style="color:#8B4500">0</div><div class="stat-label">RQ ↗</div></div>
       </div>
       <div class="search-bar">
         <input type="text" id="search-all" placeholder="Search… (space = AND, e.g. GND IFA)" oninput="applySearch('all')">
@@ -398,6 +400,12 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       <input type="text" id="inpDesc" placeholder="คำอธิบายเอกสาร..." oninput="updatePreview()">
     </div>
     <div class="field-group">
+      <div class="field-label">GOOGLE DRIVE LINK</div>
+      <div class="field-sub">ลิงก์เอกสารใน Google Drive (optional)</div>
+      <input type="text" id="inpDocUrl" placeholder="https://drive.google.com/..." oninput="updatePreview()">
+    </div>
+
+    <div class="field-group">
       <div class="field-label">REVISION</div>
       <div class="select-wrap">
         <select id="selRev" onchange="updatePreview()">
@@ -487,6 +495,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
           <span style="color:#888">✗ Not yet</span>
         </label>
       </div>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Google Drive Link</div>
+      <input type="text" id="editDocUrl" placeholder="https://drive.google.com/...">
     </div>
     <div class="modal-field" id="approvedDateField" style="display:none">
       <div class="modal-label">Approved Date</div>
@@ -644,7 +656,7 @@ function buildTable(list,sortCol,sortDir){
   const sc=(col,label)=>`<th class="sortable${sortCol===col?(sortDir==='asc'?' sort-asc':' sort-desc'):''}" onclick="sortTable(this,${col})">${label}</th>`;
   return `<table><thead><tr>
     <th>#</th>${sc(1,'Document No.')}${sc(2,'Main')}${sc(3,'Sub')}${sc(4,'Description')}
-    ${sc(5,'Rev')}${sc(6,'Status')}${sc(7,'Date Issued')}${sc(8,'Approved')}${sc(9,'Approved Date')}<th></th>
+    ${sc(5,'Rev')}${sc(6,'Status')}${sc(7,'Date Issued')}${sc(8,'Approved')}${sc(9,'Approved Date')}<th>Doc Link</th><th></th>
   </tr></thead><tbody>
   ${sorted.map((d,i)=>`<tr>
     <td style="color:var(--text3);font-family:var(--mono);font-size:10px">${String(i+1).padStart(2,'0')}</td>
@@ -657,6 +669,9 @@ function buildTable(list,sortCol,sortDir){
     <td style="font-size:10px;color:var(--text3);white-space:nowrap">${d.date||'—'}</td>
     <td style="text-align:center;font-size:11px;font-weight:700;color:${d.approved==='yes'?'#2A9D3A':'#CCC'}">${d.approved==='yes'?'✓':'—'}</td>
     <td style="font-size:10px;color:#2A9D3A;white-space:nowrap">${d.approved==='yes'?(d.approvedDate||''):'—'}</td>
+    <td style="white-space:nowrap;text-align:center">
+      ${d.docUrl?`<a href="${d.docUrl}" target="_blank" style="font-size:10px;color:var(--accent3);font-family:var(--mono);text-decoration:none;border:1px solid var(--accent3);padding:1px 6px;" title="${d.docUrl}">🔗 Open</a>`:'<span style="color:var(--border);font-size:10px">—</span>'}
+    </td>
     <td style="white-space:nowrap">
       <button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button>
       <button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>
@@ -676,6 +691,13 @@ function renderAllTabs(){
   document.getElementById('statINS').textContent=instDocs.length;
   document.getElementById('statRQ').textContent=rqDocs.length;
   ['all','des','mat','rq','install'].forEach(t=>renderTab(t));
+}
+
+function jumpTab(name){
+  const tabEl = document.querySelector(`.tab[onclick*="'${name}'"]`);
+  switchTab(name, tabEl);
+  // scroll tab into view on mobile
+  if(tabEl) tabEl.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
 }
 function renderTable(){renderAllTabs();}
 function renderFilterChips(){}
@@ -748,11 +770,12 @@ function addDocument(){
   else if(isRqSub){ code=`DDD-TSG-DES-RQ-${sub.slice(2)}-${fmt4(num)}`; }
   else{ code=`DDD-TSG-${main}-${sub}-${fmt4(num)}`; }
   const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-  const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:''};
+  const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:'',docUrl:docUrl||''};
   docs.push(newDoc);
   if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(newDoc.id)),newDoc);
   document.getElementById('inpDesc').value='';
   document.getElementById('inpOverride').value='';
+  if(document.getElementById('inpDocUrl'))document.getElementById('inpDocUrl').value='';
   renderAllTabs(); updatePreview();
   showToast('✓ Added: '+code);
 }
@@ -778,6 +801,7 @@ function openModal(id){
   document.getElementById('editApprovedNo').checked=!approved;
   document.getElementById('approvedDateField').style.display=approved?'block':'none';
   document.getElementById('editApprovedDate').value=d.approvedDate||'';
+  document.getElementById('editDocUrl').value=d.docUrl||'';
   document.getElementById('editModal').classList.add('open');
 }
 function closeModal(){document.getElementById('editModal').classList.remove('open');}
@@ -789,6 +813,7 @@ function saveEdit(){
   d.status=document.getElementById('editStatus').value;
   d.approved=document.getElementById('editApprovedYes').checked?'yes':'no';
   d.approvedDate=d.approved==='yes'?document.getElementById('editApprovedDate').value:'';
+  d.docUrl=(document.getElementById('editDocUrl')?.value||'').trim();
   if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(d.id)),d);
   closeModal(); renderAllTabs(); showToast('✓ Updated');
 }
