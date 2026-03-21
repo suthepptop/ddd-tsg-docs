@@ -195,19 +195,25 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     window._signOut = () => signOut(auth);
     window._signIn = () => {
       const ua = navigator.userAgent;
-      // Detect WebView / in-app browser (LINE, FB, Instagram, etc.)
-      const isWebView = /FBAN|FBAV|Instagram|Line|Twitter|MicroMessenger|WebView|wv|GSA/.test(ua)
-        || ((/iPhone|iPad|Android/.test(ua)) && !/Safari/.test(ua))
-        || (/Android/.test(ua) && /Version\//.test(ua));
+      const isAndroid = /Android/i.test(ua);
+      const isIOS = /iPhone|iPad/i.test(ua);
+      // Detect in-app WebView (LINE, FB, IG etc.) — Google blocks OAuth in these
+      const isWebView = /FBAN|FBAV|Instagram|Line|Twitter|MicroMessenger|wv/.test(ua)
+        || (isAndroid && /wv/.test(ua))
+        || (isIOS && !/Safari/.test(ua));
       if(isWebView){
-        // Can't sign in inside WebView — ask user to open in Chrome/Safari
-        const msg = 'เพื่อ Sign In กรุณาเปิดลิงก์นี้ใน Chrome หรือ Safari\n\n' + window.location.href;
-        if(confirm('⚠️ ไม่สามารถ Sign In ใน browser นี้ได้\nกด OK เพื่อคัดลอก URL แล้วเปิดใน Chrome/Safari')){
-          navigator.clipboard.writeText(window.location.href).then(()=>alert('✓ คัดลอก URL แล้ว — เปิดใน Chrome หรือ Safari')).catch(()=>alert(window.location.href));
+        // Android: use intent:// to force open in Chrome
+        if(isAndroid){
+          const url = window.location.href;
+          window.location.href = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+          return;
         }
+        // iOS: prompt to open in Safari
+        alert('กรุณาเปิดลิงก์นี้ใน Safari:\n' + window.location.href);
         return;
       }
-      const isMobile = /Android|iPhone|iPad|Mobile/i.test(ua);
+      // Normal browser
+      const isMobile = isAndroid || isIOS;
       if(isMobile){
         signInWithRedirect(auth, provider).catch(e => alert(e.message));
       } else {
@@ -891,7 +897,7 @@ window.onAuthReady = function(user, isAdmin){
   if(addPanel) addPanel.style.display = isAdmin ? 'flex' : 'none';
   // Lock banner
   const banner = document.getElementById('lockBanner');
-  if(banner) banner.classList.toggle('show', !isAdmin);
+  if(banner) banner.style.display = isAdmin ? 'none' : 'flex';
   // ⚙ Codes tab
   const manageTab = document.querySelector('.tab[onclick*="manage"]');
   if(manageTab) manageTab.style.display = isAdmin ? '' : 'none';
