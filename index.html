@@ -248,7 +248,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 
   <!-- MAIN PANEL (LEFT) -->
   <div class="main-panel">
-    <div class="lock-banner" id="lockBanner">🔒 View-only mode — Sign in as admin to edit documents</div>
+    <div class="lock-banner" id="lockBanner">🔒 View-only mode — Sign in as admin to add or edit documents</div>
     <!-- 4 TABS -->
     <div class="tabs">
       <div class="tab active" onclick="switchTab('all',this)">ALL</div>
@@ -859,20 +859,21 @@ function copyCode(){
 // ── AUTH UI ───────────────────────────────────────────
 function applyAuthUI(){
   const isAdmin = !!window._isAdmin;
-  // Add panel lock
+  // Add panel — hide completely if not admin
   const addPanel = document.getElementById('addPanel');
-  if(addPanel) addPanel.classList.toggle('locked', !isAdmin);
+  if(addPanel) addPanel.style.display = isAdmin ? '' : 'none';
   // Lock banner
   const banner = document.getElementById('lockBanner');
   if(banner) banner.classList.toggle('show', !isAdmin);
-  // Edit/delete buttons
+  // Edit/delete buttons — hide if not admin
   document.querySelectorAll('.edit-btn,.del-btn').forEach(btn=>{
     btn.style.display = isAdmin ? '' : 'none';
   });
-  // Manage + Reference tabs visibility
+  // ⚙ Codes tab — hide if not admin
   const manageTab = document.querySelector('.tab[onclick*="manage"]');
   if(manageTab) manageTab.style.display = isAdmin ? '' : 'none';
-  // Export still visible for all
+  // If currently on manage tab but not admin, switch to all
+  if(!isAdmin && currentTab==='manage') switchTab('all', document.querySelector('.tab'));
 }
 // ── DATE FORMAT HELPERS ───────────────────────────────
 // Convert dd/mm/yyyy or "02 Mar 2026" → yyyy-mm-dd for date input
