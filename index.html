@@ -710,6 +710,7 @@ function updatePreview(){
   const rev=document.getElementById('selRev').value;
   const status=document.getElementById('selStatus').value;
   const desc=document.getElementById('inpDesc').value;
+  const docUrl=(document.getElementById('inpDocUrl')?.value||'').trim();
   const ov=document.getElementById('inpOverride').value;
   const num=ov?parseInt(ov):peekNum(main,sub);
   const md=mainDiscs.find(m=>m.code===main)?.desc||main;
@@ -747,6 +748,7 @@ function addDocument(){
   const rev=document.getElementById('selRev').value;
   const status=document.getElementById('selStatus').value;
   const desc=document.getElementById('inpDesc').value;
+  const docUrl=(document.getElementById('inpDocUrl')?.value||'').trim();
   const ov=document.getElementById('inpOverride').value;
   let num;
   if(ov){num=parseInt(ov);const k=main+'-'+sub;if(num>(counters[k]||0))counters[k]=num;}
