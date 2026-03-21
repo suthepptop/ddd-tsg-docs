@@ -451,6 +451,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       <input type="text" id="editDesc" placeholder="Document description">
     </div>
     <div class="modal-field">
+      <div class="modal-label">Date Issued</div>
+      <input type="text" id="editDate" placeholder="e.g. 26/02/2026">
+    </div>
+    <div class="modal-field">
       <div class="modal-label">Revision</div>
       <div class="select-wrap">
         <select id="editRev">
@@ -784,6 +788,7 @@ function openModal(id){
   const d=docs.find(x=>x.id===id);if(!d)return;
   document.getElementById('editDocId').value=id;
   document.getElementById('editDesc').value=d.desc;
+  document.getElementById('editDate').value=d.date||'';
   document.getElementById('editRev').value=d.rev;
   document.getElementById('editStatus').value=d.status||'IFA';
   const approved=d.approved==='yes';
@@ -799,6 +804,7 @@ function saveEdit(){
   const id=parseInt(document.getElementById('editDocId').value);
   const d=docs.find(x=>x.id===id);if(!d)return;
   d.desc=document.getElementById('editDesc').value;
+  d.date=document.getElementById('editDate').value;
   d.rev=document.getElementById('editRev').value;
   d.status=document.getElementById('editStatus').value;
   d.approved=document.getElementById('editApprovedYes').checked?'yes':'no';
