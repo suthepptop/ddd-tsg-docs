@@ -379,15 +379,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       </div>
     </div>
 
-    <div class="field-group" id="seriesGroup" style="display:none">
-      <div class="field-label">DRAWING SERIES</div>
-      <input type="text" id="inpSeries" value="ECG00" maxlength="5"
-        placeholder="ECG00" oninput="updatePreview()"
-        style="text-transform:uppercase;font-family:var(--mono);letter-spacing:1px">
-      <div class="field-sub">เช่น ECG00, OCG00, ICG00</div>
-    </div>
-
-    <div class="field-group">
+<div class="field-group">
       <div class="field-label">MAIN</div>
       <div class="select-wrap"><select id="selMain" onchange="populateSub();updatePreview()"></select></div>
     </div>
@@ -531,7 +523,7 @@ let subPool = {
   SLD:'Single Line Diagram', SCH:'Schedule', LAY:'Layout/Drawing',
   HOK:'Hook-up Drawing', PNL:'Panel Drawing',
   LTG:'Lightning Protection', GND:'Grounding System',
-  LGT:'Lighting Layout', CCL:'CCTV Layout',
+  LGT:'Lighting Layout', CCL:'CCTV Layout', COM:'Communication',
   // DES RQ — single RQ sub, format: DDD-TSG-DES-RQ-XXXX
   RQ:'Requisition',
   // ELC subs
@@ -557,7 +549,7 @@ let subPool = {
 };
 
 let subMap = {
-  DES: ['SLD','SCH','LAY','HOK','PNL','LTG','GND','LGT','CCL','RQ','GEN'],
+  DES: ['SLD','SCH','LAY','HOK','PNL','LTG','GND','LGT','CCL','COM','RQ','GEN'],
   ELC: ['CNF','CAC','JBX','GEN'],
   INS: ['IAC','GEN'],
   GND: ['GTB','GAC','GEN'],
@@ -592,11 +584,12 @@ function seedCounters(){
   });
 }
 
-const DES_SERIES = {SLD:1,SCH:2,LAY:10,HOK:20,PNL:21,LTG:30,GND:40,LGT:60,CCL:80};
-const DES_DRAWING_SUBS = ['SLD','SCH','LAY','HOK','PNL','LTG','GND','LGT','CCL'];
+const DES_SERIES = {SLD:1,SCH:2,LAY:10,HOK:20,PNL:21,LTG:30,GND:40,LGT:60,CCL:80,COM:1};
+const DES_DRAWING_SUBS = ['SLD','SCH','LAY','HOK','PNL','LTG','GND','LGT','CCL','COM'];
 function isDesDrw(main,sub){return main==='DES'&&DES_DRAWING_SUBS.includes(sub);}
-function getDesCode(sub,num,series){
-  series=series||(document.getElementById('inpSeries')?document.getElementById('inpSeries').value.toUpperCase().trim()||'ECG00':'ECG00');
+function getDesCode(sub,num){
+  // COM = Communication → OCG00 series, others → ECG00 series
+  const series = sub==='COM' ? 'OCG00' : 'ECG00';
   let base;
   if(sub==='PNL'&&num>7){base=110+(num-8); return `TSG25-${series}-${String(base).padStart(3,'0')}`;}
   base=DES_SERIES[sub]||1;
@@ -731,9 +724,8 @@ function updatePreview(){
   document.getElementById('fmtLineDES').style.display=desDrw?'flex':'none';
   document.getElementById('fmtDescStd').style.display=desDrw?'none':'block';
   document.getElementById('fmtDescDES').style.display=desDrw?'block':'none';
-  document.getElementById('seriesGroup').style.display=desDrw?'block':'none';
   if(desDrw){
-    const sv=(document.getElementById('inpSeries').value.toUpperCase().trim()||'ECG00');
+    const sv=sub==='COM'?'OCG00':'ECG00';
     document.getElementById('fmtSeriesLabel').textContent=sv;
     document.getElementById('fmtDescSeries').textContent=sv;
     const seriesNum=sub==='PNL'&&num>7?String(110+(num-8)).padStart(3,'0'):String((DES_SERIES[sub]||1)+(num-1)).padStart(2,'0');
