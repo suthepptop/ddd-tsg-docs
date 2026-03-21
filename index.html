@@ -158,6 +158,8 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, setDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
   const firebaseConfig = {
     apiKey:"AIzaSyDMxqBXDKEBKXAdI1E200V-qodtxxJZgBk",
     authDomain:"ddd-tsg-docs.firebaseapp.com",
@@ -166,15 +168,45 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     messagingSenderId:"695932302309",
     appId:"1:695932302309:web:ae4ab1b9b97da821d3350c"
   };
+
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
   const colRef = collection(db, 'documents');
+
+  // ── Admin whitelist — add allowed Google email(s) here ──
+  const ADMIN_EMAILS = [
+    'suthepptop@gmail.com'
+  ];
+
   window._db=db; window._fbSetDoc=setDoc; window._fbDeleteDoc=deleteDoc; window._fbDoc=doc; window._fbReady=true;
+
+  // ── Auth state listener ──────────────────────────────
+  onAuthStateChanged(auth, (user) => {
+    const isAdmin = user && ADMIN_EMAILS.includes(user.email.toLowerCase());
+    window._isAdmin = isAdmin;
+    window._currentUser = user;
+
+    const el = document.getElementById('authBtn');
+    const userEl = document.getElementById('userInfo');
+    if(user){
+      if(el){ el.textContent='Sign Out'; el.onclick=()=>signOut(auth); }
+      if(userEl){
+        userEl.innerHTML = isAdmin
+          ? `<span style="color:#2A9D3A;font-weight:700">🔑 ${user.displayName||user.email}</span>`
+          : `<span style="color:var(--text3)">${user.displayName||user.email}</span>`;
+      }
+    } else {
+      if(el){ el.textContent='Sign In'; el.onclick=()=>signInWithPopup(auth,provider).catch(e=>showToast('⚠ '+e.message)); }
+      if(userEl){ userEl.innerHTML='<span style="color:var(--text3);font-size:10px">Not signed in</span>'; }
+    }
+    if(typeof applyAuthUI==='function') applyAuthUI();
+  });
+
+  // ── Firestore listener ───────────────────────────────
   onSnapshot(colRef, (snapshot) => {
-    if(snapshot.empty && docs.length>0 && !window._fbSynced){
-      docs.forEach(d=>setDoc(doc(db,'documents',String(d.id)),d));
-      window._fbSynced=true;
-    } else if(!snapshot.empty){
+    if(!snapshot.empty){
       const remote=[];
       snapshot.forEach(d=>remote.push(d.data()));
       remote.sort((a,b)=>a.id-b.id);
@@ -206,6 +238,8 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   </div>
   <div style="display:flex;align-items:center;gap:10px">
     <span id="syncStatus" style="font-size:10px;font-weight:600;color:#888">⏳ Connecting...</span>
+    <span id="userInfo"></span>
+    <button id="authBtn" onclick="" style="font-size:10px;font-family:var(--mono);padding:4px 12px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;">Sign In</button>
     <div class="badge">ENG · 2026</div>
   </div>
 </div>
@@ -214,6 +248,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 
   <!-- MAIN PANEL (LEFT) -->
   <div class="main-panel">
+    <div class="lock-banner" id="lockBanner">🔒 View-only mode — Sign in as admin to edit documents</div>
     <!-- 4 TABS -->
     <div class="tabs">
       <div class="tab active" onclick="switchTab('all',this)">ALL</div>
@@ -349,7 +384,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   </div>
 
   <!-- ADD PANEL (RIGHT) -->
-  <div class="add-panel">
+  <div class="add-panel admin-only" id="addPanel">
     <div>
       <div class="section-label">Add Document</div>
       <div class="format-display">
@@ -620,7 +655,7 @@ const STATUS_C={IFA:'#D48C00',IFR:'#7A3CB4',IFC:'#1A6FD4',AFC:'#2A9D3A',SUB:'#1A
 document.addEventListener('DOMContentLoaded',()=>{
   seedCounters();
   rebuildMainSelect(); populateSub(); updatePreview();
-  renderAllTabs(); renderFilterChips(); renderManage(); renderReference();
+  renderAllTabs(); renderFilterChips(); renderManage(); renderReference(); applyAuthUI();
 });
 
 // ── HELPERS ──────────────────────────────────────────
@@ -707,6 +742,7 @@ function jumpTab(name){
   if(tabEl) tabEl.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
 }
 function renderTable(){renderAllTabs();}
+function afterRender(){if(typeof applyAuthUI==="function")applyAuthUI();}
 function renderFilterChips(){}
 
 // ── SIDEBAR ──────────────────────────────────────────
@@ -805,7 +841,7 @@ function addDocument(){
   document.getElementById('inpDesc').value='';
   document.getElementById('inpOverride').value='';
   if(document.getElementById('inpDocUrl'))document.getElementById('inpDocUrl').value='';
-  renderAllTabs(); updatePreview();
+  renderAllTabs(); applyAuthUI(); updatePreview();
   showToast('✓ Added: '+code);
 }
 
@@ -819,6 +855,25 @@ function copyCode(){
 }
 
 
+
+// ── AUTH UI ───────────────────────────────────────────
+function applyAuthUI(){
+  const isAdmin = !!window._isAdmin;
+  // Add panel lock
+  const addPanel = document.getElementById('addPanel');
+  if(addPanel) addPanel.classList.toggle('locked', !isAdmin);
+  // Lock banner
+  const banner = document.getElementById('lockBanner');
+  if(banner) banner.classList.toggle('show', !isAdmin);
+  // Edit/delete buttons
+  document.querySelectorAll('.edit-btn,.del-btn').forEach(btn=>{
+    btn.style.display = isAdmin ? '' : 'none';
+  });
+  // Manage + Reference tabs visibility
+  const manageTab = document.querySelector('.tab[onclick*="manage"]');
+  if(manageTab) manageTab.style.display = isAdmin ? '' : 'none';
+  // Export still visible for all
+}
 // ── DATE FORMAT HELPERS ───────────────────────────────
 // Convert dd/mm/yyyy or "02 Mar 2026" → yyyy-mm-dd for date input
 function toInputDate(d){
@@ -877,7 +932,7 @@ function delDoc(id){
   if(!confirm('Delete this entry?'))return;
   docs=docs.filter(d=>d.id!==id);
   if(window._fbReady)window._fbDeleteDoc(window._fbDoc(window._db,'documents',String(id)));
-  renderAllTabs(); showToast('✓ Deleted');
+  renderAllTabs(); applyAuthUI(); showToast('✓ Deleted');
 }
 
 // ── MANAGE ───────────────────────────────────────────
