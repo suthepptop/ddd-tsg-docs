@@ -37,7 +37,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .tab-panel.active{display:block;}
 
 /* STATS */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
 .stat-card{background:var(--surface);border:1px solid var(--border);padding:12px 14px;}
 .stat-val{font-family:var(--mono);font-size:22px;font-weight:700;}
 .stat-label{font-size:9px;color:var(--text3);letter-spacing:0.5px;margin-top:2px;text-transform:uppercase;}
@@ -235,6 +235,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="stat-card"><div class="stat-val" id="statDES" style="color:var(--accent)">0</div><div class="stat-label">Design</div></div>
         <div class="stat-card"><div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material</div></div>
         <div class="stat-card"><div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install</div></div>
+        <div class="stat-card"><div class="stat-val" id="statRQ" style="color:#8B4500">0</div><div class="stat-label">RQ</div></div>
       </div>
       <div class="search-bar">
         <input type="text" id="search-all" placeholder="Search… (space = AND, e.g. GND IFA)" oninput="applySearch('all')">
@@ -570,81 +571,7 @@ const INSTALL_MAINS = ['PRG','COM','DOC'];
 let counters = {}, selMain4Sub = null;
 let currentTab = 'all';
 
-let docs = [
-  // ① DESIGN — DES Drawings (TSG25-ECG00-XX, no xxxx suffix)
-  {id:1001,code:'TSG25-ECG00-00', main:'DES',sub:'GEN',desc:'List of Drawing',                                     rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  // ELECTRICAL SYSTEM
-  // ELECTRICAL SYSTEM — from List of Drawing
-  {id:1059,code:'TSG25-ECG00-01', main:'DES',sub:'SLD',desc:'Single Line Diagram',                                  rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1060,code:'TSG25-ECG00-02', main:'DES',sub:'SCH',desc:'Load Schedule Sheet 1 of 2',                          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1061,code:'TSG25-ECG00-03', main:'DES',sub:'SCH',desc:'Load Schedule Sheet 2 of 2',                          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1062,code:'TSG25-ECG00-04', main:'DES',sub:'SLD',desc:'Riser Diagram',                                       rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  // CABLE ARRANGEMENT
-  {id:1005,code:'TSG25-ECG00-10', main:'DES',sub:'LAY',desc:'Cable Arrangement Reference Plan',                    rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1006,code:'TSG25-ECG00-11', main:'DES',sub:'LAY',desc:'Cable Arrangement — Steam Trans Building',            rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1007,code:'TSG25-ECG00-12', main:'DES',sub:'LAY',desc:'Cable Arrangement — Rice Mill 1',                     rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1008,code:'TSG25-ECG00-13', main:'DES',sub:'LAY',desc:'Cable Arrangement — Rice Mill 2',                     rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1009,code:'TSG25-ECG00-14', main:'DES',sub:'LAY',desc:'Cable Arrangement — Rice Mill 3',                     rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1010,code:'TSG25-ECG00-15', main:'DES',sub:'LAY',desc:'Cable Arrangement — Control Room',                    rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  // HOOK-UP & PANEL
-  {id:1011,code:'TSG25-ECG00-20', main:'DES',sub:'HOK',desc:'Hook-up Drawing',                                     rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1012,code:'TSG25-ECG00-21', main:'DES',sub:'PNL',desc:'Panel GA Drawing — MDB',                              rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1013,code:'TSG25-ECG00-22', main:'DES',sub:'PNL',desc:'Panel GA Drawing — MCC',                              rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1014,code:'TSG25-ECG00-23', main:'DES',sub:'PNL',desc:'Panel GA Drawing — PLC Panel',                        rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1015,code:'TSG25-ECG00-24', main:'DES',sub:'PNL',desc:'Panel GA Drawing — Control Desk',                     rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1016,code:'TSG25-ECG00-25', main:'DES',sub:'PNL',desc:'Panel Wiring Diagram — MDB',                          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1017,code:'TSG25-ECG00-26', main:'DES',sub:'PNL',desc:'Panel Wiring Diagram — MCC',                          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1018,code:'TSG25-ECG00-27', main:'DES',sub:'PNL',desc:'Panel Wiring Diagram — PLC Panel',                    rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  // LIGHTNING PROTECTION
-  {id:1019,code:'TSG25-ECG00-05', main:'DES',sub:'LTG',desc:'Diagram for Lightning Protection',                    rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1020,code:'TSG25-ECG00-30', main:'DES',sub:'LTG',desc:'Lightning Protection System Reference Plan',          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1021,code:'TSG25-ECG00-31', main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Ground Level',        rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1022,code:'TSG25-ECG00-32', main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System 1st Level',           rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1023,code:'TSG25-ECG00-33', main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Roof Level',          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1024,code:'TSG25-ECG00-34', main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Section A-A',         rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1025,code:'TSG25-ECG00-35', main:'DES',sub:'LTG',desc:'AC2 Lightning Protection System 1st Level',           rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1026,code:'TSG25-ECG00-36', main:'DES',sub:'LTG',desc:'Lightning Protection Typical Detail',                 rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  // GROUNDING & BONDING
-  {id:1027,code:'TSG25-ECG00-40', main:'DES',sub:'GND',desc:'Grounding and Bonding System Reference Plan',         rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1028,code:'TSG25-ECG00-41', main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 1 of 12',          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1029,code:'TSG25-ECG00-42', main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 2 of 12',          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1030,code:'TSG25-ECG00-43', main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 3 of 12',          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1031,code:'TSG25-ECG00-44', main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 4 of 12',          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1032,code:'TSG25-ECG00-45', main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 5 of 12',          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1033,code:'TSG25-ECG00-46', main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 6 of 12',          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1034,code:'TSG25-ECG00-47', main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 7 of 12',          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1035,code:'TSG25-ECG00-48', main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 8 of 12',          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1036,code:'TSG25-ECG00-49', main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 9 of 12',          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1037,code:'TSG25-ECG00-50', main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 10 of 12',         rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1038,code:'TSG25-ECG00-51', main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 11 of 12',         rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1039,code:'TSG25-ECG00-52', main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 12 of 12',         rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1040,code:'TSG25-ECG00-53', main:'DES',sub:'GND',desc:'Grounding and Bonding System Typical Detail',         rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  // LIGHTING SYSTEM
-  {id:1041,code:'TSG25-ECG00-60', main:'DES',sub:'LGT',desc:'Lighting System Reference Plan',                      rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1042,code:'TSG25-ECG00-61', main:'DES',sub:'LGT',desc:'Lighting Layout — Steam Trans Building',              rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1043,code:'TSG25-ECG00-62', main:'DES',sub:'LGT',desc:'Lighting Layout — Accumulator #2',                    rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  // CCTV SYSTEM
-  {id:1044,code:'TSG25-ECG00-80', main:'DES',sub:'CCL',desc:'CCTV System Reference Plan',                          rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1045,code:'TSG25-ECG00-81', main:'DES',sub:'CCL',desc:'CCTV Layout — Steam Trans Building',                  rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1046,code:'TSG25-ECG00-82', main:'DES',sub:'CCL',desc:'CCTV Layout — Accumulator #2',                        rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1047,code:'TSG25-ECG00-83', main:'DES',sub:'CCL',desc:'CCTV Layout — Rice Mill 1',                           rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1048,code:'TSG25-ECG00-84', main:'DES',sub:'CCL',desc:'CCTV Layout — Rice Mill 2',                           rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1049,code:'TSG25-ECG00-85', main:'DES',sub:'CCL',desc:'CCTV Layout — Rice Mill 3',                           rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1050,code:'TSG25-ECG00-86', main:'DES',sub:'CCL',desc:'CCTV Network Diagram',                                rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  // PANEL DETAIL
-  {id:1051,code:'TSG25-ECG00-110',main:'DES',sub:'PNL',desc:'Control Marshalling Wiring Diagram',                  rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  {id:1052,code:'TSG25-ECG00-111',main:'DES',sub:'PNL',desc:'I/O Remote Box Wiring Diagram',                       rev:'Rev.0',status:'IFA',date:'26/02/2026',approved:'no',approvedDate:''},
-  // REQUISITION (RQ) — DDD-TSG-DES-RQ-XXXX format
-  // ② MATERIAL SUPPLY — ELC
-  // INS
-  // GND
-  // LGT
-  // CCTV
-  // MAT
-  // ③ INSTALLATION & COMMISSIONING — PRG
-  // COM
-  // DOC
-];
+let docs = [];
 
 // Pre-seed counters from pre-loaded docs so auto-increment continues correctly
 function seedCounters(){
@@ -747,6 +674,7 @@ function renderAllTabs(){
   document.getElementById('statDES').textContent=desDocs.length;
   document.getElementById('statMAT').textContent=matDocs.length;
   document.getElementById('statINS').textContent=instDocs.length;
+  document.getElementById('statRQ').textContent=rqDocs.length;
   ['all','des','mat','rq','install'].forEach(t=>renderTab(t));
 }
 function renderTable(){renderAllTabs();}
