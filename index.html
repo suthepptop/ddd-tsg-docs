@@ -194,11 +194,9 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     // Store sign-out function globally
     window._signOut = () => signOut(auth);
     window._signIn = () => {
-      // Detect in-app browser / mobile WebView → use redirect
-      const ua = navigator.userAgent;
-      const isInApp = /FBAN|FBAV|Instagram|Line|Twitter|MicroMessenger|WebView|wv/.test(ua);
-      const isMobile = /Android|iPhone|iPad/.test(ua);
-      if(isInApp || isMobile){
+      // Always use redirect on mobile/tablet, popup on desktop
+      const isMobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+      if(isMobile){
         signInWithRedirect(auth, provider).catch(e => alert(e.message));
       } else {
         signInWithPopup(auth, provider).catch(e => alert(e.message));
@@ -701,8 +699,8 @@ function buildTable(list,sortCol,sortDir){
   }
   const sc=(col,label)=>`<th class="sortable${sortCol===col?(sortDir==='asc'?' sort-asc':' sort-desc'):''}" onclick="sortTable(this,${col})">${label}</th>`;
   return `<table><thead><tr>
-    <th>#</th>${sc(1,'Document No.')}${sc(2,'Main')}${sc(3,'Sub')}${sc(4,'Description')}
-    ${sc(5,'Rev')}${sc(6,'Status')}${sc(7,'Date Issued')}${sc(8,'Approved')}${sc(9,'Approved Date')}<th>Doc Link</th><th></th>
+    <th>#</th>${sc(1,'Document No.')}${sc(2,'Main')}${sc(3,'Sub')}${sc(4,'Description')}<th>🔗</th>
+    ${sc(5,'Rev')}${sc(6,'Status')}${sc(7,'Date Issued')}${sc(8,'Approved')}${sc(9,'Approved Date')}<th></th>
   </tr></thead><tbody>
   ${sorted.map((d,i)=>`<tr>
     <td style="color:var(--text3);font-family:var(--mono);font-size:10px">${String(i+1).padStart(2,'0')}</td>
@@ -710,14 +708,14 @@ function buildTable(list,sortCol,sortDir){
     <td><span class="tag">${d.main}</span></td>
     <td style="font-family:var(--mono);font-size:10px;color:var(--text3)">${d.sub}</td>
     <td class="doc-desc">${d.desc||'—'}</td>
+    <td style="white-space:nowrap;text-align:center">
+      ${d.docUrl?`<a href="${d.docUrl}" target="_blank" style="font-size:10px;color:var(--accent3);font-family:var(--mono);text-decoration:none;border:1px solid var(--accent3);padding:1px 5px;" title="${d.docUrl}">🔗</a>`:''}
+    </td>
     <td><span class="rev-badge">${d.rev}</span></td>
     <td style="font-family:var(--mono);font-size:10px;font-weight:700;color:${STATUS_C[d.status]||'#888'}">${d.status||'—'}</td>
     <td style="font-size:10px;color:var(--text3);white-space:nowrap">${d.date||'—'}</td>
     <td style="text-align:center;font-size:11px;font-weight:700;color:${d.approved==='yes'?'#2A9D3A':'#CCC'}">${d.approved==='yes'?'✓':'—'}</td>
     <td style="font-size:10px;color:#2A9D3A;white-space:nowrap">${d.approved==='yes'?(d.approvedDate||''):'—'}</td>
-    <td style="white-space:nowrap;text-align:center">
-      ${d.docUrl?`<a href="${d.docUrl}" target="_blank" style="font-size:10px;color:var(--accent3);font-family:var(--mono);text-decoration:none;border:1px solid var(--accent3);padding:1px 6px;" title="${d.docUrl}">🔗 Open</a>`:'<span style="color:var(--border);font-size:10px">—</span>'}
-    </td>
     <td style="white-space:nowrap">
       ${window._isAdmin?`<button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button><button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>`:''}
     </td>
