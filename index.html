@@ -649,15 +649,18 @@ function seedCounters(){
     const k=d.main+'-'+d.sub;
     let n=0;
     if(d.code.startsWith('TSG25')){
-      // TSG25-ECG00-01 or TSG25-OCG00-01 → extract last number
+      // TSG25-ECG00-30 → series number 30, base for LTG=30
+      // convert series number back to sequential count: n = seriesNum - base + 1
       const m=d.code.match(/-(\d+)$/);
-      if(m) n=parseInt(m[1]);
+      if(m){
+        const seriesNum=parseInt(m[1]);
+        const base=DES_SERIES[d.sub]||1;
+        n=seriesNum-base+1; // sequential count (1,2,3...)
+      }
     } else if(d.code.match(/DDD-TSG-DES-RQ-(\d{4})$/)){
-      // DDD-TSG-DES-RQ-0001 format
       const m=d.code.match(/DDD-TSG-DES-RQ-(\d{4})$/);
       if(m) n=parseInt(m[1]);
     } else {
-      // DDD-TSG-MAIN-SUB-XXXX
       const m=d.code.match(/-(\d{4})$/);
       if(m) n=parseInt(m[1]);
     }
