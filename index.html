@@ -186,9 +186,16 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   // ── Handle redirect result (mobile sign-in) ─────────
   getRedirectResult(auth).then(result => {
     if(result && result.user){
-      console.log('Redirect sign-in success:', result.user.email);
+      const user = result.user;
+      const isAdmin = !!(user && ADMIN_EMAILS.includes(user.email.toLowerCase()));
+      window._isAdmin = isAdmin;
+      window._currentUser = user;
+      window._signOut = () => signOut(auth);
+      if(typeof window.onAuthReady === 'function') window.onAuthReady(user, isAdmin);
     }
-  }).catch(e => console.warn('Redirect result error:', e.message));
+  }).catch(e => {
+    console.warn('Redirect result error:', e.message);
+  });
 
   // ── Auth state listener ──────────────────────────────
   onAuthStateChanged(auth, (user) => {
