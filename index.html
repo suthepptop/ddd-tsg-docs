@@ -158,7 +158,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, setDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey:"AIzaSyDMxqBXDKEBKXAdI1E200V-qodtxxJZgBk",
@@ -182,6 +182,9 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 
   window._db=db; window._fbSetDoc=setDoc; window._fbDeleteDoc=deleteDoc; window._fbDoc=doc; window._fbReady=true;
 
+  // ── Handle redirect result (mobile sign-in) ─────────
+  getRedirectResult(auth).catch(e => console.warn('Redirect result:', e.message));
+
   // ── Auth state listener ──────────────────────────────
   onAuthStateChanged(auth, (user) => {
     const isAdmin = !!(user && ADMIN_EMAILS.includes(user.email.toLowerCase()));
@@ -189,7 +192,17 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     window._currentUser = user;
     // Store sign-out function globally
     window._signOut = () => signOut(auth);
-    window._signIn  = () => signInWithPopup(auth, provider).catch(e => alert(e.message));
+    window._signIn = () => {
+      // Detect in-app browser / mobile WebView → use redirect
+      const ua = navigator.userAgent;
+      const isInApp = /FBAN|FBAV|Instagram|Line|Twitter|MicroMessenger|WebView|wv/.test(ua);
+      const isMobile = /Android|iPhone|iPad/.test(ua);
+      if(isInApp || isMobile){
+        signInWithRedirect(auth, provider).catch(e => alert(e.message));
+      } else {
+        signInWithPopup(auth, provider).catch(e => alert(e.message));
+      }
+    };
     // Call global handler (defined in main script)
     if(typeof window.onAuthReady === 'function') window.onAuthReady(user, isAdmin);
   });
