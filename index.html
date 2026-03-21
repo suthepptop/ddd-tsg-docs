@@ -527,33 +527,29 @@ let mainDiscs = [
 ];
 
 let subPool = {
-  // DES Drawing subs (used for TSG25-ECG00-XX codes)
-  SLD:'Single Line Diagram', LAY:'Layout/Drawing', SCH:'Schedule',
-  HOK:'Hook-up Drawing', PNL:'Panel Drawing', GND:'Grounding System',
-  LTG:'Lightning Protection', LGT:'Lighting Layout', CCL:'CCTV Layout',
-  // RQ sub-categories (DDD-TSG-DES-RQ-XXX-XXXX)
-  RQ01:'RQ-01 Electrical (Cable Tray, Conduit, Cable)',
-  RQ02:'RQ-02 Grounding & Lightning System',
-  RQ03:'RQ-03 Field Instrument',
-  RQ04:'RQ-04 Lighting System',
-  RQ05:'RQ-05 CCTV System',
-  RQ06:'RQ-06 Panel & Control System',
-  // ELC — Electrical subs (3-letter abbreviation of item)
+  // DES Drawing subs → TSG25-XXXXX-XX
+  SLD:'Single Line Diagram', SCH:'Schedule', LAY:'Layout/Drawing',
+  HOK:'Hook-up Drawing', PNL:'Panel Drawing',
+  LTG:'Lightning Protection', GND:'Grounding System',
+  LGT:'Lighting Layout', CCL:'CCTV Layout',
+  // DES RQ — single RQ sub, format: DDD-TSG-DES-RQ-XXXX
+  RQ:'Requisition',
+  // ELC subs
   CNF:'Conduit & Fitting', CAC:'Cable Accessories', JBX:'Junction Box',
-  // INS — Instrument subs
+  // INS subs
   IAC:'Instrument Accessories',
-  // GND — Grounding subs
+  // GND subs
   GTB:'Ground Test Box', GAC:'Grounding Accessories',
-  // LGT — Lighting subs
+  // LGT subs
   LDC:'Load Center', LCW:'Conduit & Wiring (Lighting)', LFX:'Light Fixture + Lamp', LAC:'Lighting Accessories',
   // CCTV subs
   CAM:'CCTV Camera', NVR:'NVR + HDD', MCV:'Media Converter', LAN:'LAN & Fiber Optic Cable',
-  // MAT — Material & Equipment subs
+  // MAT subs
   MDB:'MDB Panel', MCC:'MCC Panel', PLC:'PLC Panel + UPS', CDK:'Control Desk',
   CMP:'Control Marshalling Panel', IRB:'I/O Remote Box',
-  // PRG — Programming subs
+  // PRG subs
   PRG:'PLC Programming', HMI:'HMI Programming', LOG:'Control Logic', USR:'User Management',
-  // COM — Commissioning subs
+  // COM subs
   FAT:'Factory Acceptance Test', SAT:'Site Acceptance Test', PRE:'Pre-Commissioning',
   // DOC subs
   ABD:'As-Built Drawing', MNL:'Operation Manual', TRN:'Training Material',
@@ -561,7 +557,7 @@ let subPool = {
 };
 
 let subMap = {
-  DES: ['SLD','SCH','LAY','HOK','PNL','LTG','GND','LGT','CCL','RQ01','RQ02','RQ03','RQ04','RQ05','RQ06','GEN'],
+  DES: ['SLD','SCH','LAY','HOK','PNL','LTG','GND','LGT','CCL','RQ','GEN'],
   ELC: ['CNF','CAC','JBX','GEN'],
   INS: ['IAC','GEN'],
   GND: ['GTB','GAC','GEN'],
@@ -576,7 +572,7 @@ let subMap = {
 // MAT disciplines
 const MAT_MAINS = ['ELC','INS','GND','LGT','CCTV','MAT'];
 // RQ filter: DES with sub RQ
-function isRQ(d){ return d.main==='DES' && d.sub && d.sub.startsWith('RQ'); }
+function isRQ(d){ return d.main==='DES' && d.sub==='RQ'; }
 // INSTALL disciplines
 const INSTALL_MAINS = ['PRG','COM','DOC'];
 
@@ -726,10 +722,10 @@ function updatePreview(){
   const md=mainDiscs.find(m=>m.code===main)?.desc||main;
   const sd=subPool[sub]||sub;
   const desDrw=isDesDrw(main,sub);
-  const isRqSub = main==='DES' && sub && sub.startsWith('RQ') && sub.length===4;
+  const isRqSub = main==='DES' && sub==='RQ';
   let code;
   if(desDrw){ code=getDesCode(sub,num); }
-  else if(isRqSub){ code=`DDD-TSG-DES-RQ-${sub.slice(2)}-${fmt4(num)}`; }
+  else if(isRqSub){ code=`DDD-TSG-DES-RQ-${fmt4(num)}`; }
   else{ code=`DDD-TSG-${main}-${sub}-${fmt4(num)}`; }
   document.getElementById('fmtLineStd').style.display=desDrw?'none':'flex';
   document.getElementById('fmtLineDES').style.display=desDrw?'flex':'none';
@@ -764,10 +760,10 @@ function addDocument(){
   if(ov){num=parseInt(ov);const k=main+'-'+sub;if(num>(counters[k]||0))counters[k]=num;}
   else{num=getNextNum(main,sub);}
   const desDrw=isDesDrw(main,sub);
-  const isRqSub = main==='DES' && sub && sub.startsWith('RQ') && sub.length===4;
+  const isRqSub = main==='DES' && sub==='RQ';
   let code;
   if(desDrw){ code=getDesCode(sub,num); }
-  else if(isRqSub){ code=`DDD-TSG-DES-RQ-${sub.slice(2)}-${fmt4(num)}`; }
+  else if(isRqSub){ code=`DDD-TSG-DES-RQ-${fmt4(num)}`; }
   else{ code=`DDD-TSG-${main}-${sub}-${fmt4(num)}`; }
   const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:'',docUrl:docUrl||''};
