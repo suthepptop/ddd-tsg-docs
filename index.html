@@ -354,6 +354,12 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       <input type="text" id="inpDesc" placeholder="คำอธิบายเอกสาร..." oninput="updatePreview()">
     </div>
     <div class="field-group">
+      <div class="field-label">GOOGLE DRIVE LINK</div>
+      <div class="field-sub">ลิงก์เอกสารใน Google Drive (optional)</div>
+      <input type="text" id="inpDocUrl" placeholder="https://drive.google.com/..." oninput="updatePreview()">
+    </div>
+
+    <div class="field-group">
       <div class="field-label">REVISION</div>
       <div class="select-wrap">
         <select id="selRev" onchange="updatePreview()">
@@ -735,6 +741,7 @@ function updatePreview(){
   const rev=document.getElementById('selRev').value;
   const status=document.getElementById('selStatus').value;
   const desc=document.getElementById('inpDesc').value;
+  const docUrl=(document.getElementById('inpDocUrl')?.value||'').trim();
   const ov=document.getElementById('inpOverride').value;
   const num=ov?parseInt(ov):peekNum(main,sub);
   const md=mainDiscs.find(m=>m.code===main)?.desc||main;
@@ -762,6 +769,7 @@ function addDocument(){
   const rev=document.getElementById('selRev').value;
   const status=document.getElementById('selStatus').value;
   const desc=document.getElementById('inpDesc').value;
+  const docUrl=(document.getElementById('inpDocUrl')?.value||'').trim();
   const ov=document.getElementById('inpOverride').value;
   let num;
   if(ov){num=parseInt(ov);const k=main+'-'+sub;if(num>(counters[k]||0))counters[k]=num;}
@@ -769,11 +777,12 @@ function addDocument(){
   const desDrw=isDesDrw(main,sub);
   const code=desDrw?getDesCode(sub,num):`DDD-TSG-${main}-${sub}-${fmt4(num)}`;
   const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-  const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:''};
+  const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:'',docUrl:docUrl||''};
   docs.push(newDoc);
   if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(newDoc.id)),newDoc);
   document.getElementById('inpDesc').value='';
   document.getElementById('inpOverride').value='';
+  if(document.getElementById('inpDocUrl'))document.getElementById('inpDocUrl').value='';
   renderAllTabs(); updatePreview();
   showToast('✓ Added: '+code);
 }
