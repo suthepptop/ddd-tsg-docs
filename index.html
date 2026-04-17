@@ -407,6 +407,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       <input type="text" id="editDesc" placeholder="Document description">
     </div>
     <div class="modal-field">
+      <div class="modal-label">Date Issued</div>
+      <input type="date" id="editDate" style="width:100%;padding:7px;border:1px solid var(--border);font-size:12px;background:var(--bg);color:var(--text)">
+    </div>
+    <div class="modal-field">
       <div class="modal-label">Revision</div>
       <div class="select-wrap">
         <select id="editRev">
@@ -444,7 +448,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         </label>
       </div>
     </div>
-    <div class="modal-field" id="approvedDateField" style="display:none">
+    <div class="modal-field">
+      <div class="modal-label">Google Drive Link</div>
+      <input type="text" id="editDocUrl" placeholder="https://drive.google.com/...">
+    </div>
+    <div class="modal-field" id="approvedDateField">
       <div class="modal-label">Approved Date</div>
       <input type="date" id="editApprovedDate" style="width:100%;padding:7px;border:1px solid var(--border);font-size:12px;background:var(--bg);color:var(--text)">
     </div>
@@ -504,7 +512,7 @@ let currentTab = 'all';
 
 let docs = [
   // ELECTRICAL SYSTEM (ELS) — ECG00-00~05
-  {id:2000,code:'TSG25-ECG00-00',main:'DES',sub:'ELS',desc:'List of Drawing',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:''},
+  {id:2000,code:'TSG25-ECG00-00',main:'DES',sub:'ELS',desc:'List of Drawing',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
   {id:2001,code:'TSG25-ECG00-01',main:'DES',sub:'ELS',desc:'List of Drawing',                                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
   {id:2002,code:'TSG25-ECG00-02',main:'DES',sub:'ELS',desc:'Single Line Diagram',                                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
   {id:2003,code:'TSG25-ECG00-03',main:'DES',sub:'ELS',desc:'Load Schedule Sheet 1 of 2',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
@@ -615,6 +623,13 @@ let docs = [
   {id:2100,code:'TSG25-ECG00-130',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 4', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
   {id:2101,code:'TSG25-ECG00-131',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 4',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
   {id:2102,code:'TSG25-ECG00-132',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 4',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  // REQUISITION (RQ) — DDD-TSG-DES-RQ-XXXX
+  {id:3001,code:'DDD-TSG-DES-RQ-0001',main:'DES',sub:'RQ',desc:'Requisition — Electrical (Cable Tray, Conduit, Cable)',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:3002,code:'DDD-TSG-DES-RQ-0002',main:'DES',sub:'RQ',desc:'Requisition — Grounding & Lightning System',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:3003,code:'DDD-TSG-DES-RQ-0003',main:'DES',sub:'RQ',desc:'Requisition — Field Instrument',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:3004,code:'DDD-TSG-DES-RQ-0004',main:'DES',sub:'RQ',desc:'Requisition — Lighting System',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:3005,code:'DDD-TSG-DES-RQ-0005',main:'DES',sub:'RQ',desc:'Requisition — CCTV System',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:3006,code:'DDD-TSG-DES-RQ-0006',main:'DES',sub:'RQ',desc:'Requisition — Panel & Control System',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
 ];
 
 const DES_SERIES = {ELS:1,MRS:10,LTG:30,GND:40,LGT:60,SPS:70,PNL:80,HOK:200,COM:1,CCL:20};
@@ -656,7 +671,7 @@ function switchTab(name,el){
 function buildTable(list){
   if(!list.length) return '<div class="empty"><div class="empty-icon">📄</div><div>No documents</div></div>';
   return `<table><thead><tr>
-    <th>#</th><th>Document No.</th><th>Main</th><th>Sub</th><th>Description</th>
+    <th>#</th><th>Document No.</th><th>Main</th><th>Sub</th><th>🔗</th><th>Description</th>
     <th>Rev</th><th>Status</th><th>Date Issued</th><th>Approved</th><th>Approved Date</th><th></th>
   </tr></thead><tbody>
   ${list.map((d,i)=>`<tr>
@@ -664,6 +679,7 @@ function buildTable(list){
     <td class="doc-code">${d.code}</td>
     <td><span class="tag">${d.main}</span></td>
     <td style="font-family:var(--mono);font-size:10px;color:var(--text3)">${d.sub}</td>
+    <td style="white-space:nowrap;text-align:center">${d.docUrl?`<a href="${d.docUrl}" target="_blank" style="font-size:10px;color:var(--accent3);font-family:var(--mono);text-decoration:none;border:1px solid var(--accent3);padding:1px 5px;" title="${d.docUrl}">🔗</a>`:''}</td>
     <td class="doc-desc">${d.desc||'—'}</td>
     <td><span class="rev-badge">${d.rev}</span></td>
     <td style="font-family:var(--mono);font-size:10px;font-weight:700;color:${STATUS_C[d.status]||'#888'}">${d.status||'—'}</td>
@@ -776,13 +792,16 @@ function openModal(id){
   const d=docs.find(x=>x.id===id);if(!d)return;
   document.getElementById('editDocId').value=id;
   document.getElementById('editDesc').value=d.desc;
+  document.getElementById('editDate').value=d.date?d.date.split('/').reverse().join('-'):'';
   document.getElementById('editRev').value=d.rev;
   document.getElementById('editStatus').value=d.status||'IFA';
   const approved=d.approved==='yes';
   document.getElementById('editApprovedYes').checked=approved;
   document.getElementById('editApprovedNo').checked=!approved;
-  document.getElementById('approvedDateField').style.display=approved?'block':'none';
-  document.getElementById('editApprovedDate').value=d.approvedDate||'';
+
+  const ad=d.approvedDate||''; const adp=ad.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  document.getElementById('editApprovedDate').value=adp?adp[3]+'-'+adp[2]+'-'+adp[1]:ad;
+  document.getElementById('editDocUrl').value=d.docUrl||'';
   document.getElementById('editModal').classList.add('open');
 }
 function closeModal(){document.getElementById('editModal').classList.remove('open');}
@@ -790,10 +809,13 @@ function saveEdit(){
   const id=parseInt(document.getElementById('editDocId').value);
   const d=docs.find(x=>x.id===id);if(!d)return;
   d.desc=document.getElementById('editDesc').value;
+  const dv=document.getElementById('editDate').value; if(dv){const p=dv.split('-');d.date=p[2]+'/'+p[1]+'/'+p[0];}
   d.rev=document.getElementById('editRev').value;
   d.status=document.getElementById('editStatus').value;
   d.approved=document.getElementById('editApprovedYes').checked?'yes':'no';
-  d.approvedDate=d.approved==='yes'?document.getElementById('editApprovedDate').value:'';
+  const av=document.getElementById('editApprovedDate').value; const ap=av?av.split('-'):null;
+  d.approvedDate=d.approved==='yes'&&ap?(ap[2]+'/'+ap[1]+'/'+ap[0]):'';
+  d.docUrl=(document.getElementById('editDocUrl')?.value||'').trim();
   if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(d.id)),d);
   closeModal(); renderAllTabs(); showToast('✓ Updated');
 }
