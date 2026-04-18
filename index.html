@@ -43,9 +43,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .stat-label{font-size:8px;color:var(--text3);letter-spacing:0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* TABLE */
-.tbl-wrap{overflow-x:auto;}
+.tbl-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 220px);}
 table{width:100%;border-collapse:collapse;font-size:11px;}
-thead th{text-align:left;padding:7px 10px;font-size:9px;font-weight:600;letter-spacing:1px;color:var(--text3);background:var(--surface2);border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap;}
+thead th{text-align:left;padding:7px 10px;font-size:9px;font-weight:600;letter-spacing:1px;color:var(--text3);background:var(--surface2);border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap;position:sticky;top:0;z-index:2;}
 tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
 tbody tr:hover{background:var(--surface2);}
 tbody td{padding:7px 10px;color:var(--text2);vertical-align:middle;}
@@ -389,9 +389,9 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       </div>
     </div>
     <div class="field-group">
-      <div class="field-label">OVERRIDE NO.</div>
-      <div class="field-sub">ปล่อยว่าง = Auto</div>
-      <input type="number" id="inpOverride" min="1" max="999" placeholder="Auto" oninput="updatePreview()">
+      <div class="field-label">OVERRIDE CODE</div>
+      <div class="field-sub">กรอก code เอง เช่น TSG25-ECG00-06 (ว่าง = Auto)</div>
+      <input type="text" id="inpOverride" placeholder="ว่าง = Auto" oninput="updatePreview()" style="text-transform:uppercase;font-family:var(--mono);">
     </div>
 
     <div class="result-box">
@@ -415,6 +415,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     <div class="modal-field">
       <div class="modal-label">Description</div>
       <input type="text" id="editDesc" placeholder="Document description">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Sub</div>
+      <div class="select-wrap"><select id="editSub" style="width:100%"></select></div>
     </div>
     <div class="modal-field">
       <div class="modal-label">Date Issued</div>
@@ -659,6 +663,7 @@ function adminLogin(){
   if(window._isAdmin){
     if(confirm('Sign out จาก Admin?')){
       window._isAdmin=false;
+      sessionStorage.removeItem('isAdmin');
       applyAdminUI(false);
       showToast('✓ Signed out');
     }
@@ -668,6 +673,7 @@ function adminLogin(){
   if(pw===null) return;
   if(pw===ADMIN_PASS){
     window._isAdmin=true;
+    sessionStorage.setItem('isAdmin','1');
     applyAdminUI(true);
     showToast('✓ Welcome Admin');
   } else {
@@ -687,8 +693,11 @@ function applyAdminUI(isAdmin){
 }
 // ── INIT ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
+  // Restore admin session
+  if(sessionStorage.getItem('isAdmin')){window._isAdmin=true;}
   rebuildMainSelect(); populateSub(); updatePreview();
   renderAllTabs(); renderFilterChips(); renderManage(); renderReference();
+  if(window._isAdmin) applyAdminUI(true);
 });
 
 // ── HELPERS ──────────────────────────────────────────
@@ -867,12 +876,28 @@ function addDocument(){
   const status=document.getElementById('selStatus').value;
   const desc=document.getElementById('inpDesc').value;
   const docUrl=(document.getElementById('inpDocUrl')?.value||'').trim();
-  const ov=document.getElementById('inpOverride').value;
-  let num;
-  if(ov){num=parseInt(ov);const k=main+'-'+sub;if(num>(counters[k]||0))counters[k]=num;}
-  else{num=getNextNum(main,sub);}
+  const ov=(document.getElementById('inpOverride').value||'').trim().toUpperCase();
+  let code;
+  if(ov){
+    code=ov;
+    if(docs.some(d=>d.code===code)){
+      if(!confirm(`⚠ "${code}" มีอยู่แล้ว\nบันทึกทับหรือไม่?`)) return;
+    }
+  } else {
+    const desDrw=isDesDrw(main,sub);
+    const isRqSub=main==='DES'&&sub==='RQ';
+    let num=getNextNum(main,sub);
+    if(desDrw){ code=getDesCode(sub,num); }
+    else if(isRqSub){ code=`DDD-TSG-DES-RQ-${fmt4(num)}`; }
+    else{ code=`DDD-TSG-${main}-${sub}-${fmt4(num)}`; }
+    while(docs.some(d=>d.code===code)){
+      num++; const k=main+'-'+sub; counters[k]=num;
+      if(desDrw){ code=getDesCode(sub,num); }
+      else if(isRqSub){ code=`DDD-TSG-DES-RQ-${fmt4(num)}`; }
+      else{ code=`DDD-TSG-${main}-${sub}-${fmt4(num)}`; }
+    }
+  }
   const desDrw=isDesDrw(main,sub);
-  const code=desDrw?getDesCode(sub,num):`DDD-TSG-${main}-${sub}-${fmt4(num)}`;
   const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:'',docUrl:docUrl||''};
   docs.push(newDoc);
@@ -898,6 +923,17 @@ function openModal(id){
   const d=docs.find(x=>x.id===id);if(!d)return;
   document.getElementById('editDocId').value=id;
   document.getElementById('editDesc').value=d.desc;
+  // Populate sub dropdown based on main
+  const editSubSel=document.getElementById('editSub');
+  if(editSubSel){
+    const subs=subMap[d.main]||['GEN'];
+    editSubSel.innerHTML=subs.map(s=>`<option value="${s}">${s} — ${subPool[s]||s}</option>`).join('');
+    // Add current sub if not in list
+    if(!subs.includes(d.sub)){
+      editSubSel.innerHTML=`<option value="${d.sub}">${d.sub}</option>`+editSubSel.innerHTML;
+    }
+    editSubSel.value=d.sub;
+  }
   document.getElementById('editDate').value=d.date?d.date.split('/').reverse().join('-'):'';
   document.getElementById('editRev').value=d.rev;
   document.getElementById('editStatus').value=d.status||'IFA';
@@ -916,6 +952,7 @@ function saveEdit(){
   const id=parseInt(document.getElementById('editDocId').value);
   const d=docs.find(x=>x.id===id);if(!d)return;
   d.desc=document.getElementById('editDesc').value;
+  if(document.getElementById('editSub')) d.sub=document.getElementById('editSub').value;
   const dv=document.getElementById('editDate').value; if(dv){const p=dv.split('-');d.date=p[2]+'/'+p[1]+'/'+p[0];}
   d.rev=document.getElementById('editRev').value;
   d.status=document.getElementById('editStatus').value;
