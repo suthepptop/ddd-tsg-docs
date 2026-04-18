@@ -728,13 +728,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Load config from Firestore then render
   // Setup UI immediately (table will render when onSnapshot fires)
   rebuildMainSelect(); populateSub(); updatePreview();
-  renderManage(); renderReference();
+  renderAllTabs(); renderFilterChips(); renderManage(); renderReference();
   if(window._isAdmin) applyAdminUI(true);
   // Load config from Firestore when ready
   const _waitFb=setInterval(()=>{
-    if(window._fbReady){ clearInterval(_waitFb); loadConfig(()=>{rebuildMainSelect();populateSub();renderManage();}); }
+    if(window._fbReady){ clearInterval(_waitFb); loadConfig(()=>{rebuildMainSelect();populateSub();renderManage();renderAllTabs();}); }
   },100);
-  setTimeout(()=>clearInterval(_waitFb),5000);
+  setTimeout(()=>{ clearInterval(_waitFb); renderAllTabs(); },5000);
 });
 
 // ── HELPERS ──────────────────────────────────────────
@@ -1136,8 +1136,7 @@ function exportExcel(){
     i+1, d.code, d.main, d.sub, d.desc||'', d.rev||'', d.status||'',
     d.date||'', d.approved==='yes'?'Yes':'No', d.approvedDate||'', d.notes||''
   ]);
-  const csvContent=[headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('
-');
+  const csvContent=[headers,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   const BOM='﻿';
   const blob=new Blob([BOM+csvContent],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
