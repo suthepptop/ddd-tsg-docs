@@ -149,7 +149,8 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, setDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  // อัปเดตเปลี่ยนมาใช้ signInWithRedirect เพื่อป้องกัน Popup ถูกบล็อก
+  import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   
   const firebaseConfig = {
     apiKey:"AIzaSyDMxqBXDKEBKXAdI1E200V-qodtxxJZgBk",
@@ -165,12 +166,17 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   const provider = new GoogleAuthProvider();
   
   window._db=db; window._fbSetDoc=setDoc; window._fbDeleteDoc=deleteDoc; window._fbDoc=doc; window._fbReady=true;
-  window._auth=auth; window._provider=provider; window._signIn=signInWithPopup; window._signOut=signOut;
+  window._auth=auth; window._provider=provider; window._signInRedirect=signInWithRedirect; window._signOut=signOut;
+
+  // ตรวจจับตอน Redirect กลับมา เพื่อดักจับ Error
+  getRedirectResult(auth).catch((error) => {
+    alert('ล็อกอินผิดพลาด: ' + error.message);
+  });
 
   // ตรวจสอบสถานะการเข้าสู่ระบบ
   onAuthStateChanged(auth, (user) => {
     const manageTabBtn = document.getElementById('tab-btn-manage');
-    const addPanelDiv = document.getElementById('addPanel'); // เลือกแผงเพิ่มข้อมูลด้านขวา
+    const addPanelDiv = document.getElementById('addPanel'); // แผงเพิ่มข้อมูล
     
     if (user) {
       window._isAdmin = true;
@@ -179,9 +185,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       btn.title = user.email;
       btn.classList.add('btn-logout');
       
-      // แอดมินเข้าใช้งาน: โชว์แท็บ Manage และ แผง Add Document ขวามือ
+      // แอดมิน: โชว์แท็บ Manage และ แผง Add Document
       if(manageTabBtn) manageTabBtn.style.display = 'block'; 
       if(addPanelDiv) addPanelDiv.style.display = 'flex';
+      showToast('Logged in as ' + user.email);
     } else {
       window._isAdmin = false;
       const btn = document.getElementById('authBtn');
@@ -189,11 +196,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       btn.title = "Login with Google";
       btn.classList.remove('btn-logout');
       
-      // ผู้ใช้ทั่วไป: ซ่อนแท็บ Manage และ แผง Add Document ขวามือ
+      // คนทั่วไป: ซ่อนแท็บ Manage และ แผง Add Document 
       if(manageTabBtn) manageTabBtn.style.display = 'none'; 
       if(addPanelDiv) addPanelDiv.style.display = 'none';
       
-      // ถ้าเผลอกดออกจากระบบตอนที่อยู่หน้า Codes ให้เด้งกลับไปแท็บ ALL
+      // ถ้าแอดมินล็อกเอาท์ตอนอยู่หน้าแท็บ Manage ให้เด้งกลับไปหน้า ALL
       if(currentTab === 'manage') switchTab('all', document.getElementById('tab-btn-all'));
     }
     if(typeof renderAllTabs === 'function') renderAllTabs();
@@ -515,18 +522,13 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 </div>
 
 <script>
-// ── AUTH (GOOGLE LOGIN) ────────────────────────────────
+// ── AUTH (GOOGLE LOGIN - REDIRECT) ────────────────────────────────
 function toggleAuth() {
   if (window._isAdmin) {
-    window._signOut(window._auth).then(() => {
-      showToast('Logged out');
-    });
+    window._signOut(window._auth);
   } else {
-    window._signIn(window._auth, window._provider).then((result) => {
-      showToast('Logged in as ' + result.user.email);
-    }).catch((error) => {
-      alert('Login failed: ' + error.message + '\n\n* วิธีแก้: ไปที่ Firebase Console -> Authentication -> Settings -> Authorized domains แล้วเพิ่มชื่อโดเมนเว็บไซต์ของคุณ (หรือ localhost) เข้าไปในระบบครับ');
-    });
+    // ใช้วิธี Redirect ทะลุการบล็อก Pop-up ได้ 100%
+    window._signInRedirect(window._auth, window._provider);
   }
 }
 
@@ -726,7 +728,6 @@ function switchTab(name,el){
 
 // ── RENDER TABLE & SORTING ───────────────────────────
 const _sortState={};
-// แมปปิ้ง Index ของคอลัมน์ให้ตรงกับ Key ของข้อมูล
 const SORT_KEYS = {
   1: 'code', 2: 'main', 3: 'sub', 5: 'desc', 
   6: 'rev', 7: 'status', 8: 'date', 
@@ -742,7 +743,6 @@ function buildTable(list,wrapId,sortCol,sortDir){
       let va = (a[key]||'');
       let vb = (b[key]||'');
 
-      // จัดการเรียงลำดับวันที่ (แปลงจาก DD/MM/YYYY เป็น YYYYMMDD เพื่อให้เรียงถูก)
       if(key === 'date' || key === 'approvedDate') {
          const parseD = (str) => {
            if(!str) return '00000000';
@@ -760,9 +760,8 @@ function buildTable(list,wrapId,sortCol,sortDir){
     });
   }
 
-  // ฟังก์ชั่นสร้างหัวคอลัมน์ที่กด Sort ได้
   const sc=(col,label)=>{
-    if(!SORT_KEYS[col]) return `<th>${label}</th>`; // ถ้าเป็นคอลัมน์ที่ไม่ให้ Sort
+    if(!SORT_KEYS[col]) return `<th>${label}</th>`;
     const active = sortCol===col;
     const icon = active ? (sortDir==='asc' ? ' ▲' : ' ▼') : ' ↕';
     const cls = 'sortable' + (active ? ' active' : '');
@@ -811,23 +810,17 @@ function doSort(wrapId,col){
   renderAllTabs();
 }
 
-// ── SEARCH (OPEN SEARCH / MULTI-WORD) ────────────────
+// ── SEARCH ───────────────────────────────────────────
 const _searchState={};
 function searched(list,wrapId){
   const q=(_searchState[wrapId]||'').toLowerCase().trim();
   if(!q) return list;
-  
-  // แตกคำที่พิมพ์ด้วยการเว้นวรรค (เช่น พิมพ์ "TSG ELC" จะหาทั้งสองคำ)
   const terms = q.split(/\s+/).filter(t => t.length > 0);
-
   return list.filter(d => {
-    // เอาข้อมูลทั้งหมดมารวมเป็นก้อนข้อความเดียวเพื่อค้นหาแบบเจอที่ไหนก็ได้
     const combinedStr = `${d.code} ${d.desc} ${d.main} ${d.sub} ${d.remark}`.toLowerCase();
-    // ต้องเจอทุกคำที่พิมพ์ (Open Search)
     return terms.every(term => combinedStr.includes(term));
   });
 }
-
 function applySearch(wrapId){
   const map={wrapAll:'search-all',wrapDes:'search-des',wrapMat:'search-mat',wrapRq:'search-rq',wrapInstall:'search-install'};
   const inp=document.getElementById(map[wrapId]);
@@ -841,7 +834,6 @@ function clearSearch(wrapId){
   _searchState[wrapId]='';
   renderAllTabs();
 }
-
 function renderTab(wrapId,fullList,cntId){
   const filtered=searched(fullList,wrapId);
   const ss=_sortState[wrapId]||{};
@@ -851,12 +843,6 @@ function renderTab(wrapId,fullList,cntId){
     const q=_searchState[wrapId]||'';
     const el2=document.getElementById(cntId);
     if(el2) el2.textContent=q?`${filtered.length}/${fullList.length} docs`:`${fullList.length} docs`;
-  }
-  const hintMap={wrapAll:'hint-all',wrapDes:'hint-des',wrapMat:'hint-mat',wrapRq:'hint-rq',wrapInstall:'hint-install'};
-  const hint=document.getElementById(hintMap[wrapId]);
-  if(hint){
-    const q=_searchState[wrapId]||'';
-    hint.textContent=q&&filtered.length<fullList.length?`พบ ${filtered.length} จาก ${fullList.length} รายการ`:'';
   }
 }
 
@@ -871,6 +857,13 @@ function renderAllTabs(){
   document.getElementById('statMAT').textContent=matDocs.length;
   document.getElementById('statINS').textContent=instDocs.length;
   document.getElementById('statRQ').textContent=rqDocs.length;
+
+  // เอาตัวเลขออกจากหลังชื่อแท็บ
+  document.getElementById('tab-btn-all').textContent = 'ALL';
+  document.getElementById('tab-btn-des').textContent = 'DES';
+  document.getElementById('tab-btn-mat').textContent = 'MAT';
+  document.getElementById('tab-btn-install').textContent = 'INSTALL';
+  document.getElementById('tab-btn-rq').textContent = 'RQ';
 
   renderTab('wrapAll',docs,null);
   renderTab('wrapDes',desDocs,'cntDes');
