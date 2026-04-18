@@ -156,7 +156,6 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, setDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   const firebaseConfig = {
     apiKey:"AIzaSyDMxqBXDKEBKXAdI1E200V-qodtxxJZgBk",
     authDomain:"ddd-tsg-docs.firebaseapp.com",
@@ -167,54 +166,8 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   };
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
   const colRef = collection(db, 'documents');
-  const ADMIN_EMAILS = ['suthepp.top@gmail.com','suthepptop@gmail.com'];
 
-  getRedirectResult(auth).then(result=>{
-    if(result&&result.user){
-      const isAdmin=ADMIN_EMAILS.includes(result.user.email.toLowerCase());
-      window._isAdmin=isAdmin; window._currentUser=result.user;
-      window._signOut=()=>signOut(auth);
-      if(typeof window.onAuthReady==='function') window.onAuthReady(result.user,isAdmin);
-    }
-  }).catch(e=>console.warn(e.message));
-
-  onAuthStateChanged(auth,(user)=>{
-    const isAdmin=!!(user&&ADMIN_EMAILS.includes(user.email.toLowerCase()));
-    window._isAdmin=isAdmin; window._currentUser=user;
-    window._signOut=()=>signOut(auth);
-    let _signingIn=false;
-    window._signIn=()=>{
-      if(_signingIn) return;
-      const isMobile=/Android|iPhone|iPad/i.test(navigator.userAgent);
-      if(isMobile){
-        signInWithRedirect(auth,provider).catch(e=>alert('Sign in error: '+e.message));
-      } else {
-        _signingIn=true;
-        signInWithPopup(auth,provider).then(()=>{
-          _signingIn=false;
-        }).catch(e=>{
-          _signingIn=false;
-          if(e.code==='auth/popup-blocked'){
-            alert('Popup ถูกบล็อก — กรุณาอนุญาต popup สำหรับ site นี้แล้วลองใหม่');
-          } else if(e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request'){
-            alert('Sign in error: '+e.message);
-          }
-        });
-      }
-    };
-    // Call onAuthReady with retry until main script is ready
-    const _notify = () => {
-      if(typeof window.onAuthReady === 'function'){
-        window.onAuthReady(user, isAdmin);
-      } else {
-        setTimeout(_notify, 50);
-      }
-    };
-    _notify();
-  });
   window._db=db; window._fbSetDoc=setDoc; window._fbDeleteDoc=deleteDoc; window._fbDoc=doc; window._fbReady=true;
   onSnapshot(colRef, (snapshot) => {
     if(snapshot.empty && docs.length>0 && !window._fbSynced){
@@ -250,7 +203,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   <div style="display:flex;align-items:center;gap:10px">
     <span id="syncStatus" style="font-size:10px;font-weight:600;color:#888">⏳ Connecting...</span>
     <span id="userInfo"></span>
-    <button id="authBtn" onclick="window._signIn&&window._signIn()" style="font-size:10px;font-family:var(--mono);padding:4px 12px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;">Sign In</button>
+    <button id="authBtn" onclick="adminLogin()" style="font-size:10px;font-family:var(--mono);padding:4px 12px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;">🔐 Admin</button>
     <div class="badge">ENG · 2026</div>
   </div>
 </div>
@@ -700,26 +653,38 @@ const STATUS_C={IFA:'#D48C00',IFR:'#7A3CB4',IFC:'#1A6FD4',AFC:'#2A9D3A',SUB:'#1A
 
 
 // ── AUTH ─────────────────────────────────────────────
-window.onAuthReady = function(user, isAdmin){
-  window._isAdmin = isAdmin;
-  window._currentUser = user;
+// ── PASSWORD AUTH ────────────────────────────────────
+const ADMIN_PASS = 'ddd2026';
+function adminLogin(){
+  if(window._isAdmin){
+    if(confirm('Sign out จาก Admin?')){
+      window._isAdmin=false;
+      applyAdminUI(false);
+      showToast('✓ Signed out');
+    }
+    return;
+  }
+  const pw=prompt('Admin Password:');
+  if(pw===null) return;
+  if(pw===ADMIN_PASS){
+    window._isAdmin=true;
+    applyAdminUI(true);
+    showToast('✓ Welcome Admin');
+  } else {
+    alert('❌ รหัสผ่านไม่ถูกต้อง');
+  }
+}
+function applyAdminUI(isAdmin){
   const userEl=document.getElementById('userInfo');
   const authBtn=document.getElementById('authBtn');
-  if(user){
-    if(userEl) userEl.innerHTML=isAdmin
-      ? `<span style="color:#2A9D3A;font-weight:700;font-size:10px">🔑 ${user.displayName||user.email}</span>`
-      : `<span style="color:var(--text3);font-size:10px">${user.email}</span>`;
-    if(authBtn){authBtn.textContent='Sign Out';authBtn.onclick=()=>window._signOut&&window._signOut();}
-  } else {
-    if(userEl) userEl.innerHTML='';
-    if(authBtn){authBtn.textContent='Sign In';authBtn.onclick=()=>window._signIn&&window._signIn();}
-  }
+  if(userEl) userEl.innerHTML=isAdmin?'<span style="color:#2A9D3A;font-weight:700;font-size:10px">🔑 Admin</span>':'';
+  if(authBtn) authBtn.textContent=isAdmin?'🔓 Sign Out':'🔐 Admin';
   const addPanel=document.getElementById('addPanel');
   if(addPanel) addPanel.style.display=isAdmin?'flex':'none';
   document.querySelectorAll('.admin-tab').forEach(t=>t.style.display=isAdmin?'':'none');
   if(!isAdmin && currentTab==='manage') switchTab('all',document.querySelector('.tab'));
   renderAllTabs();
-};
+}
 // ── INIT ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
   rebuildMainSelect(); populateSub(); updatePreview();
