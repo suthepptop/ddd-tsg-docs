@@ -37,10 +37,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .tab-panel.active{display:block;}
 
 /* STATS */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);padding:12px 14px;}
-.stat-val{font-family:var(--mono);font-size:22px;font-weight:700;}
-.stat-label{font-size:9px;color:var(--text3);letter-spacing:0.5px;margin-top:2px;text-transform:uppercase;}
+.stats{display:flex;gap:6px;margin-bottom:14px;flex-wrap:nowrap;}
+.stat-card{background:var(--surface);border:1px solid var(--border);padding:7px 10px;flex:1;min-width:0;}
+.stat-val{font-family:var(--mono);font-size:18px;font-weight:700;line-height:1.2;}
+.stat-label{font-size:8px;color:var(--text3);letter-spacing:0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* TABLE */
 .tbl-wrap{overflow-x:auto;}
@@ -146,7 +146,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 @media(max-width:768px){
   .app-layout{flex-direction:column;}
   .add-panel{width:100%;border-left:none;border-top:1px solid var(--border);max-height:none;}
-  .stats{grid-template-columns:repeat(2,1fr);}
+  .stats{flex-wrap:wrap;}
   .manage-grid{grid-template-columns:1fr;}
   .ref-grid{grid-template-columns:1fr;}
 }
@@ -226,10 +226,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     <!-- TAB: ALL -->
     <div class="tab-panel active" id="tab-all">
       <div class="stats">
-        <div class="stat-card clickable" onclick="jumpTab('all')"><div class="stat-val" id="statTotal">0</div><div class="stat-label">Total ↗</div></div>
-        <div class="stat-card clickable" onclick="jumpTab('des')"><div class="stat-val" id="statDES" style="color:var(--accent)">0</div><div class="stat-label">Design ↗</div></div>
-        <div class="stat-card clickable" onclick="jumpTab('mat')"><div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material ↗</div></div>
-        <div class="stat-card clickable" onclick="jumpTab('install')"><div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install ↗</div></div>
+        <div class="stat-card clickable" onclick="jumpTab('all')"><div class="stat-val" id="statTotal">0</div><div class="stat-label">ALL ↗</div></div>
+        <div class="stat-card clickable" onclick="jumpTab('des')"><div class="stat-val" id="statDES" style="color:var(--accent)">0</div><div class="stat-label">DES ↗</div></div>
+        <div class="stat-card clickable" onclick="jumpTab('mat')"><div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">MAT ↗</div></div>
+        <div class="stat-card clickable" onclick="jumpTab('install')"><div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">INST ↗</div></div>
         <div class="stat-card clickable" onclick="jumpTab('rq')"><div class="stat-val" id="statRQ" style="color:#8B4500">0</div><div class="stat-label">RQ ↗</div></div>
       </div>
       <div class="search-wrap"><input type="text" id="search-all" placeholder="ค้นหา description..." oninput="applySearch('wrapAll')"><button class="search-clear" onclick="clearSearch('wrapAll')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-all" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapAll"></div>
@@ -736,7 +736,7 @@ function buildTable(list,wrapId,sortCol,sortDir,isAdmin){isAdmin=isAdmin||!!wind
   };
   return `<table><thead><tr>
     <th>#</th>${sc(1,'Document No.')}${sc(2,'Main')}${sc(3,'Sub')}<th>🔗</th>${sc(4,'Description')}
-    ${sc(5,'Rev')}${sc(6,'Status')}${sc(7,'Date Issued')}${sc(8,'Approved')}${sc(9,'Approved Date')}<th></th>
+    ${sc(5,'Rev')}${sc(6,'Status')}${sc(7,'Date Issued')}${sc(8,'Approved')}${sc(9,'Approved Date')}<th>📝</th><th></th>
   </tr></thead><tbody>
   ${sorted.map((d,i)=>`<tr>
     <td style="color:var(--text3);font-family:var(--mono);font-size:10px">${String(i+1).padStart(2,'0')}</td>
