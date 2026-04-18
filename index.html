@@ -28,7 +28,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 
 /* LAYOUT */
 .app-layout{display:flex;min-height:calc(100vh - 52px);}
-.main-panel{flex:1;overflow-y:auto;max-height:calc(100vh - 52px);padding:20px 24px;}
+.main-panel{flex:1;overflow-y:auto;max-height:calc(100vh - 52px);padding:20px 24px;transition:all 0.3s;}
 .add-panel{width:300px;background:var(--surface);border-left:1px solid var(--border);padding:20px 16px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;max-height:calc(100vh - 52px);}
 
 /* TABS */
@@ -41,7 +41,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 
 /* STATS */
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);padding:12px 14px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);padding:12px 14px;cursor:pointer;transition:all 0.2s;}
+.stat-card:hover{border-color:var(--accent3);background:var(--surface2);transform:translateY(-2px);}
 .stat-val{font-family:var(--mono);font-size:22px;font-weight:700;}
 .stat-label{font-size:9px;color:var(--text3);letter-spacing:0.5px;margin-top:2px;text-transform:uppercase;}
 
@@ -55,8 +56,8 @@ tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
 tbody tr:hover{background:var(--surface2);}
 tbody td{padding:5px 6px;color:var(--text2);vertical-align:middle;}
 td.doc-code{font-family:var(--mono);font-weight:600;color:var(--text);font-size:11px;white-space:nowrap;}
-td.doc-desc{color:var(--text2); max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-td.doc-remark{color:var(--text3); font-size:10px; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+td.doc-desc{color:var(--text2); max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+td.doc-remark{color:var(--text3); font-size:10px; max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 
 .tag{display:inline-block;padding:1px 6px;font-size:9px;font-family:var(--mono);font-weight:600;background:rgba(26,111,212,0.1);color:#1a6fd4;}
 .rev-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:1px 5px;background:rgba(26,111,212,0.08);color:var(--accent3);border:1px solid rgba(26,111,212,0.2);}
@@ -134,6 +135,15 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
 .btn-sm{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 12px;font-size:11px;font-family:var(--mono);cursor:pointer;}
 .btn-sm.ok{border-color:var(--accent2);color:var(--accent2);} .btn-sm.ok:hover{background:var(--accent2);color:#fff;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .app-layout{flex-direction:column;}
+  .add-panel{width:100%;border-left:none;border-top:1px solid var(--border);max-height:none;}
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .manage-grid{grid-template-columns:1fr;}
+  .ref-grid{grid-template-columns:1fr;}
+}
 </style>
 
 <script type="module">
@@ -160,6 +170,8 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   // ตรวจสอบสถานะการเข้าสู่ระบบ
   onAuthStateChanged(auth, (user) => {
     const manageTabBtn = document.getElementById('tab-btn-manage');
+    const addPanelDiv = document.getElementById('addPanel'); // เลือกแผงเพิ่มข้อมูลด้านขวา
+    
     if (user) {
       window._isAdmin = true;
       const btn = document.getElementById('authBtn');
@@ -167,8 +179,9 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       btn.title = user.email;
       btn.classList.add('btn-logout');
       
-      // โชว์แท็บจัดการ Code เมื่อแอดมินล็อกอิน
+      // แอดมินเข้าใช้งาน: โชว์แท็บ Manage และ แผง Add Document ขวามือ
       if(manageTabBtn) manageTabBtn.style.display = 'block'; 
+      if(addPanelDiv) addPanelDiv.style.display = 'flex';
     } else {
       window._isAdmin = false;
       const btn = document.getElementById('authBtn');
@@ -176,9 +189,11 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       btn.title = "Login with Google";
       btn.classList.remove('btn-logout');
       
-      // ซ่อนแท็บจัดการ Code จากคนทั่วไป
+      // ผู้ใช้ทั่วไป: ซ่อนแท็บ Manage และ แผง Add Document ขวามือ
       if(manageTabBtn) manageTabBtn.style.display = 'none'; 
-      // ถ้าแอดมินกดออกจากระบบตอนที่อยู่หน้า Codes ให้เด้งกลับไปหน้าแท็บ ALL อัตโนมัติ
+      if(addPanelDiv) addPanelDiv.style.display = 'none';
+      
+      // ถ้าเผลอกดออกจากระบบตอนที่อยู่หน้า Codes ให้เด้งกลับไปแท็บ ALL
       if(currentTab === 'manage') switchTab('all', document.getElementById('tab-btn-all'));
     }
     if(typeof renderAllTabs === 'function') renderAllTabs();
@@ -233,16 +248,26 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       <div class="tab" id="tab-btn-install" onclick="switchTab('install',this)">INSTALL</div>
       <div class="tab" id="tab-btn-rq" onclick="switchTab('rq',this)">RQ</div>
       <div class="tab" id="tab-btn-manage" onclick="switchTab('manage',this)" style="display:none;">⚙ Codes</div>
-      <div class="tab" onclick="switchTab('reference',this)">Reference</div>
+      <div class="tab" id="tab-btn-ref" onclick="switchTab('reference',this)">Reference</div>
     </div>
 
     <div class="tab-panel active" id="tab-all">
       <div class="stats">
-        <div class="stat-card"><div class="stat-val" id="statTotal">0</div><div class="stat-label">Total</div></div>
-        <div class="stat-card"><div class="stat-val" id="statDES" style="color:var(--accent)">0</div><div class="stat-label">Design</div></div>
-        <div class="stat-card"><div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material</div></div>
-        <div class="stat-card"><div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install</div></div>
-        <div class="stat-card"><div class="stat-val" id="statRQ" style="color:#7a3cb4">0</div><div class="stat-label">Requisition</div></div>
+        <div class="stat-card" onclick="switchTab('all', document.getElementById('tab-btn-all'))">
+          <div class="stat-val" id="statTotal">0</div><div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('des', document.getElementById('tab-btn-des'))">
+          <div class="stat-val" id="statDES" style="color:var(--accent)">0</div><div class="stat-label">Design</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('mat', document.getElementById('tab-btn-mat'))">
+          <div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('install', document.getElementById('tab-btn-install'))">
+          <div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('rq', document.getElementById('tab-btn-rq'))">
+          <div class="stat-val" id="statRQ" style="color:#7a3cb4">0</div><div class="stat-label">Requisition</div>
+        </div>
       </div>
       <div class="search-wrap"><input type="text" id="search-all" placeholder="ค้นหา Doc No, Description, หรือ Remark (พิมพ์หลายคำเว้นวรรคได้)" oninput="applySearch('wrapAll')"><button class="search-clear" onclick="clearSearch('wrapAll')" title="ล้าง">✕</button></div>      
       <div class="search-hint" id="hint-all" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      
@@ -330,7 +355,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     </div>
   </div>
 
-  <div class="add-panel">
+  <div class="add-panel" id="addPanel" style="display:none;">
     <div>
       <div class="section-label">Add Document</div>
       <div class="format-display">
@@ -500,7 +525,7 @@ function toggleAuth() {
     window._signIn(window._auth, window._provider).then((result) => {
       showToast('Logged in as ' + result.user.email);
     }).catch((error) => {
-      alert('Login failed: ' + error.message + '\n\n* อย่าลืมเปิดใช้งาน Google Auth ใน Firebase Console ก่อนนะครับ');
+      alert('Login failed: ' + error.message + '\n\n* วิธีแก้: ไปที่ Firebase Console -> Authentication -> Settings -> Authorized domains แล้วเพิ่มชื่อโดเมนเว็บไซต์ของคุณ (หรือ localhost) เข้าไปในระบบครับ');
     });
   }
 }
@@ -846,25 +871,6 @@ function renderAllTabs(){
   document.getElementById('statMAT').textContent=matDocs.length;
   document.getElementById('statINS').textContent=instDocs.length;
   document.getElementById('statRQ').textContent=rqDocs.length;
-
-  // อัปเดตตัวเลขบนปุ่มแท็บ (XXX)
-  document.getElementById('tab-btn-all').textContent = `ALL (${docs.length})`;
-  document.getElementById('tab-btn-des').textContent = `DES (${desDocs.length})`;
-  document.getElementById('tab-btn-mat').textContent = `MAT (${matDocs.length})`;
-  document.getElementById('tab-btn-install').textContent = `INSTALL (${instDocs.length})`;
-  document.getElementById('tab-btn-rq').textContent = `RQ (${rqDocs.length})`;
-
-  // ซ่อน/แสดง ปุ่ม Add Document ตามสถานะ Admin
-  const btnAdd = document.getElementById('btnAddDoc');
-  if(window._isAdmin){
-    btnAdd.style.opacity = '1';
-    btnAdd.disabled = false;
-    btnAdd.textContent = '+ ADD TO REGISTER';
-  } else {
-    btnAdd.style.opacity = '0.5';
-    btnAdd.disabled = true;
-    btnAdd.textContent = '🔒 LOGIN TO ADD DOC';
-  }
 
   renderTab('wrapAll',docs,null);
   renderTab('wrapDes',desDocs,'cntDes');
