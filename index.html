@@ -149,7 +149,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, setDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  // ใช้ signInWithPopup กลับมาเพื่อความเสถียรบน Github Pages
+  // กลับมาใช้ signInWithPopup ที่เสถียรกว่าสำหรับการโฮสต์ผ่าน GitHub Pages
   import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   
   const firebaseConfig = {
@@ -163,7 +163,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
+  
+  // บังคับให้แสดงหน้าเลือก Account ป้องกันบั๊ก Popup เด้งปิดตัวเอง
   const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
   
   window._db=db; window._fbSetDoc=setDoc; window._fbDeleteDoc=deleteDoc; window._fbDoc=doc; window._fbReady=true;
   window._auth=auth; window._provider=provider; window._signInPopup=signInWithPopup; window._signOut=signOut;
@@ -180,10 +183,9 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       btn.title = user.email;
       btn.classList.add('btn-logout');
       
-      // แอดมิน: โชว์แท็บ Manage และ แผง Add Document
+      // แอดมิน: โชว์แท็บ Manage และ แผง Add Document (แผงขวา)
       if(manageTabBtn) manageTabBtn.style.display = 'block'; 
       if(addPanelDiv) addPanelDiv.style.display = 'flex';
-      showToast('Logged in as ' + user.email);
     } else {
       window._isAdmin = false;
       const btn = document.getElementById('authBtn');
@@ -191,11 +193,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       btn.title = "Login with Google";
       btn.classList.remove('btn-logout');
       
-      // คนทั่วไป: ซ่อนแท็บ Manage และ แผง Add Document 
+      // คนทั่วไป: ซ่อนแท็บ Manage และ แผง Add Document เพื่อให้ตารางกว้างเต็มจอ
       if(manageTabBtn) manageTabBtn.style.display = 'none'; 
       if(addPanelDiv) addPanelDiv.style.display = 'none';
       
-      // ถ้าแอดมินล็อกเอาท์ตอนอยู่หน้าแท็บ Manage ให้เด้งกลับไปหน้า ALL
       if(currentTab === 'manage') switchTab('all', document.getElementById('tab-btn-all'));
     }
     if(typeof renderAllTabs === 'function') renderAllTabs();
@@ -524,13 +525,11 @@ function toggleAuth() {
       showToast('Logged out');
     });
   } else {
-    // ใช้งาน Popup พร้อมกับดักจับ Error ที่เกิดจากผู้ใช้คลิกปิดหน้าต่างไปก่อน
+    // ใช้ Popup และดักจับ Error กรณีผู้ใช้ปิดหน้าต่างไปเอง
     window._signInPopup(window._auth, window._provider).then((result) => {
       showToast('Logged in as ' + result.user.email);
     }).catch((error) => {
-      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-        alert('การเข้าสู่ระบบถูกยกเลิก: \nหากคุณไม่ได้กดปิดหน้าต่างเอง อาจเกิดจากส่วนขยายบล็อกโฆษณา (AdBlocker) ตัดการทำงานของปุ่มล็อกอินครับ\n\nวิธีแก้: ลองเข้าเว็บไซต์นี้ใน "โหมดไม่ระบุตัวตน" (Incognito) และกดปุ่มล็อกอินอีกครั้งครับ');
-      } else {
+      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
         alert('Login failed: ' + error.message);
       }
     });
@@ -862,6 +861,12 @@ function renderAllTabs(){
   document.getElementById('statMAT').textContent=matDocs.length;
   document.getElementById('statINS').textContent=instDocs.length;
   document.getElementById('statRQ').textContent=rqDocs.length;
+
+  document.getElementById('tab-btn-all').textContent = 'ALL';
+  document.getElementById('tab-btn-des').textContent = 'DES';
+  document.getElementById('tab-btn-mat').textContent = 'MAT';
+  document.getElementById('tab-btn-install').textContent = 'INSTALL';
+  document.getElementById('tab-btn-rq').textContent = 'RQ';
 
   renderTab('wrapAll',docs,null);
   renderTab('wrapDes',desDocs,'cntDes');
