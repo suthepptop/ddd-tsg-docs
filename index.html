@@ -1148,46 +1148,51 @@ function exportExcel(){
 function exportPDF(){
   const list=getActiveTabDocs();
   if(!list.length){showToast('⚠ ไม่มีข้อมูล');return;}
-  // Use jsPDF from CDN
-  const script=document.createElement('script');
-  script.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-  script.onload=()=>{
-    const {jsPDF}=window.jspdf;
-    const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-    const title=`DDD-TSG Engineering Document Register — ${currentTab.toUpperCase()}`;
-    pdf.setFontSize(11); pdf.setFont('helvetica','bold');
-    pdf.text(title,14,14);
-    pdf.setFontSize(8); pdf.setFont('helvetica','normal');
-    pdf.text(`Exported: ${new Date().toLocaleDateString('en-GB')} | Total: ${list.length} docs`,14,20);
-    // Table headers
-    const cols=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','Appr.','Appr.Date','File Link','Remark'];
-    const colW=[7,38,10,10,52,8,10,18,10,18,30,27];
-    let x=14, y=28;
-    pdf.setFillColor(45,55,72); pdf.setTextColor(255,255,255);
-    pdf.setFontSize(7); pdf.setFont('helvetica','bold');
-    cols.forEach((h,i)=>{
-      pdf.setFillColor(45,55,72);
-      pdf.rect(x,y-4,colW[i],6,'F');
-      pdf.text(h,x+1,y); x+=colW[i];
-    });
-    pdf.setTextColor(30,30,30); pdf.setFont('helvetica','normal'); pdf.setFontSize(7);
-    y+=4;
-    list.forEach((d,idx)=>{
-      if(y>190){pdf.addPage();y=20;}
-      const bg=idx%2===0?[255,255,255]:[245,247,250];
-      x=14;
-      const row=[idx+1,d.code,d.main,d.sub,d.desc||'',d.rev||'',d.status||'',d.date||'',d.approved==='yes'?'Yes':'',d.approvedDate||'',d.docUrl||'',d.notes||''];
-      pdf.setFillColor(...bg); pdf.rect(14,y-3,colW.reduce((a,b)=>a+b,0),5,'F');
-      row.forEach((v,i)=>{
-        const txt=String(v).substring(0,colW[i]>15?30:15);
-        pdf.text(txt,x+1,y); x+=colW[i];
-      });
-      y+=5;
-    });
-    pdf.save(`DDD-TSG-Docs-${currentTab.toUpperCase()}-${new Date().toISOString().slice(0,10)}.pdf`);
-    showToast('✓ Downloaded PDF');
-  };
-  if(window.jspdf){ script.onload(); } else { document.head.appendChild(script); }
+  const title='DDD-TSG Engineering Document Register — '+currentTab.toUpperCase();
+  const date=new Date().toLocaleDateString('en-GB');
+  const rows=list.map(function(d,i){
+    return '<tr>'
+      +'<td>'+(i+1)+'</td>'
+      +'<td style="font-family:monospace;font-size:8px">'+(d.code||'')+'</td>'
+      +'<td>'+(d.main||'')+'</td>'
+      +'<td>'+(d.sub||'')+'</td>'
+      +'<td>'+(d.desc||'')+'</td>'
+      +'<td>'+(d.rev||'')+'</td>'
+      +'<td style="font-weight:700">'+(d.status||'')+'</td>'
+      +'<td>'+(d.date||'')+'</td>'
+      +'<td style="text-align:center">'+(d.approved==='yes'?'✓':'')+'</td>'
+      +'<td>'+(d.approvedDate||'')+'</td>'
+      +'<td style="text-align:center">'+(d.docUrl?'<a href="'+d.docUrl+'">🔗</a>':'')+'</td>'
+      +'<td>'+(d.notes||'')+'</td>'
+      +'</tr>';
+  }).join('');
+  const html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+title+'</title>'
+    +'<style>'
+    +'@page{size:A4 landscape;margin:5mm 8mm;}'
+    +'body{font-family:Sarabun,Arial,sans-serif;font-size:8px;}'
+    +'h2{font-size:10px;margin:0 0 2px;}'
+    +'p{font-size:7px;margin:0 0 4px;color:#666;}'
+    +'table{width:100%;border-collapse:collapse;}'
+    +'th{background:#2d3748;color:#fff;padding:3px 4px;text-align:left;font-size:7px;white-space:nowrap;}'
+    +'td{padding:2px 4px;border-bottom:1px solid #e2e8f0;vertical-align:top;font-size:7.5px;}'
+    +'tr:nth-child(even){background:#f7fafc;}'
+    +'a{color:#3182ce;}'
+    +'</style>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">'
+    +'</head><body>'
+    +'<h2>'+title+'</h2>'
+    +'<p>Exported: '+date+' &nbsp;|&nbsp; Total: '+list.length+' docs</p>'
+    +'<table><thead><tr>'
+    +'<th>#</th><th>Document No.</th><th>Main</th><th>Sub</th><th>Description</th>'
+    +'<th>Rev</th><th>Status</th><th>Date Issued</th><th>Appr.</th><th>Appr.Date</th><th>🔗</th><th>Remark</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table>'
+    +'<script>window.onload=function(){window.print();};<'+'/script>'
+    +'</body></html>';
+  const w=window.open('','_blank');
+  if(!w){showToast('⚠ กรุณาอนุญาต popup');return;}
+  w.document.write(html);
+  w.document.close();
+  showToast('✓ กำลังเปิด Print dialog...');
 }
 // ── CONFIG (subPool + subMap + mainDiscs) → Firestore ─
 function saveConfig(){
