@@ -228,7 +228,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="stat-card"><div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material</div></div>
         <div class="stat-card"><div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install</div></div>
       </div>
-      <div class="tbl-wrap" id="wrapAll"></div>
+      <div class="search-wrap"><input type="text" id="search-all" placeholder="ค้นหา description..." oninput="applySearch('wrapAll')"><button class="search-clear" onclick="clearSearch('wrapAll')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-all" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapAll"></div>
     </div>
 
     <!-- TAB: DES -->
@@ -237,7 +237,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="log-title">Design & Drawing Documents</div>
         <div class="log-count" id="cntDes">0 docs</div>
       </div>
-      <div class="tbl-wrap" id="wrapDes"></div>
+      <div class="search-wrap"><input type="text" id="search-des" placeholder="ค้นหา description..." oninput="applySearch('wrapDes')"><button class="search-clear" onclick="clearSearch('wrapDes')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-des" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapDes"></div>
     </div>
 
     <!-- TAB: MAT -->
@@ -246,7 +246,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="log-title">Material Supply Documents</div>
         <div class="log-count" id="cntMat">0 docs</div>
       </div>
-      <div class="tbl-wrap" id="wrapMat"></div>
+      <div class="search-wrap"><input type="text" id="search-mat" placeholder="ค้นหา description..." oninput="applySearch('wrapMat')"><button class="search-clear" onclick="clearSearch('wrapMat')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-mat" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapMat"></div>
     </div>
 
 
@@ -256,7 +256,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="log-title">Requisition Documents</div>
         <div class="log-count" id="cntRq">0 docs</div>
       </div>
-      <div class="tbl-wrap" id="wrapRq"></div>
+      <div class="search-wrap"><input type="text" id="search-rq" placeholder="ค้นหา description..." oninput="applySearch('wrapRq')"><button class="search-clear" onclick="clearSearch('wrapRq')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-rq" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapRq"></div>
     </div>
 
     <!-- TAB: INSTALL -->
@@ -265,7 +265,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="log-title">Installation & Commissioning Documents</div>
         <div class="log-count" id="cntInstall">0 docs</div>
       </div>
-      <div class="tbl-wrap" id="wrapInstall"></div>
+      <div class="search-wrap"><input type="text" id="search-install" placeholder="ค้นหา description..." oninput="applySearch('wrapInstall')"><button class="search-clear" onclick="clearSearch('wrapInstall')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-install" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapInstall"></div>
     </div>
 
     <!-- TAB: MANAGE -->
@@ -667,13 +667,31 @@ function switchTab(name,el){
 }
 
 // ── RENDER TABLE ─────────────────────────────────────
-function buildTable(list){
+const _sortState={};
+function buildTable(list,wrapId,sortCol,sortDir){
   if(!list.length) return '<div class="empty"><div class="empty-icon">📄</div><div>No documents</div></div>';
+  let sorted=[...list];
+  if(sortCol!==undefined){
+    const keys=['','code','main','sub','desc','rev','status','date','approved','approvedDate'];
+    const key=keys[sortCol]||'';
+    sorted.sort((a,b)=>{
+      const va=(a[key]||'').toString().toLowerCase();
+      const vb=(b[key]||'').toString().toLowerCase();
+      if(va<vb)return sortDir==='asc'?-1:1;
+      if(va>vb)return sortDir==='asc'?1:-1;
+      return 0;
+    });
+  }
+  const sc=(col,label)=>{
+    const active=sortCol===col;
+    const cls='sortable'+(active?(sortDir==='asc'?' sort-asc':' sort-desc'):'');
+    return `<th class="${cls}" onclick="doSort('${wrapId||'wrapAll'}',${col})">${label}</th>`;
+  };
   return `<table><thead><tr>
-    <th>#</th><th>Document No.</th><th>Main</th><th>Sub</th><th>🔗</th><th>Description</th>
-    <th>Rev</th><th>Status</th><th>Date Issued</th><th>Approved</th><th>Approved Date</th><th></th>
+    <th>#</th>${sc(1,'Document No.')}${sc(2,'Main')}${sc(3,'Sub')}<th>🔗</th>${sc(4,'Description')}
+    ${sc(5,'Rev')}${sc(6,'Status')}${sc(7,'Date Issued')}${sc(8,'Approved')}${sc(9,'Approved Date')}<th></th>
   </tr></thead><tbody>
-  ${list.map((d,i)=>`<tr>
+  ${sorted.map((d,i)=>`<tr>
     <td style="color:var(--text3);font-family:var(--mono);font-size:10px">${String(i+1).padStart(2,'0')}</td>
     <td class="doc-code">${d.code}</td>
     <td><span class="tag">${d.main}</span></td>
@@ -686,31 +704,71 @@ function buildTable(list){
     <td style="text-align:center;font-size:11px;font-weight:700;color:${d.approved==='yes'?'#2A9D3A':'#CCC'}">${d.approved==='yes'?'✓':'—'}</td>
     <td style="font-size:10px;color:#2A9D3A;white-space:nowrap">${d.approved==='yes'?(d.approvedDate||''):'—'}</td>
     <td style="white-space:nowrap">
-      <button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button>
-      <button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>
+      ${window._isAdmin?`<button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button><button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>`:''}
     </td>
   </tr>`).join('')}
   </tbody></table>`;
 }
+function doSort(wrapId,col){
+  const cur=_sortState[wrapId]||{};
+  const dir=(cur.col===col&&cur.dir==='asc')?'desc':'asc';
+  _sortState[wrapId]={col,dir};
+  renderAllTabs();
+}
 
+const _searchState={};
+function searched(list,wrapId){
+  const q=(_searchState[wrapId]||'').toLowerCase().trim();
+  if(!q) return list;
+  return list.filter(d=>(d.desc||'').toLowerCase().includes(q)||
+    (d.code||'').toLowerCase().includes(q)||
+    (d.sub||'').toLowerCase().includes(q));
+}
+function applySearch(wrapId){
+  const map={wrapAll:'search-all',wrapDes:'search-des',wrapMat:'search-mat',wrapRq:'search-rq',wrapInstall:'search-install'};
+  const inp=document.getElementById(map[wrapId]);
+  _searchState[wrapId]=inp?inp.value:'';
+  renderAllTabs();
+}
+function clearSearch(wrapId){
+  const map={wrapAll:'search-all',wrapDes:'search-des',wrapMat:'search-mat',wrapRq:'search-rq',wrapInstall:'search-install'};
+  const inp=document.getElementById(map[wrapId]);
+  if(inp)inp.value='';
+  _searchState[wrapId]='';
+  renderAllTabs();
+}
+function renderTab(wrapId,fullList,cntId){
+  const filtered=searched(fullList,wrapId);
+  const ss=_sortState[wrapId]||{};
+  const el=document.getElementById(wrapId);
+  if(el) el.innerHTML=buildTable(filtered,wrapId,ss.col,ss.dir);
+  if(cntId){
+    const q=_searchState[wrapId]||'';
+    const el2=document.getElementById(cntId);
+    if(el2) el2.textContent=q?`${filtered.length}/${fullList.length} docs`:`${fullList.length} docs`;
+  }
+  const hintMap={wrapAll:'hint-all',wrapDes:'hint-des',wrapMat:'hint-mat',wrapRq:'hint-rq',wrapInstall:'hint-install'};
+  const hint=document.getElementById(hintMap[wrapId]);
+  if(hint){
+    const q=_searchState[wrapId]||'';
+    hint.textContent=q&&filtered.length<fullList.length?`พบ ${filtered.length} จาก ${fullList.length} รายการ`:'';
+  }
+}
 function renderAllTabs(){
-  const desDocs=docs.filter(d=>d.main==='DES');
+  const desDocs=docs.filter(d=>d.main==='DES'&&!isRQ(d));
   const matDocs=docs.filter(d=>MAT_MAINS.includes(d.main));
   const instDocs=docs.filter(d=>INSTALL_MAINS.includes(d.main));
+  const rqDocs=docs.filter(isRQ);
   document.getElementById('statTotal').textContent=docs.length;
   document.getElementById('statDES').textContent=desDocs.length;
   document.getElementById('statMAT').textContent=matDocs.length;
   document.getElementById('statINS').textContent=instDocs.length;
-  document.getElementById('wrapAll').innerHTML=buildTable(docs);
-  document.getElementById('cntDes').textContent=`${desDocs.length} docs`;
-  document.getElementById('wrapDes').innerHTML=buildTable(desDocs);
-  document.getElementById('cntMat').textContent=`${matDocs.length} docs`;
-  document.getElementById('wrapMat').innerHTML=buildTable(matDocs);
-  document.getElementById('cntInstall').textContent=`${instDocs.length} docs`;
-  document.getElementById('wrapInstall').innerHTML=buildTable(instDocs);
-  const rqDocs=docs.filter(isRQ);
-  document.getElementById('cntRq').textContent=`${rqDocs.length} docs`;
-  document.getElementById('wrapRq').innerHTML=buildTable(rqDocs);
+  document.getElementById('statRQ').textContent=rqDocs.length;
+  renderTab('wrapAll',docs,null);
+  renderTab('wrapDes',desDocs,'cntDes');
+  renderTab('wrapMat',matDocs,'cntMat');
+  renderTab('wrapInstall',instDocs,'cntInstall');
+  renderTab('wrapRq',rqDocs,'cntRq');
 }
 function renderTable(){renderAllTabs();}
 function renderFilterChips(){}
