@@ -13,7 +13,7 @@
   --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100avh;}
 
 /* HEADER */
 .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;}
@@ -183,13 +183,36 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   window._db=db; window._fbSetDoc=setDoc; window._fbDeleteDoc=deleteDoc; window._fbDoc=doc; window._fbReady=true;
   onSnapshot(colRef, (snapshot) => {
     if(snapshot.empty && docs.length>0 && !window._fbSynced){
+      // Firestore empty — push all local docs up
       docs.forEach(d=>setDoc(doc(db,'documents',String(d.id)),d));
       window._fbSynced=true;
     } else if(!snapshot.empty){
+      // Merge: keep remote data but fill in any missing local docs
       const remote=[];
       snapshot.forEach(d=>remote.push(d.data()));
-      remote.sort((a,b)=>a.id-b.id);
-      docs.length=0; remote.forEach(d=>docs.push(d));
+      const remoteMap={};
+      remote.forEach(d=>remoteMap[d.code]=d);
+
+      // For each local doc, if not in remote → push it up (new doc added in code)
+      // If in remote → preserve remote (has user edits like docUrl, notes, status)
+      const merged=[];
+      docs.forEach(local=>{
+        if(remoteMap[local.code]){
+          // Remote version exists — use remote but ensure all fields present
+          const r=remoteMap[local.code];
+          merged.push({...local,...r}); // remote wins (preserves links, notes etc)
+          delete remoteMap[local.code];
+        } else {
+          // New local doc not in Firestore yet — push it up
+          setDoc(doc(db,'documents',String(local.id)),local);
+          merged.push(local);
+        }
+      });
+      // Any remote docs not in local (manually added via app) — keep them
+      Object.values(remoteMap).forEach(r=>merged.push(r));
+
+      merged.sort((a,b)=>a.id-b.id);
+      docs.length=0; merged.forEach(d=>docs.push(d));
       window._fbSynced=true;
       if(typeof renderTable==='function'){renderTable();renderFilterChips();}
     }
