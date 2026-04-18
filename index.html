@@ -15,6 +15,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;}
 
+/* HEADER */
 .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;}
 .header-left{display:flex;align-items:center;gap:10px;}
 .logo-mark{width:26px;height:26px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:11px;color:#fff;}
@@ -22,10 +23,12 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .header-sub{font-size:10px;color:var(--text3);font-family:var(--mono);}
 .badge{font-size:10px;font-family:var(--mono);background:rgba(212,140,0,0.12);color:var(--accent);border:1px solid rgba(212,140,0,0.3);padding:2px 8px;}
 
+/* LAYOUT — main content left, add-panel right */
 .app-layout{display:flex;min-height:calc(100vh - 52px);}
 .main-panel{flex:1;overflow-y:auto;max-height:calc(100vh - 52px);padding:20px 24px;}
 .add-panel{width:300px;background:var(--surface);border-left:1px solid var(--border);padding:20px 16px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;max-height:calc(100vh - 52px);}
 
+/* TABS — 4 tabs */
 .tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:20px;gap:0;}
 .tab{padding:8px 14px;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.15s;white-space:nowrap;}
 .tab:hover{color:var(--text2);}
@@ -33,15 +36,14 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
 
+/* STATS */
+/* แก้ไขเป็น 5 column เพื่อรองรับกล่อง RQ */
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
 .stat-card{background:var(--surface);border:1px solid var(--border);padding:12px 14px;}
 .stat-val{font-family:var(--mono);font-size:22px;font-weight:700;}
 .stat-label{font-size:9px;color:var(--text3);letter-spacing:0.5px;margin-top:2px;text-transform:uppercase;}
 
-.search-wrap{display:flex;gap:8px;margin-bottom:8px;background:var(--surface);border:1px solid var(--border);padding:2px 8px;align-items:center;}
-.search-wrap input{flex:1;border:none;background:transparent;padding:6px;font-size:12px;}
-.search-clear{background:transparent;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0 5px;}
-
+/* TABLE */
 .tbl-wrap{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:11px;}
 thead th{text-align:left;padding:7px 10px;font-size:9px;font-weight:600;letter-spacing:1px;color:var(--text3);background:var(--surface2);border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap;}
@@ -49,23 +51,148 @@ tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
 tbody tr:hover{background:var(--surface2);}
 tbody td{padding:7px 10px;color:var(--text2);vertical-align:middle;}
 td.doc-code{font-family:var(--mono);font-weight:600;color:var(--text);font-size:11px;white-space:nowrap;}
-td.doc-desc{color:var(--text2);max-width:250px;}
+td.doc-desc{color:var(--text2);max-width:200px;}
 .tag{display:inline-block;padding:1px 6px;font-size:9px;font-family:var(--mono);font-weight:600;background:rgba(26,111,212,0.1);color:#1a6fd4;}
 .rev-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:1px 5px;background:rgba(26,111,212,0.08);color:var(--accent3);border:1px solid rgba(26,111,212,0.2);}
+.del-btn,.edit-btn{background:transparent;border:1px solid transparent;cursor:pointer;font-size:11px;padding:2px 5px;transition:all 0.15s;font-family:var(--mono);}
+.del-btn{color:var(--text3);} .del-btn:hover{border-color:var(--danger);color:var(--danger);}
+.edit-btn{color:var(--text3);} .edit-btn:hover{border-color:var(--accent3);color:var(--accent3);}
 
+/* FILTER & SEARCH */
+.log-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.log-title{font-size:13px;font-weight:600;}
+.log-count{font-family:var(--mono);font-size:11px;color:var(--text3);}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.filter-chip{font-size:10px;font-family:var(--mono);padding:4px 12px;border:1px solid var(--border);color:var(--text3);cursor:pointer;transition:all 0.15s;background:transparent;}
+.filter-chip:hover,.filter-chip.active{border-color:var(--accent3);color:var(--accent3);background:rgba(26,111,212,0.06);}
+
+/* เพิ่ม CSS จัดทรงช่องค้นหา */
+.search-wrap { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.search-wrap input { flex: 1; margin: 0; }
+.search-clear { background: transparent; border: 1px solid var(--border); padding: 6px 10px; cursor: pointer; color: var(--text3); font-size: 12px; }
+.search-clear:hover { color: var(--danger); border-color: var(--danger); background: var(--surface2); }
+
+/* ADD PANEL */
+.section-label{font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:4px;}
+.field-group{display:flex;flex-direction:column;gap:5px;}
+.field-label{font-size:10px;font-weight:600;color:var(--text2);letter-spacing:0.5px;}
+.field-sub{font-size:9px;color:var(--text3);margin-top:-3px;}
+select,input[type="number"],input[type="text"]{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-family:var(--mono);font-size:12px;width:100%;appearance:none;}
+select:focus,input:focus{outline:none;border-color:var(--accent);}
+.select-wrap{position:relative;}
+.select-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;font-size:10px;}
 .result-box{background:var(--bg);border:1px solid var(--accent);padding:12px;}
 .result-label{font-size:9px;color:var(--accent);font-weight:600;letter-spacing:1px;margin-bottom:6px;}
 .result-code{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);letter-spacing:1px;word-break:break-all;margin-bottom:6px;}
+.result-meta{display:flex;flex-direction:column;gap:2px;}
+.result-meta-row{font-size:9px;color:var(--text3);display:flex;gap:6px;}
+.result-meta-row span:first-child{color:var(--text2);font-weight:600;min-width:50px;}
+.copy-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:3px 8px;font-size:9px;font-family:var(--mono);cursor:pointer;margin-top:8px;}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
 .gen-btn{background:var(--accent);color:#fff;border:none;padding:9px;font-family:var(--mono);font-weight:700;font-size:11px;cursor:pointer;width:100%;text-transform:uppercase;}
+.gen-btn:hover{opacity:0.85;}
 
-.footer-slogan { font-size: 10px; color: var(--text3); text-align: center; padding: 20px; font-style: italic; }
+/* FORMAT DISPLAY */
+.format-display{background:var(--bg);border:1px solid var(--border);padding:10px 12px;font-family:var(--mono);margin-bottom:4px;}
+.format-line{font-size:15px;font-weight:700;display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin-bottom:6px;}
+.fmt-sep{color:var(--text3);}.fmt-ddd{color:var(--accent);}.fmt-tsg{color:var(--accent3);}
+.fmt-main{color:var(--accent2);}.fmt-sub{color:#7a3cb4;}.fmt-num{color:var(--danger);}
+.format-desc{font-size:9px;color:var(--text3);}
 
+/* MANAGE */
+.manage-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+.manage-card{background:var(--surface);border:1px solid var(--border);padding:16px;}
+.manage-card-title{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.manage-list{display:flex;flex-direction:column;gap:5px;max-height:280px;overflow-y:auto;margin-bottom:10px;}
+.manage-item{display:flex;align-items:center;gap:7px;padding:6px 9px;background:var(--bg);border:1px solid var(--border);cursor:pointer;}
+.manage-item:hover,.manage-item.selected{border-color:var(--accent3);background:rgba(26,111,212,0.04);}
+.manage-code{font-family:var(--mono);font-weight:700;font-size:11px;color:var(--accent2);min-width:50px;}
+.manage-desc{font-size:10px;color:var(--text2);flex:1;}
+.manage-meta{font-size:9px;color:var(--text3);font-family:var(--mono);}
+.add-row{display:flex;gap:5px;}
+.add-row input{flex:1;font-size:11px;padding:5px 8px;}
+.add-row input.code-inp{max-width:70px;text-transform:uppercase;font-weight:700;}
+.btn-add{background:var(--accent3);color:#fff;border:none;padding:6px 12px;font-size:10px;font-family:var(--mono);cursor:pointer;white-space:nowrap;}
+.btn-sm{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 12px;font-size:11px;font-family:var(--mono);cursor:pointer;}
+.btn-sm.ok{border-color:var(--accent2);color:var(--accent2);}
+.btn-sm.ok:hover{background:var(--accent2);color:#fff;}
+.sub-tags{display:flex;flex-wrap:wrap;gap:5px;min-height:36px;margin-bottom:10px;}
+.sub-tag{display:flex;align-items:center;gap:4px;padding:3px 8px;background:var(--surface2);border:1px solid var(--border);font-family:var(--mono);font-size:10px;}
+.sub-tag-code{font-weight:700;color:var(--text);}
+.sub-tag-desc{color:var(--text3);font-size:9px;}
+.remove-sub{cursor:pointer;color:var(--text3);font-size:9px;margin-left:2px;}
+.remove-sub:hover{color:var(--danger);}
+.pool-section{background:var(--surface);border:1px solid var(--border);padding:16px;}
+
+/* REF */
+.ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.ref-card{background:var(--surface2);border:1px solid var(--border);padding:14px;}
+.ref-card-title{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.ref-row{display:flex;align-items:flex-start;gap:10px;padding:4px 0;border-bottom:1px solid rgba(208,213,221,0.4);font-size:11px;}
+.ref-row:last-child{border-bottom:none;}
+.ref-code{font-family:var(--mono);font-weight:700;color:var(--text);min-width:55px;font-size:11px;}
+.ref-desc{color:var(--text2);font-size:10px;}
+
+.empty{text-align:center;padding:50px 20px;color:var(--text3);}
+.empty-icon{font-size:28px;margin-bottom:10px;opacity:0.4;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--accent2);color:var(--accent2);padding:8px 14px;font-size:11px;font-family:var(--mono);z-index:999;transform:translateY(80px);opacity:0;transition:all 0.25s;pointer-events:none;box-shadow:0 2px 12px rgba(0,0,0,0.1);}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);padding:24px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.15);}
+.modal-title{font-size:13px;font-weight:600;margin-bottom:14px;}
+.modal-field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.modal-label{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+
+/* RESPONSIVE */
 @media(max-width:768px){
   .app-layout{flex-direction:column;}
   .add-panel{width:100%;border-left:none;border-top:1px solid var(--border);max-height:none;}
   .stats{grid-template-columns:repeat(2,1fr);}
+  .manage-grid{grid-template-columns:1fr;}
+  .ref-grid{grid-template-columns:1fr;}
 }
 </style>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, setDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey:"AIzaSyDMxqBXDKEBKXAdI1E200V-qodtxxJZgBk",
+    authDomain:"ddd-tsg-docs.firebaseapp.com",
+    projectId:"ddd-tsg-docs",
+    storageBucket:"ddd-tsg-docs.firebasestorage.app",
+    messagingSenderId:"695932302309",
+    appId:"1:695932302309:web:ae4ab1b9b97da821d3350c"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const colRef = collection(db, 'documents');
+  window._db=db; window._fbSetDoc=setDoc; window._fbDeleteDoc=deleteDoc; window._fbDoc=doc; window._fbReady=true;
+  onSnapshot(colRef, (snapshot) => {
+    if(snapshot.empty && docs.length>0 && !window._fbSynced){
+      docs.forEach(d=>setDoc(doc(db,'documents',String(d.id)),d));
+      window._fbSynced=true;
+    } else if(!snapshot.empty){
+      const remote=[];
+      snapshot.forEach(d=>remote.push(d.data()));
+      remote.sort((a,b)=>a.id-b.id);
+      docs.length=0; remote.forEach(d=>docs.push(d));
+      window._fbSynced=true;
+      if(typeof renderTable==='function'){renderTable();renderFilterChips();}
+    }
+    const el=document.getElementById('syncStatus');
+    if(el){el.textContent='🟢 Synced';el.style.color='#2A9D3A';}
+  },(err)=>{
+    const el=document.getElementById('syncStatus');
+    if(el){el.textContent='🔴 Offline';el.style.color='#D93025';}
+  });
+</script>
 </head>
 <body>
 
@@ -78,20 +205,22 @@ td.doc-desc{color:var(--text2);max-width:250px;}
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
-    <span id="syncStatus" style="font-size:10px;font-weight:600;color:#888">🟢 Local Mode</span>
+    <span id="syncStatus" style="font-size:10px;font-weight:600;color:#888">⏳ Connecting...</span>
     <div class="badge">ENG · 2026</div>
   </div>
 </div>
 
 <div class="app-layout">
+
   <div class="main-panel">
     <div class="tabs">
-      <div class="tab active" id="tabBtn-all" onclick="switchTab('all',this)">ALL</div>
-      <div class="tab" id="tabBtn-des" onclick="switchTab('des',this)">DES</div>
-      <div class="tab" id="tabBtn-mat" onclick="switchTab('mat',this)">MAT</div>
-      <div class="tab" id="tabBtn-install" onclick="switchTab('install',this)">INSTALL</div>
-      <div class="tab" id="tabBtn-rq" onclick="switchTab('rq',this)">RQ</div>
+      <div class="tab active" id="tab-btn-all" onclick="switchTab('all',this)">ALL</div>
+      <div class="tab" id="tab-btn-des" onclick="switchTab('des',this)">DES</div>
+      <div class="tab" id="tab-btn-mat" onclick="switchTab('mat',this)">MAT</div>
+      <div class="tab" id="tab-btn-install" onclick="switchTab('install',this)">INSTALL</div>
+      <div class="tab" id="tab-btn-rq" onclick="switchTab('rq',this)">RQ</div>
       <div class="tab" onclick="switchTab('manage',this)">⚙ Codes</div>
+      <div class="tab" onclick="switchTab('reference',this)">Reference</div>
     </div>
 
     <div class="tab-panel active" id="tab-all">
@@ -100,128 +229,780 @@ td.doc-desc{color:var(--text2);max-width:250px;}
         <div class="stat-card"><div class="stat-val" id="statDES" style="color:var(--accent)">0</div><div class="stat-label">Design</div></div>
         <div class="stat-card"><div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material</div></div>
         <div class="stat-card"><div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install</div></div>
-        <div class="stat-card"><div class="stat-val" id="statRQ" style="color:#7a3cb4">0</div><div class="stat-label">RQ</div></div>
+        <div class="stat-card"><div class="stat-val" id="statRQ" style="color:#7a3cb4">0</div><div class="stat-label">Requisition</div></div>
       </div>
-      <div class="search-wrap">
-        <input type="text" id="search-all" placeholder="ค้นหา description หรือ code..." oninput="applySearch('wrapAll')">
-        <button class="search-clear" onclick="clearSearch('wrapAll')">✕</button>
-      </div>
-      <div class="tbl-wrap" id="wrapAll"></div>
+      <div class="search-wrap"><input type="text" id="search-all" placeholder="ค้นหา description..." oninput="applySearch('wrapAll')"><button class="search-clear" onclick="clearSearch('wrapAll')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-all" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapAll"></div>
     </div>
 
-    <div class="tab-panel" id="tab-des"><div class="tbl-wrap" id="wrapDes"></div></div>
-    <div class="tab-panel" id="tab-mat"><div class="tbl-wrap" id="wrapMat"></div></div>
-    <div class="tab-panel" id="tab-install"><div class="tbl-wrap" id="wrapInstall"></div></div>
-    <div class="tab-panel" id="tab-rq"><div class="tbl-wrap" id="wrapRq"></div></div>
-    <div class="tab-panel" id="tab-manage"><div style="padding:20px; color:var(--text3)">⚙ Management settings available in full version.</div></div>
+    <div class="tab-panel" id="tab-des">
+      <div class="log-header">
+        <div class="log-title">Design & Drawing Documents</div>
+        <div class="log-count" id="cntDes">0 docs</div>
+      </div>
+      <div class="search-wrap"><input type="text" id="search-des" placeholder="ค้นหา description..." oninput="applySearch('wrapDes')"><button class="search-clear" onclick="clearSearch('wrapDes')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-des" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapDes"></div>
+    </div>
 
-    <div class="footer-slogan">Technical Expertise & Reliable Sourcing</div>
+    <div class="tab-panel" id="tab-mat">
+      <div class="log-header">
+        <div class="log-title">Material Supply Documents</div>
+        <div class="log-count" id="cntMat">0 docs</div>
+      </div>
+      <div class="search-wrap"><input type="text" id="search-mat" placeholder="ค้นหา description..." oninput="applySearch('wrapMat')"><button class="search-clear" onclick="clearSearch('wrapMat')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-mat" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapMat"></div>
+    </div>
+
+
+    <div class="tab-panel" id="tab-rq">
+      <div class="log-header">
+        <div class="log-title">Requisition Documents</div>
+        <div class="log-count" id="cntRq">0 docs</div>
+      </div>
+      <div class="search-wrap"><input type="text" id="search-rq" placeholder="ค้นหา description..." oninput="applySearch('wrapRq')"><button class="search-clear" onclick="clearSearch('wrapRq')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-rq" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapRq"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-install">
+      <div class="log-header">
+        <div class="log-title">Installation & Commissioning Documents</div>
+        <div class="log-count" id="cntInstall">0 docs</div>
+      </div>
+      <div class="search-wrap"><input type="text" id="search-install" placeholder="ค้นหา description..." oninput="applySearch('wrapInstall')"><button class="search-clear" onclick="clearSearch('wrapInstall')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-install" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapInstall"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-manage">
+      <div style="margin-bottom:16px">
+        <div class="section-label" style="border:none;padding-bottom:4px">⚙ Manage Discipline Codes</div>
+        <div style="font-size:12px;color:var(--text3)">เพิ่ม / ลบ Main และ Sub Discipline ได้เองตามต้องการ</div>
+      </div>
+      <div class="manage-grid">
+        <div class="manage-card">
+          <div class="manage-card-title"><span>Main Discipline</span><span id="mainCount" style="font-size:10px;color:var(--accent2)">0 items</span></div>
+          <div class="manage-list" id="mainList"></div>
+          <div class="add-row">
+            <input class="code-inp" type="text" id="newMainCode" placeholder="CODE" maxlength="6">
+            <input type="text" id="newMainDesc" placeholder="Description">
+            <button class="btn-add" onclick="addMain()">+ Add</button>
+          </div>
+          <div style="font-size:10px;color:var(--text3);margin-top:6px">👆 คลิกที่ Main เพื่อแก้ไข Sub</div>
+        </div>
+        <div class="manage-card">
+          <div class="manage-card-title"><span>Sub Discipline</span><span id="subEditorLabel" style="font-size:10px;color:#7a3cb4">เลือก Main ก่อน</span></div>
+          <div id="subEditorWrap"><div style="color:var(--text3);font-size:12px;padding:20px 0;text-align:center">← คลิกที่ Main ทางซ้าย</div></div>
+        </div>
+      </div>
+      <div class="pool-section">
+        <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between">
+          <span>Sub Code Pool</span><span style="font-size:9px;font-weight:400">เพิ่มเข้า Pool ก่อน แล้วค่อย assign ให้ Main</span>
+        </div>
+        <div class="sub-tags" id="allSubTags"></div>
+        <div class="add-row" style="max-width:400px;margin-top:6px">
+          <input class="code-inp" type="text" id="newSubPoolCode" placeholder="CODE" maxlength="6">
+          <input type="text" id="newSubPoolDesc" placeholder="Description">
+          <button class="btn-add" onclick="addSubPool()">+ Add to Pool</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-reference">
+      <div style="margin-bottom:14px">
+        <div class="section-label" style="border:none;padding-bottom:4px">Code Reference Table</div>
+      </div>
+      <div id="refContent"></div>
+    </div>
   </div>
 
   <div class="add-panel">
-    <div style="font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; margin-bottom:10px;">Add New Document</div>
-    <div class="result-box">
-        <div class="result-label">PREVIEW CODE</div>
-        <div class="result-code" id="resultCode">DDD-TSG-ELC-GEN-0001</div>
+    <div>
+      <div class="section-label">Add Document</div>
+      <div class="format-display">
+        <div class="format-line" id="fmtLineStd">
+          <span class="fmt-ddd">DDD</span><span class="fmt-sep">-</span>
+          <span class="fmt-tsg">TSG</span><span class="fmt-sep">-</span>
+          <span class="fmt-main" id="fmtMain">ELC</span><span class="fmt-sep">-</span>
+          <span class="fmt-sub" id="fmtSub">SUB</span><span class="fmt-sep">-</span>
+          <span class="fmt-num" id="fmtNum">001</span>
+        </div>
+        <div class="format-line" id="fmtLineDES" style="display:none">
+          <span class="fmt-tsg">TSG25</span><span class="fmt-sep">-</span>
+          <span class="fmt-ddd">ECG00</span><span class="fmt-sep">-</span>
+          <span class="fmt-num" id="fmtSeries">40</span>
+        </div>
+        <div class="format-desc" id="fmtDescStd">
+          <span style="color:var(--accent)">DDD</span>=Contractor &nbsp;
+          <span style="color:var(--accent3)">TSG</span>=Project &nbsp;
+          <span style="color:var(--danger)">###</span>=No.
+        </div>
+        <div class="format-desc" id="fmtDescDES" style="display:none">
+          <span style="color:var(--accent3)">TSG25-ECG00</span>=Project &nbsp;
+          <span style="color:var(--danger)">XX</span>=Series
+        </div>
+      </div>
     </div>
-    <button class="gen-btn" onclick="alert('Function available in linked environment')">Add to Register</button>
+
+    <div class="field-group">
+      <div class="field-label">MAIN</div>
+      <div class="select-wrap"><select id="selMain" onchange="populateSub();updatePreview()"></select></div>
+    </div>
+    <div class="field-group">
+      <div class="field-label">SUB</div>
+      <div class="select-wrap"><select id="selSub" onchange="updatePreview()"></select></div>
+    </div>
+    <div class="field-group">
+      <div class="field-label">DESCRIPTION</div>
+      <input type="text" id="inpDesc" placeholder="คำอธิบายเอกสาร..." oninput="updatePreview()">
+    </div>
+    <div class="field-group">
+      <div class="field-label">GOOGLE DRIVE LINK</div>
+      <div class="field-sub">ลิงก์เอกสารใน Google Drive (optional)</div>
+      <input type="text" id="inpDocUrl" placeholder="https://drive.google.com/..." oninput="updatePreview()">
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">REVISION</div>
+      <div class="select-wrap">
+        <select id="selRev" onchange="updatePreview()">
+          <option value="Rev.0">Rev.0</option><option value="Rev.1">Rev.1</option>
+          <option value="Rev.2">Rev.2</option><option value="Rev.A">Rev.A</option>
+          <option value="Rev.B">Rev.B</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-group">
+      <div class="field-label">STATUS</div>
+      <div class="select-wrap">
+        <select id="selStatus" onchange="updatePreview()">
+          <option value="IFA">IFA — Issued for Approval</option>
+          <option value="IFR">IFR — Issued for Review</option>
+          <option value="IFC">IFC — Issued for Construction</option>
+          <option value="AFC">AFC — Approved for Construction</option>
+          <option value="SUB">SUB — Submittal</option>
+          <option value="IFI">IFI — Issued for Information</option>
+          <option value="DDD">DDD — Supplied by DDD</option>
+          <option value="VOID">VOID — Void / Cancelled</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-group">
+      <div class="field-label">OVERRIDE NO.</div>
+      <div class="field-sub">ปล่อยว่าง = Auto</div>
+      <input type="number" id="inpOverride" min="1" max="999" placeholder="Auto" oninput="updatePreview()">
+    </div>
+
+    <div class="result-box">
+      <div class="result-label">DOCUMENT CODE</div>
+      <div class="result-code" id="resultCode">—</div>
+      <div class="result-meta" id="resultMeta"></div>
+      <button class="copy-btn" id="copyBtn" onclick="copyCode()">⎘ COPY</button>
+    </div>
+
+    <button class="gen-btn" onclick="addDocument()">+ ADD TO REGISTER</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-title">✏ Edit Document</div>
+    <input type="hidden" id="editDocId">
+    <div class="modal-field">
+      <div class="modal-label">Description</div>
+      <input type="text" id="editDesc" placeholder="Document description">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Date Issued</div>
+      <input type="date" id="editDate" style="width:100%;padding:7px;border:1px solid var(--border);font-size:12px;background:var(--bg);color:var(--text)">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Revision</div>
+      <div class="select-wrap">
+        <select id="editRev">
+          <option value="Rev.0">Rev.0</option><option value="Rev.1">Rev.1</option>
+          <option value="Rev.2">Rev.2</option><option value="Rev.A">Rev.A</option>
+          <option value="Rev.B">Rev.B</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Status</div>
+      <div class="select-wrap">
+        <select id="editStatus">
+          <option value="IFA">IFA — Issued for Approval</option>
+          <option value="IFR">IFR — Issued for Review</option>
+          <option value="IFC">IFC — Issued for Construction</option>
+          <option value="AFC">AFC — Approved for Construction</option>
+          <option value="SUB">SUB — Submittal</option>
+          <option value="IFI">IFI — Issued for Information</option>
+          <option value="DDD">DDD — Supplied by DDD</option>
+          <option value="VOID">VOID — Void / Cancelled</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Approved</div>
+      <div style="display:flex;gap:12px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px">
+          <input type="radio" name="editApproved" id="editApprovedYes" value="yes">
+          <span style="color:#2A9D3A;font-weight:700">✓ Approved</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px">
+          <input type="radio" name="editApproved" id="editApprovedNo" value="no" checked>
+          <span style="color:#888">✗ Not yet</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Google Drive Link</div>
+      <input type="text" id="editDocUrl" placeholder="https://drive.google.com/...">
+    </div>
+    <div class="modal-field" id="approvedDateField">
+      <div class="modal-label">Approved Date</div>
+      <input type="date" id="editApprovedDate" style="width:100%;padding:7px;border:1px solid var(--border);font-size:12px;background:var(--bg);color:var(--text)">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn-sm ok" onclick="saveEdit()">✓ Save</button>
+    </div>
   </div>
 </div>
 
 <script>
-// --- DATA ---
-let docs = [
-  // ข้อมูล 104 รายการ (ตัวอย่างบางส่วนเพื่อให้ทำงานได้)
-  {id:1, code:'TSG25-ECG00-00', main:'DES', sub:'ELS', desc:'List of Drawing', rev:'Rev.0', status:'IFA', date:'16/04/2026', approved:'no', docUrl:''},
-  {id:2, code:'TSG25-ECG00-01', main:'DES', sub:'ELS', desc:'Single Line Diagram', rev:'Rev.0', status:'IFA', date:'16/04/2026', approved:'no', docUrl:''},
-  {id:3, code:'TSG25-ECG00-40', main:'DES', sub:'RQ', desc:'Requisition for Cables', rev:'Rev.0', status:'IFA', date:'18/04/2026', approved:'no', docUrl:''},
-  // ใส่ข้อมูลเพิ่มให้ครบ 104 รายการตามต้นฉบับของคุณที่นี่...
+// ── DATA ──────────────────────────────────────────────
+let mainDiscs = [
+  {code:'DES',desc:'Design & Drawing'},
+  {code:'ELC',desc:'Electrical'},
+  {code:'INS',desc:'Instrument'},
+  {code:'GND',desc:'Grounding & Lightning'},
+  {code:'LGT',desc:'Lighting'},
+  {code:'CCTV',desc:'CCTV System'},
+  {code:'MAT',desc:'Material & Equipment'},
+  {code:'PRG',desc:'Programming'},
+  {code:'COM',desc:'Commissioning'},
+  {code:'DOC',desc:'Documentation'},
 ];
 
-// เพิ่มข้อมูลให้ครบ 104 รายการจำลอง
-for(let i=4; i<=104; i++) {
-    docs.push({
-        id:i, code:`TSG25-ECG00-${String(i).padStart(2,'0')}`, 
-        main: i % 10 === 0 ? 'MAT' : (i % 15 === 0 ? 'PRG' : 'DES'),
-        sub: i % 10 === 0 ? 'RQ' : 'ELS',
-        desc: `Document Description ${i}`, rev:'Rev.0', status:'IFA', date:'16/04/2026', approved:'no'
-    });
-}
+let subPool = {
+  ELS:'Electrical System', COM:'Communication System', MRS:'Main Route System',
+  LTG:'Lightning Protection System', GND:'Grounding and Bonding System',
+  LGT:'Lighting System', SPS:'Small Power System', CCL:'CCTV System',
+  PNL:'Panel GA & Wiring', HOK:'Hook-up Drawing',
+  RQ:'Requisition',
+  SUB:'Submittal', GEN:'General',
+  FLD:'Field Instrument', IMP:'Impulse Line',
+  PLC:'PLC Programming', HMI:'HMI Programming',
+  LOG:'Control Logic', USR:'User Management',
+  FAT:'Factory Acceptance Test', SAT:'Site Acceptance Test', PRE:'Pre-Commissioning',
+  ABD:'As-Built Drawing', MNL:'Operation Manual', TRN:'Training Material',
+  CBL:'Cable', TRY:'Cable Tray', CDT:'Conduit',
+};
 
+let subMap = {
+  DES:['ELS','COM','MRS','LTG','GND','LGT','SPS','CCL','PNL','HOK','RQ','GEN'],
+  ELC:['SUB','GEN'], INS:['SUB','GEN'], GND:['SUB','GEN'],
+  LGT:['SUB','GEN'], CCTV:['SUB','SCH','GEN'], MAT:['SUB','GEN'],
+  PRG:['PLC','HMI','LOG','USR','GEN'], COM:['FAT','SAT','PRE','GEN'], DOC:['ABD','GEN'],
+};
+
+// MAT disciplines
 const MAT_MAINS = ['ELC','INS','GND','LGT','CCTV','MAT'];
+// RQ filter: DES with sub RQ
+function isRQ(d){ return d.main==='DES' && d.sub==='RQ'; }
+// INSTALL disciplines
 const INSTALL_MAINS = ['PRG','COM','DOC'];
 
-// --- FUNCTIONS ---
-function switchTab(name, el) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('tab-' + name).classList.add('active');
+let counters = {}, selMain4Sub = null;
+let currentTab = 'all';
+
+let docs = [
+  // ELECTRICAL SYSTEM (ELS) — ECG00-00~05
+  {id:2001,code:'TSG25-ECG00-00',main:'DES',sub:'ELS',desc:'List of Drawing',                                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2002,code:'TSG25-ECG00-01',main:'DES',sub:'ELS',desc:'Single Line Diagram',                                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2003,code:'TSG25-ECG00-02',main:'DES',sub:'ELS',desc:'Load Schedule Sheet 1 of 2',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2004,code:'TSG25-ECG00-03',main:'DES',sub:'ELS',desc:'Load Schedule Sheet 2 of 2',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2005,code:'TSG25-ECG00-04',main:'DES',sub:'ELS',desc:'Riser Diagram',                                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2006,code:'TSG25-ECG00-05',main:'DES',sub:'ELS',desc:'Diagram for Lightning Protection',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  // COMMUNICATION SYSTEM (COM) — OCG00-01~09
+  {id:2007,code:'TSG25-OCG00-01',main:'DES',sub:'COM',desc:'Schematic Diagram for CCTV',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:20070,code:'TSG25-OCG00-02',main:'DES',sub:'COM',desc:'SCADA System Interfacing Schematic Diagram',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2008,code:'TSG25-OCG00-03',main:'DES',sub:'COM',desc:'SCADA System Diagram 1 of 2',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2009,code:'TSG25-OCG00-04',main:'DES',sub:'COM',desc:'SCADA System Diagram 2 of 2',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2010,code:'TSG25-OCG00-05',main:'DES',sub:'COM',desc:'SCADA Point Schedule 1 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2011,code:'TSG25-OCG00-06',main:'DES',sub:'COM',desc:'SCADA Point Schedule 2 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2012,code:'TSG25-OCG00-07',main:'DES',sub:'COM',desc:'SCADA Point Schedule 3 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2013,code:'TSG25-OCG00-08',main:'DES',sub:'COM',desc:'SCADA Point Schedule 4 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2014,code:'TSG25-OCG00-09',main:'DES',sub:'COM',desc:'SCADA Point Schedule 5 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  // MAIN ROUTE SYSTEM (MRS) — ECG00-10~29
+  {id:2015,code:'TSG25-ECG00-10',main:'DES',sub:'MRS',desc:'Main Route System AC1/AC2 Reference Plan',                 rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2016,code:'TSG25-ECG00-11',main:'DES',sub:'MRS',desc:'Foundation for Distribution Board AC1',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2017,code:'TSG25-ECG00-12',main:'DES',sub:'MRS',desc:'Main Route System AC1 1st Floor Plan',                     rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2018,code:'TSG25-ECG00-13',main:'DES',sub:'MRS',desc:'Main Route System AC1 2nd Floor Plan',                     rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2019,code:'TSG25-ECG00-14',main:'DES',sub:'MRS',desc:'Main Route System AC1 Section A-B',                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2020,code:'TSG25-ECG00-15',main:'DES',sub:'MRS',desc:'Main Route System AC1 Section C-D',                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2021,code:'TSG25-ECG00-16',main:'DES',sub:'MRS',desc:'Main Route System Reference Plan',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2022,code:'TSG25-ECG00-17',main:'DES',sub:'MRS',desc:'Main Route System Sheet 1 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2023,code:'TSG25-ECG00-18',main:'DES',sub:'MRS',desc:'Main Route System Sheet 2 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2024,code:'TSG25-ECG00-19',main:'DES',sub:'MRS',desc:'Main Route System Sheet 3 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2025,code:'TSG25-ECG00-20',main:'DES',sub:'MRS',desc:'Main Route System Sheet 4 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2026,code:'TSG25-ECG00-21',main:'DES',sub:'MRS',desc:'Main Route System Sheet 5 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2027,code:'TSG25-ECG00-22',main:'DES',sub:'MRS',desc:'Main Route System Sheet 6 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2028,code:'TSG25-ECG00-23',main:'DES',sub:'MRS',desc:'Main Route System Sheet 7 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2029,code:'TSG25-ECG00-24',main:'DES',sub:'MRS',desc:'Main Route System Sheet 8 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2030,code:'TSG25-ECG00-25',main:'DES',sub:'MRS',desc:'Main Route System Sheet 9 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2031,code:'TSG25-ECG00-26',main:'DES',sub:'MRS',desc:'Main Route System Sheet 10 of 12',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2032,code:'TSG25-ECG00-27',main:'DES',sub:'MRS',desc:'Main Route System Sheet 11 of 12',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2033,code:'TSG25-ECG00-28',main:'DES',sub:'MRS',desc:'Main Route System Sheet 12 of 12',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2034,code:'TSG25-ECG00-29',main:'DES',sub:'MRS',desc:'Main Route System Section and Detail Sheet 1',             rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  // LIGHTNING PROTECTION SYSTEM (LTG) — ECG00-30~36
+  {id:2035,code:'TSG25-ECG00-30',main:'DES',sub:'LTG',desc:'Lightning Protection System Reference Plan',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2036,code:'TSG25-ECG00-31',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Ground Level',             rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2037,code:'TSG25-ECG00-32',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System 2nd Level',                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2038,code:'TSG25-ECG00-33',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Roof Level',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2039,code:'TSG25-ECG00-34',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Section A-A',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2040,code:'TSG25-ECG00-35',main:'DES',sub:'LTG',desc:'AC2 Lightning Protection System 1st Level',                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2041,code:'TSG25-ECG00-36',main:'DES',sub:'LTG',desc:'Lightning Protection Typical Detail',                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:20415,code:'TSG25-ECG00-37',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System 1st Level',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  // GROUNDING AND BONDING SYSTEM (GND) — ECG00-40~53
+  {id:2042,code:'TSG25-ECG00-40',main:'DES',sub:'GND',desc:'Grounding and Bonding System Reference Plan',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2043,code:'TSG25-ECG00-41',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 1 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2044,code:'TSG25-ECG00-42',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 2 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2045,code:'TSG25-ECG00-43',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 3 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2046,code:'TSG25-ECG00-44',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 4 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2047,code:'TSG25-ECG00-45',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 5 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2048,code:'TSG25-ECG00-46',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 6 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2049,code:'TSG25-ECG00-47',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 7 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2050,code:'TSG25-ECG00-48',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 8 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2051,code:'TSG25-ECG00-49',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 9 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2052,code:'TSG25-ECG00-50',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 10 of 12',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2053,code:'TSG25-ECG00-51',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 11 of 12',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2054,code:'TSG25-ECG00-52',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 12 of 12',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2055,code:'TSG25-ECG00-53',main:'DES',sub:'GND',desc:'Grounding and Bonding System Typical Detail',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  // LIGHTING SYSTEM (LGT) — ECG00-60~67
+  {id:2056,code:'TSG25-ECG00-60',main:'DES',sub:'LGT',desc:'Lighting System Reference Plan',                           rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2057,code:'TSG25-ECG00-61',main:'DES',sub:'LGT',desc:'AC1 Lighting System 1st Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2058,code:'TSG25-ECG00-62',main:'DES',sub:'LGT',desc:'AC1 Lighting System 2nd Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2059,code:'TSG25-ECG00-63',main:'DES',sub:'LGT',desc:'AC1 Lighting System 3rd Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2060,code:'TSG25-ECG00-64',main:'DES',sub:'LGT',desc:'AC1 Lighting System 4th Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2061,code:'TSG25-ECG00-65',main:'DES',sub:'LGT',desc:'AC1 Lighting System Section A-B',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2062,code:'TSG25-ECG00-66',main:'DES',sub:'LGT',desc:'AC2 Lighting System',                                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2063,code:'TSG25-ECG00-67',main:'DES',sub:'LGT',desc:'Lighting System Typical and Detail Sheet 1',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  // SMALL POWER SYSTEM (SPS) — ECG00-70~77
+  {id:2064,code:'TSG25-ECG00-70',main:'DES',sub:'SPS',desc:'Small Power System Reference Plan',                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2065,code:'TSG25-ECG00-71',main:'DES',sub:'SPS',desc:'AC1 Small Power System 1st Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2066,code:'TSG25-ECG00-72',main:'DES',sub:'SPS',desc:'AC1 Small Power System 2nd Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2067,code:'TSG25-ECG00-73',main:'DES',sub:'SPS',desc:'AC1 Small Power System 3rd Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2068,code:'TSG25-ECG00-74',main:'DES',sub:'SPS',desc:'AC1 Small Power System 4th Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2069,code:'TSG25-ECG00-75',main:'DES',sub:'SPS',desc:'AC1 Small Power System Section A-B',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2070,code:'TSG25-ECG00-76',main:'DES',sub:'SPS',desc:'AC2 Small Power System',                                   rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2071,code:'TSG25-ECG00-77',main:'DES',sub:'SPS',desc:'Small Power System Typical and Detail Sheet 1',            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  // CCTV SYSTEM (CCL) — OCG00-20~27
+  {id:2072,code:'TSG25-OCG00-20',main:'DES',sub:'CCL',desc:'CCTV System Reference Plan',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2073,code:'TSG25-OCG00-21',main:'DES',sub:'CCL',desc:'AC1 CCTV System 1st Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2074,code:'TSG25-OCG00-22',main:'DES',sub:'CCL',desc:'AC1 CCTV System 2nd Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2075,code:'TSG25-OCG00-23',main:'DES',sub:'CCL',desc:'AC1 CCTV System 3rd Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2076,code:'TSG25-OCG00-24',main:'DES',sub:'CCL',desc:'AC1 CCTV System 4th Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2077,code:'TSG25-OCG00-25',main:'DES',sub:'CCL',desc:'AC1 CCTV System Section A-B',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2078,code:'TSG25-OCG00-26',main:'DES',sub:'CCL',desc:'AC2 CCTV System',                                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2079,code:'TSG25-OCG00-27',main:'DES',sub:'CCL',desc:'CCTV System Typical and Detail Sheet 1',                   rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  // PANEL GA & WIRING (PNL) — ECG00-80~132
+  {id:2080,code:'TSG25-ECG00-80',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for MDB',         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2081,code:'TSG25-ECG00-81',main:'DES',sub:'PNL',desc:'Equipment & Load List for MDB',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2082,code:'TSG25-ECG00-82',main:'DES',sub:'PNL',desc:'Switchboard Layout for MDB',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2083,code:'TSG25-ECG00-83',main:'DES',sub:'PNL',desc:'Schematic Diagram for MDB',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2084,code:'TSG25-ECG00-84',main:'DES',sub:'PNL',desc:'Wiring Control for MDB',                                   rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2085,code:'TSG25-ECG00-90',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for MCC',         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2086,code:'TSG25-ECG00-91',main:'DES',sub:'PNL',desc:'Equipment & Load List for MCC',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2087,code:'TSG25-ECG00-92',main:'DES',sub:'PNL',desc:'Switchboard Layout for MCC',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2088,code:'TSG25-ECG00-93',main:'DES',sub:'PNL',desc:'Schematic Diagram for MCC',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2089,code:'TSG25-ECG00-94',main:'DES',sub:'PNL',desc:'Wiring Control for Motor (D.O.L)',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2090,code:'TSG25-ECG00-95',main:'DES',sub:'PNL',desc:'Wiring Control for Motor (Star-Delta)',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2091,code:'TSG25-ECG00-100',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 1', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2092,code:'TSG25-ECG00-101',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 1',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2093,code:'TSG25-ECG00-102',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 1',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2094,code:'TSG25-ECG00-110',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 2', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2095,code:'TSG25-ECG00-111',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 2',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2096,code:'TSG25-ECG00-112',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 2',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2097,code:'TSG25-ECG00-120',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 3', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2098,code:'TSG25-ECG00-121',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 3',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2099,code:'TSG25-ECG00-122',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 3',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2100,code:'TSG25-ECG00-130',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 4', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2101,code:'TSG25-ECG00-131',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 4',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2102,code:'TSG25-ECG00-132',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 4',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},];
+
+const DES_SERIES = {ELS:1,MRS:10,LTG:30,GND:40,LGT:60,SPS:70,PNL:80,HOK:200,COM:1,CCL:20};
+const DES_DRAWING_SUBS = ['ELS','COM','MRS','LTG','GND','LGT','SPS','CCL','PNL','HOK'];
+function isDesDrw(main,sub){return main==='DES'&&DES_DRAWING_SUBS.includes(sub);}
+function getDesCode(sub,num){
+  const series=(sub==='COM'||sub==='CCL')?'OCG00':'ECG00';
+  const base=DES_SERIES[sub]||1;
+  const n=base+(num-1);
+  return `TSG25-${series}-${String(n).padStart(n>=100?3:2,'0')}`;
 }
 
-function renderTable(list, wrapId) {
-    const wrap = document.getElementById(wrapId);
-    if (!list.length) {
-        wrap.innerHTML = '<div style="padding:40px; text-align:center; color:#888;">No documents found.</div>';
-        return;
-    }
-    let html = `<table><thead><tr><th>#</th><th>Document No.</th><th>Main</th><th>Sub</th><th>Description</th><th>Rev</th><th>Status</th></tr></thead><tbody>`;
-    list.forEach((d, i) => {
-        html += `<tr>
-            <td style="color:#888">${i+1}</td>
-            <td class="doc-code">${d.code}</td>
-            <td><span class="tag">${d.main}</span></td>
-            <td style="font-family:var(--mono); font-size:10px">${d.sub}</td>
-            <td class="doc-desc">${d.desc}</td>
-            <td><span class="rev-badge">${d.rev}</span></td>
-            <td style="font-weight:700; color:${d.status==='IFA'?'#D48C00':'#1A6FD4'}">${d.status}</td>
-        </tr>`;
+const STATUS_C={IFA:'#D48C00',IFR:'#7A3CB4',IFC:'#1A6FD4',AFC:'#2A9D3A',SUB:'#1A6FD4',IFI:'#4A4A4A',DDD:'#AAAAAA',VOID:'#D93025'};
+
+// ── INIT ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  rebuildMainSelect(); populateSub(); updatePreview();
+  renderAllTabs(); renderFilterChips(); renderManage(); renderReference();
+});
+
+// ── HELPERS ──────────────────────────────────────────
+function peekNum(m,s){return(counters[m+'-'+s]||0)+1;}
+function getNextNum(m,s){const k=m+'-'+s;counters[k]=(counters[k]||0)+1;return counters[k];}
+function fmt4(n){return String(n).padStart(4,'0');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+// ── TABS ─────────────────────────────────────────────
+function switchTab(name,el){
+  currentTab=name;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(el&&el.classList)el.classList.add('active');
+  if(name==='manage')renderManage();
+  if(name==='reference')renderReference();
+}
+
+// ── RENDER TABLE ─────────────────────────────────────
+const _sortState={};
+function buildTable(list,wrapId,sortCol,sortDir){
+  if(!list.length) return '<div class="empty"><div class="empty-icon">📄</div><div>No documents</div></div>';
+  let sorted=[...list];
+  if(sortCol!==undefined){
+    const keys=['','code','main','sub','desc','rev','status','date','approved','approvedDate'];
+    const key=keys[sortCol]||'';
+    sorted.sort((a,b)=>{
+      const va=(a[key]||'').toString().toLowerCase();
+      const vb=(b[key]||'').toString().toLowerCase();
+      if(va<vb)return sortDir==='asc'?-1:1;
+      if(va>vb)return sortDir==='asc'?1:-1;
+      return 0;
     });
-    html += `</tbody></table>`;
-    wrap.innerHTML = html;
+  }
+  const sc=(col,label)=>{
+    const active=sortCol===col;
+    const cls='sortable'+(active?(sortDir==='asc'?' sort-asc':' sort-desc'):'');
+    return `<th class="${cls}" onclick="doSort('${wrapId||'wrapAll'}',${col})">${label}</th>`;
+  };
+  return `<table><thead><tr>
+    <th>#</th>${sc(1,'Document No.')}${sc(2,'Main')}${sc(3,'Sub')}<th>🔗</th>${sc(4,'Description')}
+    ${sc(5,'Rev')}${sc(6,'Status')}${sc(7,'Date Issued')}${sc(8,'Approved')}${sc(9,'Approved Date')}<th></th>
+  </tr></thead><tbody>
+  ${sorted.map((d,i)=>`<tr>
+    <td style="color:var(--text3);font-family:var(--mono);font-size:10px">${String(i+1).padStart(2,'0')}</td>
+    <td class="doc-code">${d.code}</td>
+    <td><span class="tag">${d.main}</span></td>
+    <td style="font-family:var(--mono);font-size:10px;color:var(--text3)">${d.sub}</td>
+    <td style="white-space:nowrap;text-align:center">${d.docUrl?`<a href="${d.docUrl}" target="_blank" style="font-size:10px;color:var(--accent3);font-family:var(--mono);text-decoration:none;border:1px solid var(--accent3);padding:1px 5px;" title="${d.docUrl}">🔗</a>`:''}</td>
+    <td class="doc-desc">${d.desc||'—'}</td>
+    <td><span class="rev-badge">${d.rev}</span></td>
+    <td style="font-family:var(--mono);font-size:10px;font-weight:700;color:${STATUS_C[d.status]||'#888'}">${d.status||'—'}</td>
+    <td style="font-size:10px;color:var(--text3);white-space:nowrap">${d.date||'—'}</td>
+    <td style="text-align:center;font-size:11px;font-weight:700;color:${d.approved==='yes'?'#2A9D3A':'#CCC'}">${d.approved==='yes'?'✓':'—'}</td>
+    <td style="font-size:10px;color:#2A9D3A;white-space:nowrap">${d.approved==='yes'?(d.approvedDate||''):'—'}</td>
+    <td style="white-space:nowrap">
+      ${window._isAdmin?`<button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button><button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>`:''}
+    </td>
+  </tr>`).join('')}
+  </tbody></table>`;
+}
+function doSort(wrapId,col){
+  const cur=_sortState[wrapId]||{};
+  const dir=(cur.col===col&&cur.dir==='asc')?'desc':'asc';
+  _sortState[wrapId]={col,dir};
+  renderAllTabs();
 }
 
-function renderAllTabs() {
-    const desDocs = docs.filter(d => d.main === 'DES' && d.sub !== 'RQ');
-    const matDocs = docs.filter(d => MAT_MAINS.includes(d.main));
-    const instDocs = docs.filter(d => INSTALL_MAINS.includes(d.main));
-    const rqDocs = docs.filter(d => d.sub === 'RQ');
+const _searchState={};
+function searched(list,wrapId){
+  const q=(_searchState[wrapId]||'').toLowerCase().trim();
+  if(!q) return list;
+  return list.filter(d=>(d.desc||'').toLowerCase().includes(q)||
+    (d.code||'').toLowerCase().includes(q)||
+    (d.sub||'').toLowerCase().includes(q));
+}
+function applySearch(wrapId){
+  const map={wrapAll:'search-all',wrapDes:'search-des',wrapMat:'search-mat',wrapRq:'search-rq',wrapInstall:'search-install'};
+  const inp=document.getElementById(map[wrapId]);
+  _searchState[wrapId]=inp?inp.value:'';
+  renderAllTabs();
+}
+function clearSearch(wrapId){
+  const map={wrapAll:'search-all',wrapDes:'search-des',wrapMat:'search-mat',wrapRq:'search-rq',wrapInstall:'search-install'};
+  const inp=document.getElementById(map[wrapId]);
+  if(inp)inp.value='';
+  _searchState[wrapId]='';
+  renderAllTabs();
+}
+function renderTab(wrapId,fullList,cntId){
+  const filtered=searched(fullList,wrapId);
+  const ss=_sortState[wrapId]||{};
+  const el=document.getElementById(wrapId);
+  if(el) el.innerHTML=buildTable(filtered,wrapId,ss.col,ss.dir);
+  if(cntId){
+    const q=_searchState[wrapId]||'';
+    const el2=document.getElementById(cntId);
+    if(el2) el2.textContent=q?`${filtered.length}/${fullList.length} docs`:`${fullList.length} docs`;
+  }
+  const hintMap={wrapAll:'hint-all',wrapDes:'hint-des',wrapMat:'hint-mat',wrapRq:'hint-rq',wrapInstall:'hint-install'};
+  const hint=document.getElementById(hintMap[wrapId]);
+  if(hint){
+    const q=_searchState[wrapId]||'';
+    hint.textContent=q&&filtered.length<fullList.length?`พบ ${filtered.length} จาก ${fullList.length} รายการ`:'';
+  }
+}
+function renderAllTabs(){
+  const desDocs=docs.filter(d=>d.main==='DES'&&!isRQ(d));
+  const matDocs=docs.filter(d=>MAT_MAINS.includes(d.main));
+  const instDocs=docs.filter(d=>INSTALL_MAINS.includes(d.main));
+  const rqDocs=docs.filter(isRQ);
 
-    // อัปเดตตัวเลข Stats
-    document.getElementById('statTotal').textContent = docs.length;
-    document.getElementById('statDES').textContent = desDocs.length;
-    document.getElementById('statMAT').textContent = matDocs.length;
-    document.getElementById('statINS').textContent = instDocs.length;
-    document.getElementById('statRQ').textContent = rqDocs.length;
+  document.getElementById('statTotal').textContent=docs.length;
+  document.getElementById('statDES').textContent=desDocs.length;
+  document.getElementById('statMAT').textContent=matDocs.length;
+  document.getElementById('statINS').textContent=instDocs.length;
+  document.getElementById('statRQ').textContent=rqDocs.length;
 
-    // อัปเดตชื่อแท็บพร้อมจำนวนรายการ (XXX)
-    document.getElementById('tabBtn-all').textContent = `ALL (${docs.length})`;
-    document.getElementById('tabBtn-des').textContent = `DES (${desDocs.length})`;
-    document.getElementById('tabBtn-mat').textContent = `MAT (${matDocs.length})`;
-    document.getElementById('tabBtn-install').textContent = `INSTALL (${instDocs.length})`;
-    document.getElementById('tabBtn-rq').textContent = `RQ (${rqDocs.length})`;
+  // เพิ่มระบบอัปเดตตัวเลขในวงเล็บ (XXX) ที่แท็บอัตโนมัติ
+  document.getElementById('tab-btn-all').textContent = `ALL (${docs.length})`;
+  document.getElementById('tab-btn-des').textContent = `DES (${desDocs.length})`;
+  document.getElementById('tab-btn-mat').textContent = `MAT (${matDocs.length})`;
+  document.getElementById('tab-btn-install').textContent = `INSTALL (${instDocs.length})`;
+  document.getElementById('tab-btn-rq').textContent = `RQ (${rqDocs.length})`;
 
-    // วาดตารางในแต่ละแท็บ
-    renderTable(docs, 'wrapAll');
-    renderTable(desDocs, 'wrapDes');
-    renderTable(matDocs, 'wrapMat');
-    renderTable(instDocs, 'wrapInstall');
-    renderTable(rqDocs, 'wrapRq');
+  renderTab('wrapAll',docs,null);
+  renderTab('wrapDes',desDocs,'cntDes');
+  renderTab('wrapMat',matDocs,'cntMat');
+  renderTab('wrapInstall',instDocs,'cntInstall');
+  renderTab('wrapRq',rqDocs,'cntRq');
+}
+function renderTable(){renderAllTabs();}
+function renderFilterChips(){}
+
+// ── SIDEBAR ──────────────────────────────────────────
+function rebuildMainSelect(){
+  const sel=document.getElementById('selMain'); const cur=sel.value;
+  sel.innerHTML=mainDiscs.map(m=>`<option value="${m.code}">${m.code} — ${m.desc}</option>`).join('');
+  if(cur&&mainDiscs.find(m=>m.code===cur))sel.value=cur;
+}
+function populateSub(){
+  const main=document.getElementById('selMain').value;
+  const sel=document.getElementById('selSub'); const cur=sel.value;
+  const subs=subMap[main]||['GEN'];
+  sel.innerHTML=subs.map(s=>`<option value="${s}">${s} — ${subPool[s]||s}</option>`).join('');
+  if(cur&&subs.includes(cur))sel.value=cur;
+}
+function updatePreview(){
+  const main=document.getElementById('selMain').value;
+  const sub=document.getElementById('selSub').value;
+  const rev=document.getElementById('selRev').value;
+  const status=document.getElementById('selStatus').value;
+  const desc=document.getElementById('inpDesc').value;
+  const docUrl=(document.getElementById('inpDocUrl')?.value||'').trim();
+  const ov=document.getElementById('inpOverride').value;
+  const num=ov?parseInt(ov):peekNum(main,sub);
+  const md=mainDiscs.find(m=>m.code===main)?.desc||main;
+  const sd=subPool[sub]||sub;
+  const desDrw=isDesDrw(main,sub);
+  const code=desDrw?getDesCode(sub,num):`DDD-TSG-${main}-${sub}-${fmt4(num)}`;
+  document.getElementById('fmtLineStd').style.display=desDrw?'none':'flex';
+  document.getElementById('fmtLineDES').style.display=desDrw?'flex':'none';
+  document.getElementById('fmtDescStd').style.display=desDrw?'none':'block';
+  document.getElementById('fmtDescDES').style.display=desDrw?'block':'none';
+  if(desDrw){const sv=(sub==='COM'||sub==='CCL')?'OCG00':'ECG00';const nn=(DES_SERIES[sub]||1)+(num-1);if(document.getElementById('fmtSeriesLabel'))document.getElementById('fmtSeriesLabel').textContent=sv;document.getElementById('fmtSeries').textContent=String(nn).padStart(nn>=100?3:2,'0');}
+  else{document.getElementById('fmtMain').textContent=main;document.getElementById('fmtSub').textContent=sub;document.getElementById('fmtNum').textContent=fmt4(num);}
+  document.getElementById('resultCode').textContent=code;
+  const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('resultMeta').innerHTML=`
+    <div class="result-meta-row"><span>Main:</span>${md}</div>
+    <div class="result-meta-row"><span>Sub:</span>${sd}</div>
+    <div class="result-meta-row"><span>Rev:</span>${rev} | <span>Status:</span>${status}</div>
+    ${desc?`<div class="result-meta-row"><span>Desc:</span>${desc}</div>`:''}`;
 }
 
-function applySearch(wrapId) {
-    const q = document.getElementById('search-all').value.toLowerCase();
-    const filtered = docs.filter(d => d.desc.toLowerCase().includes(q) || d.code.toLowerCase().includes(q));
-    renderTable(filtered, wrapId);
+function addDocument(){
+  const main=document.getElementById('selMain').value;
+  const sub=document.getElementById('selSub').value;
+  const rev=document.getElementById('selRev').value;
+  const status=document.getElementById('selStatus').value;
+  const desc=document.getElementById('inpDesc').value;
+  const docUrl=(document.getElementById('inpDocUrl')?.value||'').trim();
+  const ov=document.getElementById('inpOverride').value;
+  let num;
+  if(ov){num=parseInt(ov);const k=main+'-'+sub;if(num>(counters[k]||0))counters[k]=num;}
+  else{num=getNextNum(main,sub);}
+  const desDrw=isDesDrw(main,sub);
+  const code=desDrw?getDesCode(sub,num):`DDD-TSG-${main}-${sub}-${fmt4(num)}`;
+  const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:'',docUrl:docUrl||''};
+  docs.push(newDoc);
+  if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(newDoc.id)),newDoc);
+  document.getElementById('inpDesc').value='';
+  document.getElementById('inpOverride').value='';
+  if(document.getElementById('inpDocUrl'))document.getElementById('inpDocUrl').value='';
+  renderAllTabs(); updatePreview();
+  showToast('✓ Added: '+code);
 }
 
-function clearSearch(wrapId) {
-    document.getElementById('search-all').value = '';
-    renderTable(docs, wrapId);
+function copyCode(){
+  const code=document.getElementById('resultCode').textContent;
+  navigator.clipboard.writeText(code).catch(()=>{});
+  const btn=document.getElementById('copyBtn');
+  btn.textContent='✓ COPIED';
+  setTimeout(()=>{btn.textContent='⎘ COPY';},1500);
+  showToast('✓ Copied: '+code);
 }
 
-// Start
-window.onload = renderAllTabs;
+// ── EDIT MODAL ───────────────────────────────────────
+function openModal(id){
+  const d=docs.find(x=>x.id===id);if(!d)return;
+  document.getElementById('editDocId').value=id;
+  document.getElementById('editDesc').value=d.desc;
+  document.getElementById('editDate').value=d.date?d.date.split('/').reverse().join('-'):'';
+  document.getElementById('editRev').value=d.rev;
+  document.getElementById('editStatus').value=d.status||'IFA';
+  const approved=d.approved==='yes';
+  document.getElementById('editApprovedYes').checked=approved;
+  document.getElementById('editApprovedNo').checked=!approved;
+
+  const ad=d.approvedDate||''; const adp=ad.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  document.getElementById('editApprovedDate').value=adp?adp[3]+'-'+adp[2]+'-'+adp[1]:ad;
+  document.getElementById('editDocUrl').value=d.docUrl||'';
+  document.getElementById('editModal').classList.add('open');
+}
+function closeModal(){document.getElementById('editModal').classList.remove('open');}
+function saveEdit(){
+  const id=parseInt(document.getElementById('editDocId').value);
+  const d=docs.find(x=>x.id===id);if(!d)return;
+  d.desc=document.getElementById('editDesc').value;
+  const dv=document.getElementById('editDate').value; if(dv){const p=dv.split('-');d.date=p[2]+'/'+p[1]+'/'+p[0];}
+  d.rev=document.getElementById('editRev').value;
+  d.status=document.getElementById('editStatus').value;
+  d.approved=document.getElementById('editApprovedYes').checked?'yes':'no';
+  const av=document.getElementById('editApprovedDate').value; const ap=av?av.split('-'):null;
+  d.approvedDate=d.approved==='yes'&&ap?(ap[2]+'/'+ap[1]+'/'+ap[0]):'';
+  d.docUrl=(document.getElementById('editDocUrl')?.value||'').trim();
+  if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(d.id)),d);
+  closeModal(); renderAllTabs(); showToast('✓ Updated');
+}
+document.addEventListener('change',e=>{
+  if(e.target.name==='editApproved')
+    document.getElementById('approvedDateField').style.display=e.target.value==='yes'?'block':'none';
+});
+
+function delDoc(id){
+  if(!confirm('Delete this entry?'))return;
+  docs=docs.filter(d=>d.id!==id);
+  if(window._fbReady)window._fbDeleteDoc(window._fbDoc(window._db,'documents',String(id)));
+  renderAllTabs(); showToast('✓ Deleted');
+}
+
+// ── MANAGE ───────────────────────────────────────────
+function renderManage(){
+  document.getElementById('mainList').innerHTML=mainDiscs.map(m=>`
+    <div class="manage-item ${selMain4Sub===m.code?'selected':''}" onclick="selectMain('${m.code}')">
+      <span class="manage-code">${m.code}</span>
+      <span class="manage-desc">${m.desc}</span>
+      <span class="manage-meta">[${(subMap[m.code]||[]).length}]</span>
+      <button class="del-btn" onclick="event.stopPropagation();delMain('${m.code}')">✕</button>
+    </div>`).join('');
+  document.getElementById('mainCount').textContent=`${mainDiscs.length} items`;
+  document.getElementById('allSubTags').innerHTML=Object.entries(subPool).map(([c,d])=>`
+    <div class="sub-tag">
+      <span class="sub-tag-code">${c}</span>
+      <span class="sub-tag-desc">— ${d}</span>
+      <span class="remove-sub" onclick="delSubPool('${c}')">✕</span>
+    </div>`).join('');
+  renderSubEditor(); rebuildMainSelect(); populateSub(); updatePreview(); renderReference();
+}
+function selectMain(code){selMain4Sub=code;renderManage();}
+function renderSubEditor(){
+  const wrap=document.getElementById('subEditorWrap');
+  const lbl=document.getElementById('subEditorLabel');
+  if(!selMain4Sub){wrap.innerHTML='<div style="color:var(--text3);font-size:12px;padding:20px 0;text-align:center">← คลิกที่ Main ทางซ้าย</div>';lbl.textContent='เลือก Main ก่อน';return;}
+  const m=mainDiscs.find(x=>x.code===selMain4Sub);
+  lbl.textContent=`${selMain4Sub} — ${m?.desc||''}`;
+  const subs=subMap[selMain4Sub]||[];
+  const available=Object.keys(subPool).filter(s=>!subs.includes(s));
+  wrap.innerHTML=`
+    <div style="font-size:9px;color:var(--text3);margin-bottom:6px">Sub ที่ assign แล้ว:</div>
+    <div class="sub-tags">${subs.length?subs.map(s=>`
+      <div class="sub-tag"><span class="sub-tag-code">${s}</span>
+      <span class="sub-tag-desc">— ${subPool[s]||s}</span>
+      <span class="remove-sub" onclick="removeSubFromMain('${selMain4Sub}','${s}')">✕</span>
+      </div>`).join(''):'<span style="color:var(--text3);font-size:10px">ยังไม่มี</span>'}
+    </div>
+    <div style="font-size:9px;color:var(--text3);margin:8px 0 5px">เพิ่มจาก Pool:</div>
+    ${available.length?`<div class="add-row"><div class="select-wrap" style="flex:1">
+      <select id="selAddSub" style="font-size:11px;padding:5px 8px">
+        ${available.map(s=>`<option value="${s}">${s} — ${subPool[s]}</option>`).join('')}
+      </select></div>
+      <button class="btn-add" onclick="addSubToMain('${selMain4Sub}')">+ Add</button>
+    </div>`:'<div style="color:var(--text3);font-size:10px">Sub ทุกตัวถูก assign แล้ว</div>'}`;
+}
+function addMain(){
+  const code=document.getElementById('newMainCode').value.trim().toUpperCase();
+  const desc=document.getElementById('newMainDesc').value.trim();
+  if(!code||!desc){showToast('⚠ กรอก Code และ Description');return;}
+  if(mainDiscs.find(m=>m.code===code)){showToast('⚠ Code นี้มีอยู่แล้ว');return;}
+  mainDiscs.push({code,desc});if(!subMap[code])subMap[code]=['GEN'];
+  document.getElementById('newMainCode').value='';document.getElementById('newMainDesc').value='';
+  renderManage();showToast('✓ Added: '+code);
+}
+function delMain(code){
+  if(docs.some(d=>d.main===code)){showToast('⚠ มีเอกสารใช้งานอยู่');return;}
+  if(!confirm(`Delete "${code}"?`))return;
+  mainDiscs=mainDiscs.filter(m=>m.code!==code);delete subMap[code];
+  if(selMain4Sub===code)selMain4Sub=null;
+  renderManage();showToast('✓ Deleted: '+code);
+}
+function addSubPool(){
+  const code=document.getElementById('newSubPoolCode').value.trim().toUpperCase();
+  const desc=document.getElementById('newSubPoolDesc').value.trim();
+  if(!code||!desc){showToast('⚠ กรอก Code และ Description');return;}
+  if(subPool[code]){showToast('⚠ มีอยู่แล้ว');return;}
+  subPool[code]=desc;
+  document.getElementById('newSubPoolCode').value='';document.getElementById('newSubPoolDesc').value='';
+  renderManage();showToast('✓ Added: '+code);
+}
+function delSubPool(code){
+  if(Object.values(subMap).some(arr=>arr.includes(code))){showToast('⚠ ยังถูกใช้งานอยู่');return;}
+  if(!confirm(`Remove "${code}"?`))return;
+  delete subPool[code];renderManage();showToast('✓ Removed: '+code);
+}
+function addSubToMain(mainCode){
+  const sel=document.getElementById('selAddSub');if(!sel)return;
+  const sub=sel.value;if(!sub)return;
+  if(!subMap[mainCode])subMap[mainCode]=[];
+  if(!subMap[mainCode].includes(sub))subMap[mainCode].push(sub);
+  renderManage();showToast(`✓ ${sub} → ${mainCode}`);
+}
+function removeSubFromMain(mainCode,sub){
+  subMap[mainCode]=(subMap[mainCode]||[]).filter(s=>s!==sub);
+  renderManage();showToast(`✓ Removed ${sub} from ${mainCode}`);
+}
+
+// ── REFERENCE ────────────────────────────────────────
+function renderReference(){
+  document.getElementById('refContent').innerHTML=`
+    <div class="ref-grid">
+      <div class="ref-card">
+        <div class="ref-card-title">Main Discipline</div>
+        ${mainDiscs.map(m=>`<div class="ref-row"><span class="ref-code" style="color:var(--accent2)">${m.code}</span><span class="ref-desc">${m.desc}</span></div>`).join('')}
+      </div>
+      <div class="ref-card">
+        <div class="ref-card-title">Sub Discipline Pool</div>
+        ${Object.entries(subPool).map(([c,d])=>`<div class="ref-row"><span class="ref-code">${c}</span><span class="ref-desc">${d}</span></div>`).join('')}
+      </div>
+      <div class="ref-card" style="grid-column:1/-1">
+        <div class="ref-card-title">Main → Sub Mapping</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px">
+          ${mainDiscs.map(m=>`<div style="padding:8px;background:var(--bg);border:1px solid var(--border)">
+            <div style="font-family:var(--mono);font-weight:700;color:var(--accent2);font-size:11px;margin-bottom:5px">${m.code} <span style="color:var(--text3);font-weight:400;font-size:9px">— ${m.desc}</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:3px">${(subMap[m.code]||[]).map(s=>`<span style="font-size:9px;font-family:var(--mono);padding:1px 5px;background:var(--surface);border:1px solid var(--border);color:var(--text2)">${s}</span>`).join('')}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
 </script>
 </body>
 </html>
