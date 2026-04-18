@@ -213,6 +213,8 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
+    <button onclick="exportExcel()" style="font-size:10px;font-family:var(--mono);padding:4px 10px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;" title="Export Excel">📊 Excel</button>
+    <button onclick="exportPDF()" style="font-size:10px;font-family:var(--mono);padding:4px 10px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;" title="Export PDF">📄 PDF</button>
     <span id="syncStatus" style="font-size:10px;font-weight:600;color:#888">⏳ Connecting...</span>
     <span id="userInfo"></span>
     <button id="authBtn" onclick="adminLogin()" style="font-size:10px;font-family:var(--mono);padding:4px 12px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;">🔐 Admin</button>
@@ -1084,6 +1086,97 @@ function removeSubFromMain(mainCode,sub){
 }
 
 
+
+// ── EXPORT ───────────────────────────────────────────
+function getActiveTabDocs(){
+  // Get base list per tab
+  let base;
+  let wrapId;
+  if(currentTab==='des'){base=docs.filter(d=>d.main==='DES'&&!isRQ(d));wrapId='wrapDes';}
+  else if(currentTab==='mat'){base=docs.filter(d=>MAT_MAINS.includes(d.main));wrapId='wrapMat';}
+  else if(currentTab==='install'){base=docs.filter(d=>INSTALL_MAINS.includes(d.main));wrapId='wrapInstall';}
+  else if(currentTab==='rq'){base=docs.filter(isRQ);wrapId='wrapRq';}
+  else{base=[...docs];wrapId='wrapAll';}
+  // Apply search filter
+  const filtered=searched(base,wrapId);
+  // Apply sort
+  const ss=_sortState[wrapId]||{};
+  if(ss.col!==undefined){
+    const keys=['','code','main','sub','desc','rev','status','date','approved','approvedDate'];
+    const key=keys[ss.col]||'';
+    filtered.sort((a,b)=>{
+      const va=(a[key]||'').toString().toLowerCase();
+      const vb=(b[key]||'').toString().toLowerCase();
+      if(va<vb)return ss.dir==='asc'?-1:1;
+      if(va>vb)return ss.dir==='asc'?1:-1;
+      return 0;
+    });
+  }
+  return filtered;
+}
+function exportExcel(){
+  const list=getActiveTabDocs();
+  if(!list.length){showToast('⚠ ไม่มีข้อมูล');return;}
+  // Build CSV (Excel-compatible)
+  const headers=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','Approved','Approved Date','Remark'];
+  const rows=list.map((d,i)=>[
+    i+1, d.code, d.main, d.sub, d.desc||'', d.rev||'', d.status||'',
+    d.date||'', d.approved==='yes'?'Yes':'No', d.approvedDate||'', d.notes||''
+  ]);
+  const csvContent=[headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('
+');
+  const BOM='﻿';
+  const blob=new Blob([BOM+csvContent],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`DDD-TSG-Docs-${currentTab.toUpperCase()}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('✓ Downloaded Excel/CSV');
+}
+function exportPDF(){
+  const list=getActiveTabDocs();
+  if(!list.length){showToast('⚠ ไม่มีข้อมูล');return;}
+  // Use jsPDF from CDN
+  const script=document.createElement('script');
+  script.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  script.onload=()=>{
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    const title=`DDD-TSG Engineering Document Register — ${currentTab.toUpperCase()}`;
+    pdf.setFontSize(11); pdf.setFont('helvetica','bold');
+    pdf.text(title,14,14);
+    pdf.setFontSize(8); pdf.setFont('helvetica','normal');
+    pdf.text(`Exported: ${new Date().toLocaleDateString('en-GB')} | Total: ${list.length} docs`,14,20);
+    // Table headers
+    const cols=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','Approved','Approved Date'];
+    const colW=[8,42,12,12,60,10,12,20,16,22];
+    let x=14, y=28;
+    pdf.setFillColor(45,55,72); pdf.setTextColor(255,255,255);
+    pdf.setFontSize(7); pdf.setFont('helvetica','bold');
+    cols.forEach((h,i)=>{
+      pdf.setFillColor(45,55,72);
+      pdf.rect(x,y-4,colW[i],6,'F');
+      pdf.text(h,x+1,y); x+=colW[i];
+    });
+    pdf.setTextColor(30,30,30); pdf.setFont('helvetica','normal'); pdf.setFontSize(7);
+    y+=4;
+    list.forEach((d,idx)=>{
+      if(y>190){pdf.addPage();y=20;}
+      const bg=idx%2===0?[255,255,255]:[245,247,250];
+      x=14;
+      const row=[idx+1,d.code,d.main,d.sub,d.desc||'',d.rev||'',d.status||'',d.date||'',d.approved==='yes'?'Yes':'No',d.approvedDate||''];
+      pdf.setFillColor(...bg); pdf.rect(14,y-3,colW.reduce((a,b)=>a+b,0),5,'F');
+      row.forEach((v,i)=>{
+        const txt=String(v).substring(0,colW[i]>15?30:15);
+        pdf.text(txt,x+1,y); x+=colW[i];
+      });
+      y+=5;
+    });
+    pdf.save(`DDD-TSG-Docs-${currentTab.toUpperCase()}-${new Date().toISOString().slice(0,10)}.pdf`);
+    showToast('✓ Downloaded PDF');
+  };
+  if(window.jspdf){ script.onload(); } else { document.head.appendChild(script); }
+}
 // ── CONFIG (subPool + subMap + mainDiscs) → Firestore ─
 function saveConfig(){
   if(!window._fbReady) return;
