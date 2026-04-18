@@ -187,8 +187,21 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     window._signOut=()=>signOut(auth);
     window._signIn=()=>{
       const isMobile=/Android|iPhone|iPad/i.test(navigator.userAgent);
-      if(isMobile) signInWithRedirect(auth,provider).catch(e=>alert(e.message));
-      else signInWithPopup(auth,provider).catch(e=>alert(e.message));
+      if(isMobile){
+        signInWithRedirect(auth,provider).catch(e=>alert('Sign in error: '+e.message));
+      } else {
+        signInWithPopup(auth,provider).then(result=>{
+          // popup success - onAuthStateChanged will handle the rest
+        }).catch(e=>{
+          if(e.code==='auth/popup-blocked'){
+            alert('Popup ถูกบล็อก — กรุณาอนุญาต popup สำหรับ site นี้แล้วลองใหม่');
+          } else if(e.code==='auth/popup-closed-by-user'){
+            // user closed — do nothing
+          } else {
+            alert('Sign in error: '+e.message);
+          }
+        });
+      }
     };
     window.dispatchEvent(new CustomEvent('authChanged',{detail:{user,isAdmin}}));
   });
