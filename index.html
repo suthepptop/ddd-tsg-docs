@@ -22,13 +22,16 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .header-title{font-size:13px;font-weight:600;}
 .header-sub{font-size:10px;color:var(--text3);font-family:var(--mono);}
 .badge{font-size:10px;font-family:var(--mono);background:rgba(212,140,0,0.12);color:var(--accent);border:1px solid rgba(212,140,0,0.3);padding:2px 8px;}
+.btn-login { background:var(--accent3); color:#fff; border:none; padding:4px 10px; font-size:10px; font-family:var(--mono); font-weight:700; cursor:pointer; border-radius:3px; transition: 0.2s; display:flex; align-items:center; gap:5px; }
+.btn-login:hover { opacity: 0.8; }
+.btn-logout { background:var(--danger); }
 
-/* LAYOUT — main content left, add-panel right */
+/* LAYOUT */
 .app-layout{display:flex;min-height:calc(100vh - 52px);}
-.main-panel{flex:1;overflow-y:auto;max-height:calc(100vh - 52px);padding:20px 24px;}
+.main-panel{flex:1;overflow-y:auto;max-height:calc(100vh - 52px);padding:20px 24px;transition:all 0.3s;}
 .add-panel{width:300px;background:var(--surface);border-left:1px solid var(--border);padding:20px 16px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;max-height:calc(100vh - 52px);}
 
-/* TABS — 4 tabs */
+/* TABS */
 .tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:20px;gap:0;}
 .tab{padding:8px 14px;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.15s;white-space:nowrap;}
 .tab:hover{color:var(--text2);}
@@ -37,33 +40,39 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .tab-panel.active{display:block;}
 
 /* STATS */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);padding:12px 14px;}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);padding:12px 14px;cursor:pointer;transition:all 0.2s;}
+.stat-card:hover{border-color:var(--accent3);background:var(--surface2);transform:translateY(-2px);}
 .stat-val{font-family:var(--mono);font-size:22px;font-weight:700;}
 .stat-label{font-size:9px;color:var(--text3);letter-spacing:0.5px;margin-top:2px;text-transform:uppercase;}
 
 /* TABLE */
 .tbl-wrap{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:11px;}
-thead th{text-align:left;padding:7px 10px;font-size:9px;font-weight:600;letter-spacing:1px;color:var(--text3);background:var(--surface2);border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap;}
+thead th{text-align:left;padding:6px 6px;font-size:9px;font-weight:600;letter-spacing:0.5px;color:var(--text3);background:var(--surface2);border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap;transition:0.2s;}
+th.sortable:hover { background: #e0e4eb; color: var(--text); }
+th.sortable.active { color: var(--accent3); font-weight: 700; }
 tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
 tbody tr:hover{background:var(--surface2);}
-tbody td{padding:7px 10px;color:var(--text2);vertical-align:middle;}
+tbody td{padding:5px 6px;color:var(--text2);vertical-align:middle;}
 td.doc-code{font-family:var(--mono);font-weight:600;color:var(--text);font-size:11px;white-space:nowrap;}
-td.doc-desc{color:var(--text2);max-width:200px;}
+td.doc-desc{color:var(--text2); max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+td.doc-remark{color:var(--text3); font-size:10px; max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
 .tag{display:inline-block;padding:1px 6px;font-size:9px;font-family:var(--mono);font-weight:600;background:rgba(26,111,212,0.1);color:#1a6fd4;}
 .rev-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:1px 5px;background:rgba(26,111,212,0.08);color:var(--accent3);border:1px solid rgba(26,111,212,0.2);}
 .del-btn,.edit-btn{background:transparent;border:1px solid transparent;cursor:pointer;font-size:11px;padding:2px 5px;transition:all 0.15s;font-family:var(--mono);}
 .del-btn{color:var(--text3);} .del-btn:hover{border-color:var(--danger);color:var(--danger);}
 .edit-btn{color:var(--text3);} .edit-btn:hover{border-color:var(--accent3);color:var(--accent3);}
 
-/* FILTER */
+/* SEARCH */
 .log-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .log-title{font-size:13px;font-weight:600;}
 .log-count{font-family:var(--mono);font-size:11px;color:var(--text3);}
-.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
-.filter-chip{font-size:10px;font-family:var(--mono);padding:4px 12px;border:1px solid var(--border);color:var(--text3);cursor:pointer;transition:all 0.15s;background:transparent;}
-.filter-chip:hover,.filter-chip.active{border-color:var(--accent3);color:var(--accent3);background:rgba(26,111,212,0.06);}
+.search-wrap { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.search-wrap input { flex: 1; border: 1px solid var(--border); padding: 6px 10px; font-family: var(--sans); font-size: 11px; }
+.search-clear { background: transparent; border: 1px solid var(--border); padding: 6px 10px; cursor: pointer; color: var(--text3); font-size: 11px; }
+.search-clear:hover { color: var(--danger); border-color: var(--danger); background: var(--surface2); }
 
 /* ADD PANEL */
 .section-label{font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:4px;}
@@ -92,7 +101,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 .fmt-main{color:var(--accent2);}.fmt-sub{color:#7a3cb4;}.fmt-num{color:var(--danger);}
 .format-desc{font-size:9px;color:var(--text3);}
 
-/* MANAGE */
+/* MANAGE & REF */
 .manage-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
 .manage-card{background:var(--surface);border:1px solid var(--border);padding:16px;}
 .manage-card-title{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
@@ -101,35 +110,18 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 .manage-item:hover,.manage-item.selected{border-color:var(--accent3);background:rgba(26,111,212,0.04);}
 .manage-code{font-family:var(--mono);font-weight:700;font-size:11px;color:var(--accent2);min-width:50px;}
 .manage-desc{font-size:10px;color:var(--text2);flex:1;}
-.manage-meta{font-size:9px;color:var(--text3);font-family:var(--mono);}
 .add-row{display:flex;gap:5px;}
 .add-row input{flex:1;font-size:11px;padding:5px 8px;}
-.add-row input.code-inp{max-width:70px;text-transform:uppercase;font-weight:700;}
-.btn-add{background:var(--accent3);color:#fff;border:none;padding:6px 12px;font-size:10px;font-family:var(--mono);cursor:pointer;white-space:nowrap;}
-.btn-sm{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 12px;font-size:11px;font-family:var(--mono);cursor:pointer;}
-.btn-sm.ok{border-color:var(--accent2);color:var(--accent2);}
-.btn-sm.ok:hover{background:var(--accent2);color:#fff;}
+.btn-add{background:var(--accent3);color:#fff;border:none;padding:6px 12px;font-size:10px;font-family:var(--mono);cursor:pointer;}
 .sub-tags{display:flex;flex-wrap:wrap;gap:5px;min-height:36px;margin-bottom:10px;}
 .sub-tag{display:flex;align-items:center;gap:4px;padding:3px 8px;background:var(--surface2);border:1px solid var(--border);font-family:var(--mono);font-size:10px;}
-.sub-tag-code{font-weight:700;color:var(--text);}
-.sub-tag-desc{color:var(--text3);font-size:9px;}
-.remove-sub{cursor:pointer;color:var(--text3);font-size:9px;margin-left:2px;}
+.sub-tag-code{font-weight:700;} .remove-sub{cursor:pointer;color:var(--text3);font-size:9px;}
 .remove-sub:hover{color:var(--danger);}
-.pool-section{background:var(--surface);border:1px solid var(--border);padding:16px;}
 
-/* REF */
 .ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .ref-card{background:var(--surface2);border:1px solid var(--border);padding:14px;}
-.ref-card-title{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
 .ref-row{display:flex;align-items:flex-start;gap:10px;padding:4px 0;border-bottom:1px solid rgba(208,213,221,0.4);font-size:11px;}
-.ref-row:last-child{border-bottom:none;}
-.ref-code{font-family:var(--mono);font-weight:700;color:var(--text);min-width:55px;font-size:11px;}
-.ref-desc{color:var(--text2);font-size:10px;}
 
-.empty{text-align:center;padding:50px 20px;color:var(--text3);}
-.empty-icon{font-size:28px;margin-bottom:10px;opacity:0.4;}
-
-/* TOAST */
 .toast{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--accent2);color:var(--accent2);padding:8px 14px;font-size:11px;font-family:var(--mono);z-index:999;transform:translateY(80px);opacity:0;transition:all 0.25s;pointer-events:none;box-shadow:0 2px 12px rgba(0,0,0,0.1);}
 .toast.show{transform:translateY(0);opacity:1;}
 
@@ -141,6 +133,8 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 .modal-field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
 .modal-label{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+.btn-sm{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 12px;font-size:11px;font-family:var(--mono);cursor:pointer;}
+.btn-sm.ok{border-color:var(--accent2);color:var(--accent2);} .btn-sm.ok:hover{background:var(--accent2);color:#fff;}
 
 /* RESPONSIVE */
 @media(max-width:768px){
@@ -152,10 +146,12 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 }
 </style>
 
-<!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, setDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  // กลับมาใช้ signInWithPopup ที่เสถียรกว่าสำหรับการโฮสต์ผ่าน GitHub Pages
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  
   const firebaseConfig = {
     apiKey:"AIzaSyDMxqBXDKEBKXAdI1E200V-qodtxxJZgBk",
     authDomain:"ddd-tsg-docs.firebaseapp.com",
@@ -166,8 +162,47 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   };
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  const colRef = collection(db, 'documents');
+  const auth = getAuth(app);
+  
+  // บังคับให้แสดงหน้าเลือก Account ป้องกันบั๊ก Popup เด้งปิดตัวเอง
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  
   window._db=db; window._fbSetDoc=setDoc; window._fbDeleteDoc=deleteDoc; window._fbDoc=doc; window._fbReady=true;
+  window._auth=auth; window._provider=provider; window._signInPopup=signInWithPopup; window._signOut=signOut;
+
+  // ตรวจสอบสถานะการเข้าสู่ระบบ
+  onAuthStateChanged(auth, (user) => {
+    const manageTabBtn = document.getElementById('tab-btn-manage');
+    const addPanelDiv = document.getElementById('addPanel'); 
+    
+    if (user) {
+      window._isAdmin = true;
+      const btn = document.getElementById('authBtn');
+      btn.innerHTML = `<span style="font-size:14px">G</span> LOGOUT`;
+      btn.title = user.email;
+      btn.classList.add('btn-logout');
+      
+      // แอดมิน: โชว์แท็บ Manage และ แผง Add Document (แผงขวา)
+      if(manageTabBtn) manageTabBtn.style.display = 'block'; 
+      if(addPanelDiv) addPanelDiv.style.display = 'flex';
+    } else {
+      window._isAdmin = false;
+      const btn = document.getElementById('authBtn');
+      btn.innerHTML = `<span style="font-size:14px">G</span> LOGIN`;
+      btn.title = "Login with Google";
+      btn.classList.remove('btn-logout');
+      
+      // คนทั่วไป: ซ่อนแท็บ Manage และ แผง Add Document เพื่อให้ตารางกว้างเต็มจอ
+      if(manageTabBtn) manageTabBtn.style.display = 'none'; 
+      if(addPanelDiv) addPanelDiv.style.display = 'none';
+      
+      if(currentTab === 'manage') switchTab('all', document.getElementById('tab-btn-all'));
+    }
+    if(typeof renderAllTabs === 'function') renderAllTabs();
+  });
+
+  const colRef = collection(db, 'documents');
   onSnapshot(colRef, (snapshot) => {
     if(snapshot.empty && docs.length>0 && !window._fbSynced){
       docs.forEach(d=>setDoc(doc(db,'documents',String(d.id)),d));
@@ -178,7 +213,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       remote.sort((a,b)=>a.id-b.id);
       docs.length=0; remote.forEach(d=>docs.push(d));
       window._fbSynced=true;
-      if(typeof renderTable==='function'){renderTable();renderFilterChips();}
+      if(typeof renderTable==='function') renderTable();
     }
     const el=document.getElementById('syncStatus');
     if(el){el.textContent='🟢 Synced';el.style.color='#2A9D3A';}
@@ -190,7 +225,6 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="header-left">
     <div class="logo-mark">DOC</div>
@@ -202,73 +236,87 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   <div style="display:flex;align-items:center;gap:10px">
     <span id="syncStatus" style="font-size:10px;font-weight:600;color:#888">⏳ Connecting...</span>
     <div class="badge">ENG · 2026</div>
+    <button id="authBtn" class="btn-login" onclick="toggleAuth()">
+      <span style="font-size:14px">G</span> LOGIN
+    </button>
   </div>
 </div>
 
 <div class="app-layout">
-
-  <!-- MAIN PANEL (LEFT) -->
   <div class="main-panel">
-    <!-- 4 TABS -->
     <div class="tabs">
-      <div class="tab active" onclick="switchTab('all',this)">ALL</div>
-      <div class="tab" onclick="switchTab('des',this)">DES</div>
-      <div class="tab" onclick="switchTab('mat',this)">MAT</div>
-      <div class="tab" onclick="switchTab('install',this)">INSTALL</div>
-      <div class="tab" onclick="switchTab('rq',this)">RQ</div>
-      <div class="tab" onclick="switchTab('manage',this)">⚙ Codes</div>
-      <div class="tab" onclick="switchTab('reference',this)">Reference</div>
+      <div class="tab active" id="tab-btn-all" onclick="switchTab('all',this)">ALL</div>
+      <div class="tab" id="tab-btn-des" onclick="switchTab('des',this)">DES</div>
+      <div class="tab" id="tab-btn-mat" onclick="switchTab('mat',this)">MAT</div>
+      <div class="tab" id="tab-btn-install" onclick="switchTab('install',this)">INSTALL</div>
+      <div class="tab" id="tab-btn-rq" onclick="switchTab('rq',this)">RQ</div>
+      <div class="tab" id="tab-btn-manage" onclick="switchTab('manage',this)" style="display:none;">⚙ Codes</div>
+      <div class="tab" id="tab-btn-ref" onclick="switchTab('reference',this)">Reference</div>
     </div>
 
-    <!-- TAB: ALL -->
     <div class="tab-panel active" id="tab-all">
       <div class="stats">
-        <div class="stat-card"><div class="stat-val" id="statTotal">0</div><div class="stat-label">Total</div></div>
-        <div class="stat-card"><div class="stat-val" id="statDES" style="color:var(--accent)">0</div><div class="stat-label">Design</div></div>
-        <div class="stat-card"><div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material</div></div>
-        <div class="stat-card"><div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install</div></div>
+        <div class="stat-card" onclick="switchTab('all', document.getElementById('tab-btn-all'))">
+          <div class="stat-val" id="statTotal">0</div><div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('des', document.getElementById('tab-btn-des'))">
+          <div class="stat-val" id="statDES" style="color:var(--accent)">0</div><div class="stat-label">Design</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('mat', document.getElementById('tab-btn-mat'))">
+          <div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('install', document.getElementById('tab-btn-install'))">
+          <div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('rq', document.getElementById('tab-btn-rq'))">
+          <div class="stat-val" id="statRQ" style="color:#7a3cb4">0</div><div class="stat-label">Requisition</div>
+        </div>
       </div>
+      <div class="search-wrap"><input type="text" id="search-all" placeholder="ค้นหา Doc No, Description, หรือ Remark (พิมพ์หลายคำเว้นวรรคได้)" oninput="applySearch('wrapAll')"><button class="search-clear" onclick="clearSearch('wrapAll')" title="ล้าง">✕</button></div>      
+      <div class="search-hint" id="hint-all" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      
       <div class="tbl-wrap" id="wrapAll"></div>
     </div>
 
-    <!-- TAB: DES -->
     <div class="tab-panel" id="tab-des">
       <div class="log-header">
         <div class="log-title">Design & Drawing Documents</div>
         <div class="log-count" id="cntDes">0 docs</div>
       </div>
+      <div class="search-wrap"><input type="text" id="search-des" placeholder="ค้นหา Doc No, Description..." oninput="applySearch('wrapDes')"><button class="search-clear" onclick="clearSearch('wrapDes')" title="ล้าง">✕</button></div>      
+      <div class="search-hint" id="hint-des" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      
       <div class="tbl-wrap" id="wrapDes"></div>
     </div>
 
-    <!-- TAB: MAT -->
     <div class="tab-panel" id="tab-mat">
       <div class="log-header">
         <div class="log-title">Material Supply Documents</div>
         <div class="log-count" id="cntMat">0 docs</div>
       </div>
+      <div class="search-wrap"><input type="text" id="search-mat" placeholder="ค้นหา Doc No, Description..." oninput="applySearch('wrapMat')"><button class="search-clear" onclick="clearSearch('wrapMat')" title="ล้าง">✕</button></div>      
+      <div class="search-hint" id="hint-mat" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      
       <div class="tbl-wrap" id="wrapMat"></div>
     </div>
 
-
-    <!-- TAB: RQ -->
     <div class="tab-panel" id="tab-rq">
       <div class="log-header">
         <div class="log-title">Requisition Documents</div>
         <div class="log-count" id="cntRq">0 docs</div>
       </div>
+      <div class="search-wrap"><input type="text" id="search-rq" placeholder="ค้นหา Doc No, Description..." oninput="applySearch('wrapRq')"><button class="search-clear" onclick="clearSearch('wrapRq')" title="ล้าง">✕</button></div>      
+      <div class="search-hint" id="hint-rq" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      
       <div class="tbl-wrap" id="wrapRq"></div>
     </div>
 
-    <!-- TAB: INSTALL -->
     <div class="tab-panel" id="tab-install">
       <div class="log-header">
         <div class="log-title">Installation & Commissioning Documents</div>
         <div class="log-count" id="cntInstall">0 docs</div>
       </div>
+      <div class="search-wrap"><input type="text" id="search-install" placeholder="ค้นหา Doc No, Description..." oninput="applySearch('wrapInstall')"><button class="search-clear" onclick="clearSearch('wrapInstall')" title="ล้าง">✕</button></div>      
+      <div class="search-hint" id="hint-install" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      
       <div class="tbl-wrap" id="wrapInstall"></div>
     </div>
 
-    <!-- TAB: MANAGE -->
     <div class="tab-panel" id="tab-manage">
       <div style="margin-bottom:16px">
         <div class="section-label" style="border:none;padding-bottom:4px">⚙ Manage Discipline Codes</div>
@@ -283,7 +331,6 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
             <input type="text" id="newMainDesc" placeholder="Description">
             <button class="btn-add" onclick="addMain()">+ Add</button>
           </div>
-          <div style="font-size:10px;color:var(--text3);margin-top:6px">👆 คลิกที่ Main เพื่อแก้ไข Sub</div>
         </div>
         <div class="manage-card">
           <div class="manage-card-title"><span>Sub Discipline</span><span id="subEditorLabel" style="font-size:10px;color:#7a3cb4">เลือก Main ก่อน</span></div>
@@ -303,7 +350,6 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       </div>
     </div>
 
-    <!-- TAB: REFERENCE -->
     <div class="tab-panel" id="tab-reference">
       <div style="margin-bottom:14px">
         <div class="section-label" style="border:none;padding-bottom:4px">Code Reference Table</div>
@@ -312,8 +358,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     </div>
   </div>
 
-  <!-- ADD PANEL (RIGHT) -->
-  <div class="add-panel">
+  <div class="add-panel" id="addPanel" style="display:none;">
     <div>
       <div class="section-label">Add Document</div>
       <div class="format-display">
@@ -334,10 +379,6 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
           <span style="color:var(--accent3)">TSG</span>=Project &nbsp;
           <span style="color:var(--danger)">###</span>=No.
         </div>
-        <div class="format-desc" id="fmtDescDES" style="display:none">
-          <span style="color:var(--accent3)">TSG25-ECG00</span>=Project &nbsp;
-          <span style="color:var(--danger)">XX</span>=Series
-        </div>
       </div>
     </div>
 
@@ -353,6 +394,15 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       <div class="field-label">DESCRIPTION</div>
       <input type="text" id="inpDesc" placeholder="คำอธิบายเอกสาร..." oninput="updatePreview()">
     </div>
+    <div class="field-group">
+      <div class="field-label">REMARK / หมายเหตุ</div>
+      <input type="text" id="inpRemark" placeholder="บันทึกเพิ่มเติม..." oninput="updatePreview()">
+    </div>
+    <div class="field-group">
+      <div class="field-label">GOOGLE DRIVE LINK</div>
+      <input type="text" id="inpDocUrl" placeholder="https://drive.google.com/..." oninput="updatePreview()">
+    </div>
+
     <div class="field-group">
       <div class="field-label">REVISION</div>
       <div class="select-wrap">
@@ -391,13 +441,12 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
       <button class="copy-btn" id="copyBtn" onclick="copyCode()">⎘ COPY</button>
     </div>
 
-    <button class="gen-btn" onclick="addDocument()">+ ADD TO REGISTER</button>
+    <button class="gen-btn" onclick="addDocument()" id="btnAddDoc">+ ADD TO REGISTER</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- EDIT MODAL -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <div class="modal-title">✏ Edit Document</div>
@@ -405,6 +454,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     <div class="modal-field">
       <div class="modal-label">Description</div>
       <input type="text" id="editDesc" placeholder="Document description">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Date Issued</div>
+      <input type="date" id="editDate" style="width:100%;padding:7px;border:1px solid var(--border);font-size:12px;background:var(--bg);color:var(--text)">
     </div>
     <div class="modal-field">
       <div class="modal-label">Revision</div>
@@ -444,10 +497,19 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         </label>
       </div>
     </div>
-    <div class="modal-field" id="approvedDateField" style="display:none">
+    <div class="modal-field" id="approvedDateField">
       <div class="modal-label">Approved Date</div>
       <input type="date" id="editApprovedDate" style="width:100%;padding:7px;border:1px solid var(--border);font-size:12px;background:var(--bg);color:var(--text)">
     </div>
+    <div class="modal-field">
+      <div class="modal-label">Remark / หมายเหตุ</div>
+      <input type="text" id="editRemark" placeholder="Notes...">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Google Drive Link</div>
+      <input type="text" id="editDocUrl" placeholder="https://drive.google.com/...">
+    </div>
+
     <div class="modal-actions">
       <button class="btn-sm" onclick="closeModal()">Cancel</button>
       <button class="btn-sm ok" onclick="saveEdit()">✓ Save</button>
@@ -456,6 +518,24 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 </div>
 
 <script>
+// ── AUTH (GOOGLE LOGIN) ────────────────────────────────
+function toggleAuth() {
+  if (window._isAdmin) {
+    window._signOut(window._auth).then(() => {
+      showToast('Logged out');
+    });
+  } else {
+    // ใช้ Popup และดักจับ Error กรณีผู้ใช้ปิดหน้าต่างไปเอง
+    window._signInPopup(window._auth, window._provider).then((result) => {
+      showToast('Logged in as ' + result.user.email);
+    }).catch((error) => {
+      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+        alert('Login failed: ' + error.message);
+      }
+    });
+  }
+}
+
 // ── DATA ──────────────────────────────────────────────
 let mainDiscs = [
   {code:'DES',desc:'Design & Drawing'},
@@ -494,9 +574,7 @@ let subMap = {
 
 // MAT disciplines
 const MAT_MAINS = ['ELC','INS','GND','LGT','CCTV','MAT'];
-// RQ filter: DES with sub RQ
 function isRQ(d){ return d.main==='DES' && d.sub==='RQ'; }
-// INSTALL disciplines
 const INSTALL_MAINS = ['PRG','COM','DOC'];
 
 let counters = {}, selMain4Sub = null;
@@ -504,118 +582,118 @@ let currentTab = 'all';
 
 let docs = [
   // ELECTRICAL SYSTEM (ELS) — ECG00-00~05
-  {id:2000,code:'TSG25-ECG00-00',main:'DES',sub:'ELS',desc:'List of Drawing',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:''},
-  {id:2001,code:'TSG25-ECG00-01',main:'DES',sub:'ELS',desc:'List of Drawing',                                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2002,code:'TSG25-ECG00-02',main:'DES',sub:'ELS',desc:'Single Line Diagram',                                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2003,code:'TSG25-ECG00-03',main:'DES',sub:'ELS',desc:'Load Schedule Sheet 1 of 2',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2004,code:'TSG25-ECG00-04',main:'DES',sub:'ELS',desc:'Load Schedule Sheet 2 of 2',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2005,code:'TSG25-ECG00-05',main:'DES',sub:'ELS',desc:'Riser Diagram',                                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2001,code:'TSG25-ECG00-00',main:'DES',sub:'ELS',desc:'List of Drawing',                                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2002,code:'TSG25-ECG00-01',main:'DES',sub:'ELS',desc:'Single Line Diagram',                                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2003,code:'TSG25-ECG00-02',main:'DES',sub:'ELS',desc:'Load Schedule Sheet 1 of 2',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2004,code:'TSG25-ECG00-03',main:'DES',sub:'ELS',desc:'Load Schedule Sheet 2 of 2',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2005,code:'TSG25-ECG00-04',main:'DES',sub:'ELS',desc:'Riser Diagram',                                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2006,code:'TSG25-ECG00-05',main:'DES',sub:'ELS',desc:'Diagram for Lightning Protection',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
   // COMMUNICATION SYSTEM (COM) — OCG00-01~09
-  {id:2006,code:'TSG25-OCG00-01',main:'DES',sub:'COM',desc:'Schematic Diagram for CCTV',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2007,code:'TSG25-OCG00-02',main:'DES',sub:'COM',desc:'SCADA System Interfacing Schematic Diagram',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2008,code:'TSG25-OCG00-03',main:'DES',sub:'COM',desc:'SCADA System Diagram 1 of 2',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2009,code:'TSG25-OCG00-04',main:'DES',sub:'COM',desc:'SCADA System Diagram 2 of 2',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2010,code:'TSG25-OCG00-05',main:'DES',sub:'COM',desc:'SCADA Point Schedule 1 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2011,code:'TSG25-OCG00-06',main:'DES',sub:'COM',desc:'SCADA Point Schedule 2 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2012,code:'TSG25-OCG00-07',main:'DES',sub:'COM',desc:'SCADA Point Schedule 3 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2013,code:'TSG25-OCG00-08',main:'DES',sub:'COM',desc:'SCADA Point Schedule 4 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2014,code:'TSG25-OCG00-09',main:'DES',sub:'COM',desc:'SCADA Point Schedule 5 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2007,code:'TSG25-OCG00-01',main:'DES',sub:'COM',desc:'Schematic Diagram for CCTV',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:20070,code:'TSG25-OCG00-02',main:'DES',sub:'COM',desc:'SCADA System Interfacing Schematic Diagram',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2008,code:'TSG25-OCG00-03',main:'DES',sub:'COM',desc:'SCADA System Diagram 1 of 2',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2009,code:'TSG25-OCG00-04',main:'DES',sub:'COM',desc:'SCADA System Diagram 2 of 2',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2010,code:'TSG25-OCG00-05',main:'DES',sub:'COM',desc:'SCADA Point Schedule 1 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2011,code:'TSG25-OCG00-06',main:'DES',sub:'COM',desc:'SCADA Point Schedule 2 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2012,code:'TSG25-OCG00-07',main:'DES',sub:'COM',desc:'SCADA Point Schedule 3 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2013,code:'TSG25-OCG00-08',main:'DES',sub:'COM',desc:'SCADA Point Schedule 4 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2014,code:'TSG25-OCG00-09',main:'DES',sub:'COM',desc:'SCADA Point Schedule 5 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
   // MAIN ROUTE SYSTEM (MRS) — ECG00-10~29
-  {id:2015,code:'TSG25-ECG00-10',main:'DES',sub:'MRS',desc:'Main Route System AC1/AC2 Reference Plan',                 rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2016,code:'TSG25-ECG00-11',main:'DES',sub:'MRS',desc:'Foundation for Distribution Board AC1',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2017,code:'TSG25-ECG00-12',main:'DES',sub:'MRS',desc:'Main Route System AC1 1st Floor Plan',                     rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2018,code:'TSG25-ECG00-13',main:'DES',sub:'MRS',desc:'Main Route System AC1 2nd Floor Plan',                     rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2019,code:'TSG25-ECG00-14',main:'DES',sub:'MRS',desc:'Main Route System AC1 Section A-B',                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2020,code:'TSG25-ECG00-15',main:'DES',sub:'MRS',desc:'Main Route System AC1 Section C-D',                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2021,code:'TSG25-ECG00-16',main:'DES',sub:'MRS',desc:'Main Route System Reference Plan',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2022,code:'TSG25-ECG00-17',main:'DES',sub:'MRS',desc:'Main Route System Sheet 1 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2023,code:'TSG25-ECG00-18',main:'DES',sub:'MRS',desc:'Main Route System Sheet 2 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2024,code:'TSG25-ECG00-19',main:'DES',sub:'MRS',desc:'Main Route System Sheet 3 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2025,code:'TSG25-ECG00-20',main:'DES',sub:'MRS',desc:'Main Route System Sheet 4 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2026,code:'TSG25-ECG00-21',main:'DES',sub:'MRS',desc:'Main Route System Sheet 5 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2027,code:'TSG25-ECG00-22',main:'DES',sub:'MRS',desc:'Main Route System Sheet 6 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2028,code:'TSG25-ECG00-23',main:'DES',sub:'MRS',desc:'Main Route System Sheet 7 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2029,code:'TSG25-ECG00-24',main:'DES',sub:'MRS',desc:'Main Route System Sheet 8 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2030,code:'TSG25-ECG00-25',main:'DES',sub:'MRS',desc:'Main Route System Sheet 9 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2031,code:'TSG25-ECG00-26',main:'DES',sub:'MRS',desc:'Main Route System Sheet 10 of 12',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2032,code:'TSG25-ECG00-27',main:'DES',sub:'MRS',desc:'Main Route System Sheet 11 of 12',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2033,code:'TSG25-ECG00-28',main:'DES',sub:'MRS',desc:'Main Route System Sheet 12 of 12',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2034,code:'TSG25-ECG00-29',main:'DES',sub:'MRS',desc:'Main Route System Section and Detail Sheet 1',             rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2015,code:'TSG25-ECG00-10',main:'DES',sub:'MRS',desc:'Main Route System AC1/AC2 Reference Plan',                 rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2016,code:'TSG25-ECG00-11',main:'DES',sub:'MRS',desc:'Foundation for Distribution Board AC1',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2017,code:'TSG25-ECG00-12',main:'DES',sub:'MRS',desc:'Main Route System AC1 1st Floor Plan',                     rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2018,code:'TSG25-ECG00-13',main:'DES',sub:'MRS',desc:'Main Route System AC1 2nd Floor Plan',                     rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2019,code:'TSG25-ECG00-14',main:'DES',sub:'MRS',desc:'Main Route System AC1 Section A-B',                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2020,code:'TSG25-ECG00-15',main:'DES',sub:'MRS',desc:'Main Route System AC1 Section C-D',                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2021,code:'TSG25-ECG00-16',main:'DES',sub:'MRS',desc:'Main Route System Reference Plan',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2022,code:'TSG25-ECG00-17',main:'DES',sub:'MRS',desc:'Main Route System Sheet 1 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2023,code:'TSG25-ECG00-18',main:'DES',sub:'MRS',desc:'Main Route System Sheet 2 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2024,code:'TSG25-ECG00-19',main:'DES',sub:'MRS',desc:'Main Route System Sheet 3 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2025,code:'TSG25-ECG00-20',main:'DES',sub:'MRS',desc:'Main Route System Sheet 4 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2026,code:'TSG25-ECG00-21',main:'DES',sub:'MRS',desc:'Main Route System Sheet 5 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2027,code:'TSG25-ECG00-22',main:'DES',sub:'MRS',desc:'Main Route System Sheet 6 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2028,code:'TSG25-ECG00-23',main:'DES',sub:'MRS',desc:'Main Route System Sheet 7 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2029,code:'TSG25-ECG00-24',main:'DES',sub:'MRS',desc:'Main Route System Sheet 8 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2030,code:'TSG25-ECG00-25',main:'DES',sub:'MRS',desc:'Main Route System Sheet 9 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2031,code:'TSG25-ECG00-26',main:'DES',sub:'MRS',desc:'Main Route System Sheet 10 of 12',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2032,code:'TSG25-ECG00-27',main:'DES',sub:'MRS',desc:'Main Route System Sheet 11 of 12',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2033,code:'TSG25-ECG00-28',main:'DES',sub:'MRS',desc:'Main Route System Sheet 12 of 12',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2034,code:'TSG25-ECG00-29',main:'DES',sub:'MRS',desc:'Main Route System Section and Detail Sheet 1',             rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
   // LIGHTNING PROTECTION SYSTEM (LTG) — ECG00-30~36
-  {id:2035,code:'TSG25-ECG00-30',main:'DES',sub:'LTG',desc:'Lightning Protection System Reference Plan',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2036,code:'TSG25-ECG00-31',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Ground Level',             rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2037,code:'TSG25-ECG00-32',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System 2nd Level',                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2038,code:'TSG25-ECG00-33',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Roof Level',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2039,code:'TSG25-ECG00-34',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Section A-A',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2040,code:'TSG25-ECG00-35',main:'DES',sub:'LTG',desc:'AC2 Lightning Protection System 1st Level',                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2041,code:'TSG25-ECG00-36',main:'DES',sub:'LTG',desc:'Lightning Protection Typical Detail',                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2035,code:'TSG25-ECG00-30',main:'DES',sub:'LTG',desc:'Lightning Protection System Reference Plan',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2036,code:'TSG25-ECG00-31',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Ground Level',             rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2037,code:'TSG25-ECG00-32',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System 2nd Level',                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2038,code:'TSG25-ECG00-33',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Roof Level',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2039,code:'TSG25-ECG00-34',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Section A-A',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2040,code:'TSG25-ECG00-35',main:'DES',sub:'LTG',desc:'AC2 Lightning Protection System 1st Level',                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2041,code:'TSG25-ECG00-36',main:'DES',sub:'LTG',desc:'Lightning Protection Typical Detail',                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:20415,code:'TSG25-ECG00-37',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System 1st Level',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
   // GROUNDING AND BONDING SYSTEM (GND) — ECG00-40~53
-  {id:2042,code:'TSG25-ECG00-40',main:'DES',sub:'GND',desc:'Grounding and Bonding System Reference Plan',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2043,code:'TSG25-ECG00-41',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 1 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2044,code:'TSG25-ECG00-42',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 2 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2045,code:'TSG25-ECG00-43',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 3 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2046,code:'TSG25-ECG00-44',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 4 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2047,code:'TSG25-ECG00-45',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 5 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2048,code:'TSG25-ECG00-46',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 6 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2049,code:'TSG25-ECG00-47',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 7 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2050,code:'TSG25-ECG00-48',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 8 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2051,code:'TSG25-ECG00-49',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 9 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2052,code:'TSG25-ECG00-50',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 10 of 12',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2053,code:'TSG25-ECG00-51',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 11 of 12',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2054,code:'TSG25-ECG00-52',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 12 of 12',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2055,code:'TSG25-ECG00-53',main:'DES',sub:'GND',desc:'Grounding and Bonding System Typical Detail',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2042,code:'TSG25-ECG00-40',main:'DES',sub:'GND',desc:'Grounding and Bonding System Reference Plan',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2043,code:'TSG25-ECG00-41',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 1 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2044,code:'TSG25-ECG00-42',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 2 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2045,code:'TSG25-ECG00-43',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 3 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2046,code:'TSG25-ECG00-44',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 4 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2047,code:'TSG25-ECG00-45',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 5 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2048,code:'TSG25-ECG00-46',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 6 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2049,code:'TSG25-ECG00-47',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 7 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2050,code:'TSG25-ECG00-48',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 8 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2051,code:'TSG25-ECG00-49',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 9 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2052,code:'TSG25-ECG00-50',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 10 of 12',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2053,code:'TSG25-ECG00-51',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 11 of 12',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2054,code:'TSG25-ECG00-52',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 12 of 12',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2055,code:'TSG25-ECG00-53',main:'DES',sub:'GND',desc:'Grounding and Bonding System Typical Detail',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
   // LIGHTING SYSTEM (LGT) — ECG00-60~67
-  {id:2056,code:'TSG25-ECG00-60',main:'DES',sub:'LGT',desc:'Lighting System Reference Plan',                           rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2057,code:'TSG25-ECG00-61',main:'DES',sub:'LGT',desc:'AC1 Lighting System 1st Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2058,code:'TSG25-ECG00-62',main:'DES',sub:'LGT',desc:'AC1 Lighting System 2nd Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2059,code:'TSG25-ECG00-63',main:'DES',sub:'LGT',desc:'AC1 Lighting System 3rd Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2060,code:'TSG25-ECG00-64',main:'DES',sub:'LGT',desc:'AC1 Lighting System 4th Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2061,code:'TSG25-ECG00-65',main:'DES',sub:'LGT',desc:'AC1 Lighting System Section A-B',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2062,code:'TSG25-ECG00-66',main:'DES',sub:'LGT',desc:'AC2 Lighting System',                                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2063,code:'TSG25-ECG00-67',main:'DES',sub:'LGT',desc:'Lighting System Typical and Detail Sheet 1',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2056,code:'TSG25-ECG00-60',main:'DES',sub:'LGT',desc:'Lighting System Reference Plan',                           rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2057,code:'TSG25-ECG00-61',main:'DES',sub:'LGT',desc:'AC1 Lighting System 1st Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2058,code:'TSG25-ECG00-62',main:'DES',sub:'LGT',desc:'AC1 Lighting System 2nd Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2059,code:'TSG25-ECG00-63',main:'DES',sub:'LGT',desc:'AC1 Lighting System 3rd Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2060,code:'TSG25-ECG00-64',main:'DES',sub:'LGT',desc:'AC1 Lighting System 4th Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2061,code:'TSG25-ECG00-65',main:'DES',sub:'LGT',desc:'AC1 Lighting System Section A-B',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2062,code:'TSG25-ECG00-66',main:'DES',sub:'LGT',desc:'AC2 Lighting System',                                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2063,code:'TSG25-ECG00-67',main:'DES',sub:'LGT',desc:'Lighting System Typical and Detail Sheet 1',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
   // SMALL POWER SYSTEM (SPS) — ECG00-70~77
-  {id:2064,code:'TSG25-ECG00-70',main:'DES',sub:'SPS',desc:'Small Power System Reference Plan',                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2065,code:'TSG25-ECG00-71',main:'DES',sub:'SPS',desc:'AC1 Small Power System 1st Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2066,code:'TSG25-ECG00-72',main:'DES',sub:'SPS',desc:'AC1 Small Power System 2nd Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2067,code:'TSG25-ECG00-73',main:'DES',sub:'SPS',desc:'AC1 Small Power System 3rd Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2068,code:'TSG25-ECG00-74',main:'DES',sub:'SPS',desc:'AC1 Small Power System 4th Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2069,code:'TSG25-ECG00-75',main:'DES',sub:'SPS',desc:'AC1 Small Power System Section A-B',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2070,code:'TSG25-ECG00-76',main:'DES',sub:'SPS',desc:'AC2 Small Power System',                                   rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2071,code:'TSG25-ECG00-77',main:'DES',sub:'SPS',desc:'Small Power System Typical and Detail Sheet 1',            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2064,code:'TSG25-ECG00-70',main:'DES',sub:'SPS',desc:'Small Power System Reference Plan',                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2065,code:'TSG25-ECG00-71',main:'DES',sub:'SPS',desc:'AC1 Small Power System 1st Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2066,code:'TSG25-ECG00-72',main:'DES',sub:'SPS',desc:'AC1 Small Power System 2nd Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2067,code:'TSG25-ECG00-73',main:'DES',sub:'SPS',desc:'AC1 Small Power System 3rd Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2068,code:'TSG25-ECG00-74',main:'DES',sub:'SPS',desc:'AC1 Small Power System 4th Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2069,code:'TSG25-ECG00-75',main:'DES',sub:'SPS',desc:'AC1 Small Power System Section A-B',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2070,code:'TSG25-ECG00-76',main:'DES',sub:'SPS',desc:'AC2 Small Power System',                                   rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2071,code:'TSG25-ECG00-77',main:'DES',sub:'SPS',desc:'Small Power System Typical and Detail Sheet 1',            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
   // CCTV SYSTEM (CCL) — OCG00-20~27
-  {id:2072,code:'TSG25-OCG00-20',main:'DES',sub:'CCL',desc:'CCTV System Reference Plan',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2073,code:'TSG25-OCG00-21',main:'DES',sub:'CCL',desc:'AC1 CCTV System 1st Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2074,code:'TSG25-OCG00-22',main:'DES',sub:'CCL',desc:'AC1 CCTV System 2nd Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2075,code:'TSG25-OCG00-23',main:'DES',sub:'CCL',desc:'AC1 CCTV System 3rd Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2076,code:'TSG25-OCG00-24',main:'DES',sub:'CCL',desc:'AC1 CCTV System 4th Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2077,code:'TSG25-OCG00-25',main:'DES',sub:'CCL',desc:'AC1 CCTV System Section A-B',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2078,code:'TSG25-OCG00-26',main:'DES',sub:'CCL',desc:'AC2 CCTV System',                                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2079,code:'TSG25-OCG00-27',main:'DES',sub:'CCL',desc:'CCTV System Typical and Detail Sheet 1',                   rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:2072,code:'TSG25-OCG00-20',main:'DES',sub:'CCL',desc:'CCTV System Reference Plan',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2073,code:'TSG25-OCG00-21',main:'DES',sub:'CCL',desc:'AC1 CCTV System 1st Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2074,code:'TSG25-OCG00-22',main:'DES',sub:'CCL',desc:'AC1 CCTV System 2nd Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2075,code:'TSG25-OCG00-23',main:'DES',sub:'CCL',desc:'AC1 CCTV System 3rd Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2076,code:'TSG25-OCG00-24',main:'DES',sub:'CCL',desc:'AC1 CCTV System 4th Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2077,code:'TSG25-OCG00-25',main:'DES',sub:'CCL',desc:'AC1 CCTV System Section A-B',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2078,code:'TSG25-OCG00-26',main:'DES',sub:'CCL',desc:'AC2 CCTV System',                                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2079,code:'TSG25-OCG00-27',main:'DES',sub:'CCL',desc:'CCTV System Typical and Detail Sheet 1',                   rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
   // PANEL GA & WIRING (PNL) — ECG00-80~132
-  {id:2080,code:'TSG25-ECG00-80',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for MDB',         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2081,code:'TSG25-ECG00-81',main:'DES',sub:'PNL',desc:'Equipment & Load List for MDB',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2082,code:'TSG25-ECG00-82',main:'DES',sub:'PNL',desc:'Switchboard Layout for MDB',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2083,code:'TSG25-ECG00-83',main:'DES',sub:'PNL',desc:'Schematic Diagram for MDB',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2084,code:'TSG25-ECG00-84',main:'DES',sub:'PNL',desc:'Wiring Control for MDB',                                   rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2085,code:'TSG25-ECG00-90',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for MCC',         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2086,code:'TSG25-ECG00-91',main:'DES',sub:'PNL',desc:'Equipment & Load List for MCC',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2087,code:'TSG25-ECG00-92',main:'DES',sub:'PNL',desc:'Switchboard Layout for MCC',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2088,code:'TSG25-ECG00-93',main:'DES',sub:'PNL',desc:'Schematic Diagram for MCC',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2089,code:'TSG25-ECG00-94',main:'DES',sub:'PNL',desc:'Wiring Control for Motor (D.O.L)',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2090,code:'TSG25-ECG00-95',main:'DES',sub:'PNL',desc:'Wiring Control for Motor (Star-Delta)',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2091,code:'TSG25-ECG00-100',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 1', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2092,code:'TSG25-ECG00-101',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 1',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2093,code:'TSG25-ECG00-102',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 1',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2094,code:'TSG25-ECG00-110',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 2', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2095,code:'TSG25-ECG00-111',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 2',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2096,code:'TSG25-ECG00-112',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 2',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2097,code:'TSG25-ECG00-120',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 3', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2098,code:'TSG25-ECG00-121',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 3',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2099,code:'TSG25-ECG00-122',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 3',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2100,code:'TSG25-ECG00-130',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 4', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2101,code:'TSG25-ECG00-131',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 4',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2102,code:'TSG25-ECG00-132',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 4',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-];
+  {id:2080,code:'TSG25-ECG00-80',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for MDB',         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2081,code:'TSG25-ECG00-81',main:'DES',sub:'PNL',desc:'Equipment & Load List for MDB',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2082,code:'TSG25-ECG00-82',main:'DES',sub:'PNL',desc:'Switchboard Layout for MDB',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2083,code:'TSG25-ECG00-83',main:'DES',sub:'PNL',desc:'Schematic Diagram for MDB',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2084,code:'TSG25-ECG00-84',main:'DES',sub:'PNL',desc:'Wiring Control for MDB',                                   rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2085,code:'TSG25-ECG00-90',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for MCC',         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2086,code:'TSG25-ECG00-91',main:'DES',sub:'PNL',desc:'Equipment & Load List for MCC',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2087,code:'TSG25-ECG00-92',main:'DES',sub:'PNL',desc:'Switchboard Layout for MCC',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2088,code:'TSG25-ECG00-93',main:'DES',sub:'PNL',desc:'Schematic Diagram for MCC',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2089,code:'TSG25-ECG00-94',main:'DES',sub:'PNL',desc:'Wiring Control for Motor (D.O.L)',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2090,code:'TSG25-ECG00-95',main:'DES',sub:'PNL',desc:'Wiring Control for Motor (Star-Delta)',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2091,code:'TSG25-ECG00-100',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 1', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2092,code:'TSG25-ECG00-101',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 1',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2093,code:'TSG25-ECG00-102',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 1',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2094,code:'TSG25-ECG00-110',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 2', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2095,code:'TSG25-ECG00-111',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 2',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2096,code:'TSG25-ECG00-112',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 2',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2097,code:'TSG25-ECG00-120',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 3', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2098,code:'TSG25-ECG00-121',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 3',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2099,code:'TSG25-ECG00-122',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 3',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2100,code:'TSG25-ECG00-130',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 4', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2101,code:'TSG25-ECG00-131',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 4',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},
+  {id:2102,code:'TSG25-ECG00-132',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 4',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',remark:'',docUrl:''},];
 
 const DES_SERIES = {ELS:1,MRS:10,LTG:30,GND:40,LGT:60,SPS:70,PNL:80,HOK:200,COM:1,CCL:20};
 const DES_DRAWING_SUBS = ['ELS','COM','MRS','LTG','GND','LGT','SPS','CCL','PNL','HOK'];
@@ -652,50 +730,149 @@ function switchTab(name,el){
   if(name==='reference')renderReference();
 }
 
-// ── RENDER TABLE ─────────────────────────────────────
-function buildTable(list){
+// ── RENDER TABLE & SORTING ───────────────────────────
+const _sortState={};
+const SORT_KEYS = {
+  1: 'code', 2: 'main', 3: 'sub', 5: 'desc', 
+  6: 'rev', 7: 'status', 8: 'date', 
+  9: 'approved', 10: 'approvedDate', 11: 'remark'
+};
+
+function buildTable(list,wrapId,sortCol,sortDir){
   if(!list.length) return '<div class="empty"><div class="empty-icon">📄</div><div>No documents</div></div>';
+  let sorted=[...list];
+  if(sortCol && SORT_KEYS[sortCol]){
+    const key = SORT_KEYS[sortCol];
+    sorted.sort((a,b)=>{
+      let va = (a[key]||'');
+      let vb = (b[key]||'');
+
+      if(key === 'date' || key === 'approvedDate') {
+         const parseD = (str) => {
+           if(!str) return '00000000';
+           const p = str.split('/'); return p.length===3 ? p[2]+p[1]+p[0] : str;
+         };
+         va = parseD(va); vb = parseD(vb);
+      } else {
+         va = va.toString().toLowerCase();
+         vb = vb.toString().toLowerCase();
+      }
+
+      if(va<vb) return sortDir==='asc'?-1:1;
+      if(va>vb) return sortDir==='asc'?1:-1;
+      return 0;
+    });
+  }
+
+  const sc=(col,label)=>{
+    if(!SORT_KEYS[col]) return `<th>${label}</th>`;
+    const active = sortCol===col;
+    const icon = active ? (sortDir==='asc' ? ' ▲' : ' ▼') : ' ↕';
+    const cls = 'sortable' + (active ? ' active' : '');
+    return `<th class="${cls}" onclick="doSort('${wrapId||'wrapAll'}',${col})" style="cursor:pointer; user-select:none;" title="Click to sort">${label}<span style="color:var(--text3);font-size:8px;margin-left:4px">${icon}</span></th>`;
+  };
+
   return `<table><thead><tr>
-    <th>#</th><th>Document No.</th><th>Main</th><th>Sub</th><th>Description</th>
-    <th>Rev</th><th>Status</th><th>Date Issued</th><th>Approved</th><th>Approved Date</th><th></th>
+    <th>#</th>
+    ${sc(1,'Doc No.')}
+    ${sc(2,'Main')}
+    ${sc(3,'Sub')}
+    <th>🔗</th>
+    ${sc(5,'Description')}
+    ${sc(6,'Rev')}
+    ${sc(7,'Status')}
+    ${sc(8,'Date')}
+    ${sc(9,'Apprv')}
+    ${sc(10,'Apprv Date')}
+    ${sc(11,'Remark')}
+    <th></th>
   </tr></thead><tbody>
-  ${list.map((d,i)=>`<tr>
+  ${sorted.map((d,i)=>`<tr>
     <td style="color:var(--text3);font-family:var(--mono);font-size:10px">${String(i+1).padStart(2,'0')}</td>
     <td class="doc-code">${d.code}</td>
     <td><span class="tag">${d.main}</span></td>
     <td style="font-family:var(--mono);font-size:10px;color:var(--text3)">${d.sub}</td>
-    <td class="doc-desc">${d.desc||'—'}</td>
+    <td style="white-space:nowrap;text-align:center">${d.docUrl?`<a href="${d.docUrl}" target="_blank" style="font-size:10px;color:var(--accent3);font-family:var(--mono);text-decoration:none;border:1px solid var(--accent3);padding:1px 5px;" title="${d.docUrl}">🔗</a>`:''}</td>
+    <td class="doc-desc" title="${d.desc||''}">${d.desc||'—'}</td>
     <td><span class="rev-badge">${d.rev}</span></td>
     <td style="font-family:var(--mono);font-size:10px;font-weight:700;color:${STATUS_C[d.status]||'#888'}">${d.status||'—'}</td>
     <td style="font-size:10px;color:var(--text3);white-space:nowrap">${d.date||'—'}</td>
     <td style="text-align:center;font-size:11px;font-weight:700;color:${d.approved==='yes'?'#2A9D3A':'#CCC'}">${d.approved==='yes'?'✓':'—'}</td>
     <td style="font-size:10px;color:#2A9D3A;white-space:nowrap">${d.approved==='yes'?(d.approvedDate||''):'—'}</td>
+    <td class="doc-remark" title="${d.remark||''}">${d.remark||'—'}</td>
     <td style="white-space:nowrap">
-      <button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button>
-      <button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>
+      ${window._isAdmin?`<button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button><button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>`:''}
     </td>
   </tr>`).join('')}
   </tbody></table>`;
 }
 
+function doSort(wrapId,col){
+  const cur=_sortState[wrapId]||{};
+  const dir=(cur.col===col&&cur.dir==='asc')?'desc':'asc';
+  _sortState[wrapId]={col,dir};
+  renderAllTabs();
+}
+
+// ── SEARCH ───────────────────────────────────────────
+const _searchState={};
+function searched(list,wrapId){
+  const q=(_searchState[wrapId]||'').toLowerCase().trim();
+  if(!q) return list;
+  const terms = q.split(/\s+/).filter(t => t.length > 0);
+  return list.filter(d => {
+    const combinedStr = `${d.code} ${d.desc} ${d.main} ${d.sub} ${d.remark}`.toLowerCase();
+    return terms.every(term => combinedStr.includes(term));
+  });
+}
+function applySearch(wrapId){
+  const map={wrapAll:'search-all',wrapDes:'search-des',wrapMat:'search-mat',wrapRq:'search-rq',wrapInstall:'search-install'};
+  const inp=document.getElementById(map[wrapId]);
+  _searchState[wrapId]=inp?inp.value:'';
+  renderAllTabs();
+}
+function clearSearch(wrapId){
+  const map={wrapAll:'search-all',wrapDes:'search-des',wrapMat:'search-mat',wrapRq:'search-rq',wrapInstall:'search-install'};
+  const inp=document.getElementById(map[wrapId]);
+  if(inp)inp.value='';
+  _searchState[wrapId]='';
+  renderAllTabs();
+}
+function renderTab(wrapId,fullList,cntId){
+  const filtered=searched(fullList,wrapId);
+  const ss=_sortState[wrapId]||{};
+  const el=document.getElementById(wrapId);
+  if(el) el.innerHTML=buildTable(filtered,wrapId,ss.col,ss.dir);
+  if(cntId){
+    const q=_searchState[wrapId]||'';
+    const el2=document.getElementById(cntId);
+    if(el2) el2.textContent=q?`${filtered.length}/${fullList.length} docs`:`${fullList.length} docs`;
+  }
+}
+
 function renderAllTabs(){
-  const desDocs=docs.filter(d=>d.main==='DES');
+  const desDocs=docs.filter(d=>d.main==='DES'&&!isRQ(d));
   const matDocs=docs.filter(d=>MAT_MAINS.includes(d.main));
   const instDocs=docs.filter(d=>INSTALL_MAINS.includes(d.main));
+  const rqDocs=docs.filter(isRQ);
+
   document.getElementById('statTotal').textContent=docs.length;
   document.getElementById('statDES').textContent=desDocs.length;
   document.getElementById('statMAT').textContent=matDocs.length;
   document.getElementById('statINS').textContent=instDocs.length;
-  document.getElementById('wrapAll').innerHTML=buildTable(docs);
-  document.getElementById('cntDes').textContent=`${desDocs.length} docs`;
-  document.getElementById('wrapDes').innerHTML=buildTable(desDocs);
-  document.getElementById('cntMat').textContent=`${matDocs.length} docs`;
-  document.getElementById('wrapMat').innerHTML=buildTable(matDocs);
-  document.getElementById('cntInstall').textContent=`${instDocs.length} docs`;
-  document.getElementById('wrapInstall').innerHTML=buildTable(instDocs);
-  const rqDocs=docs.filter(isRQ);
-  document.getElementById('cntRq').textContent=`${rqDocs.length} docs`;
-  document.getElementById('wrapRq').innerHTML=buildTable(rqDocs);
+  document.getElementById('statRQ').textContent=rqDocs.length;
+
+  document.getElementById('tab-btn-all').textContent = 'ALL';
+  document.getElementById('tab-btn-des').textContent = 'DES';
+  document.getElementById('tab-btn-mat').textContent = 'MAT';
+  document.getElementById('tab-btn-install').textContent = 'INSTALL';
+  document.getElementById('tab-btn-rq').textContent = 'RQ';
+
+  renderTab('wrapAll',docs,null);
+  renderTab('wrapDes',desDocs,'cntDes');
+  renderTab('wrapMat',matDocs,'cntMat');
+  renderTab('wrapInstall',instDocs,'cntInstall');
+  renderTab('wrapRq',rqDocs,'cntRq');
 }
 function renderTable(){renderAllTabs();}
 function renderFilterChips(){}
@@ -719,6 +896,7 @@ function updatePreview(){
   const rev=document.getElementById('selRev').value;
   const status=document.getElementById('selStatus').value;
   const desc=document.getElementById('inpDesc').value;
+  const docUrl=(document.getElementById('inpDocUrl')?.value||'').trim();
   const ov=document.getElementById('inpOverride').value;
   const num=ov?parseInt(ov):peekNum(main,sub);
   const md=mainDiscs.find(m=>m.code===main)?.desc||main;
@@ -741,11 +919,14 @@ function updatePreview(){
 }
 
 function addDocument(){
+  if(!window._isAdmin){ showToast('⚠ กรุณาล้อคอินก่อนเพิ่มเอกสาร'); return; }
   const main=document.getElementById('selMain').value;
   const sub=document.getElementById('selSub').value;
   const rev=document.getElementById('selRev').value;
   const status=document.getElementById('selStatus').value;
   const desc=document.getElementById('inpDesc').value;
+  const remark=document.getElementById('inpRemark').value.trim();
+  const docUrl=(document.getElementById('inpDocUrl')?.value||'').trim();
   const ov=document.getElementById('inpOverride').value;
   let num;
   if(ov){num=parseInt(ov);const k=main+'-'+sub;if(num>(counters[k]||0))counters[k]=num;}
@@ -753,11 +934,16 @@ function addDocument(){
   const desDrw=isDesDrw(main,sub);
   const code=desDrw?getDesCode(sub,num):`DDD-TSG-${main}-${sub}-${fmt4(num)}`;
   const ds=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-  const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:''};
+  
+  const newDoc={code,main,sub,desc:desc||subPool[sub]||'',rev,status,date:ds,id:Date.now(),approved:'no',approvedDate:'',remark:remark,docUrl:docUrl||''};
   docs.push(newDoc);
   if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(newDoc.id)),newDoc);
+  
   document.getElementById('inpDesc').value='';
+  document.getElementById('inpRemark').value='';
   document.getElementById('inpOverride').value='';
+  if(document.getElementById('inpDocUrl'))document.getElementById('inpDocUrl').value='';
+  
   renderAllTabs(); updatePreview();
   showToast('✓ Added: '+code);
 }
@@ -776,13 +962,17 @@ function openModal(id){
   const d=docs.find(x=>x.id===id);if(!d)return;
   document.getElementById('editDocId').value=id;
   document.getElementById('editDesc').value=d.desc;
+  document.getElementById('editDate').value=d.date?d.date.split('/').reverse().join('-'):'';
   document.getElementById('editRev').value=d.rev;
   document.getElementById('editStatus').value=d.status||'IFA';
   const approved=d.approved==='yes';
   document.getElementById('editApprovedYes').checked=approved;
   document.getElementById('editApprovedNo').checked=!approved;
-  document.getElementById('approvedDateField').style.display=approved?'block':'none';
-  document.getElementById('editApprovedDate').value=d.approvedDate||'';
+
+  const ad=d.approvedDate||''; const adp=ad.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  document.getElementById('editApprovedDate').value=adp?adp[3]+'-'+adp[2]+'-'+adp[1]:ad;
+  document.getElementById('editRemark').value=d.remark||'';
+  document.getElementById('editDocUrl').value=d.docUrl||'';
   document.getElementById('editModal').classList.add('open');
 }
 function closeModal(){document.getElementById('editModal').classList.remove('open');}
@@ -790,10 +980,15 @@ function saveEdit(){
   const id=parseInt(document.getElementById('editDocId').value);
   const d=docs.find(x=>x.id===id);if(!d)return;
   d.desc=document.getElementById('editDesc').value;
+  const dv=document.getElementById('editDate').value; if(dv){const p=dv.split('-');d.date=p[2]+'/'+p[1]+'/'+p[0];}
   d.rev=document.getElementById('editRev').value;
   d.status=document.getElementById('editStatus').value;
   d.approved=document.getElementById('editApprovedYes').checked?'yes':'no';
-  d.approvedDate=d.approved==='yes'?document.getElementById('editApprovedDate').value:'';
+  const av=document.getElementById('editApprovedDate').value; const ap=av?av.split('-'):null;
+  d.approvedDate=d.approved==='yes'&&ap?(ap[2]+'/'+ap[1]+'/'+ap[0]):'';
+  d.remark=document.getElementById('editRemark').value.trim();
+  d.docUrl=(document.getElementById('editDocUrl')?.value||'').trim();
+  
   if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(d.id)),d);
   closeModal(); renderAllTabs(); showToast('✓ Updated');
 }
