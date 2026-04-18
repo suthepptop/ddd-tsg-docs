@@ -205,7 +205,15 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         });
       }
     };
-    window.dispatchEvent(new CustomEvent('authChanged',{detail:{user,isAdmin}}));
+    // Call onAuthReady with retry until main script is ready
+    const _notify = () => {
+      if(typeof window.onAuthReady === 'function'){
+        window.onAuthReady(user, isAdmin);
+      } else {
+        setTimeout(_notify, 50);
+      }
+    };
+    _notify();
   });
   window._db=db; window._fbSetDoc=setDoc; window._fbDeleteDoc=deleteDoc; window._fbDoc=doc; window._fbReady=true;
   onSnapshot(colRef, (snapshot) => {
@@ -692,8 +700,9 @@ const STATUS_C={IFA:'#D48C00',IFR:'#7A3CB4',IFC:'#1A6FD4',AFC:'#2A9D3A',SUB:'#1A
 
 
 // ── AUTH ─────────────────────────────────────────────
-window.addEventListener('authChanged',(e)=>{
-  const {user,isAdmin}=e.detail;
+window.onAuthReady = function(user, isAdmin){
+  window._isAdmin = isAdmin;
+  window._currentUser = user;
   const userEl=document.getElementById('userInfo');
   const authBtn=document.getElementById('authBtn');
   if(user){
@@ -705,13 +714,12 @@ window.addEventListener('authChanged',(e)=>{
     if(userEl) userEl.innerHTML='';
     if(authBtn){authBtn.textContent='Sign In';authBtn.onclick=()=>window._signIn&&window._signIn();}
   }
-  // Show/hide admin elements
   const addPanel=document.getElementById('addPanel');
   if(addPanel) addPanel.style.display=isAdmin?'flex':'none';
   document.querySelectorAll('.admin-tab').forEach(t=>t.style.display=isAdmin?'':'none');
   if(!isAdmin && currentTab==='manage') switchTab('all',document.querySelector('.tab'));
   renderAllTabs();
-});
+};
 // ── INIT ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
   rebuildMainSelect(); populateSub(); updatePreview();
