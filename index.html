@@ -1131,9 +1131,9 @@ function exportExcel(){
   const list=getActiveTabDocs();
   if(!list.length){showToast('⚠ ไม่มีข้อมูล');return;}
   // Build CSV (Excel-compatible)
-  const headers=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','Approved','Approved Date','Remark'];
+  const headers=['#','Document No.','Main','Sub','File Link','Description','Rev','Status','Date Issued','Approved','Approved Date','Remark'];
   const rows=list.map((d,i)=>[
-    i+1, d.code, d.main, d.sub, d.desc||'', d.rev||'', d.status||'',
+    i+1, d.code, d.main, d.sub, d.docUrl||'', d.desc||'', d.rev||'', d.status||'',
     d.date||'', d.approved==='yes'?'Yes':'No', d.approvedDate||'', d.notes||''
   ]);
   const csvContent=[headers,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
@@ -1160,8 +1160,8 @@ function exportPDF(){
     pdf.setFontSize(8); pdf.setFont('helvetica','normal');
     pdf.text(`Exported: ${new Date().toLocaleDateString('en-GB')} | Total: ${list.length} docs`,14,20);
     // Table headers
-    const cols=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','Approved','Approved Date'];
-    const colW=[8,42,12,12,60,10,12,20,16,22];
+    const cols=['#','Document No.','Main','Sub','Description','Rev','Status','Date Issued','Appr.','Appr.Date','File Link','Remark'];
+    const colW=[7,38,10,10,52,8,10,18,10,18,30,27];
     let x=14, y=28;
     pdf.setFillColor(45,55,72); pdf.setTextColor(255,255,255);
     pdf.setFontSize(7); pdf.setFont('helvetica','bold');
@@ -1176,7 +1176,7 @@ function exportPDF(){
       if(y>190){pdf.addPage();y=20;}
       const bg=idx%2===0?[255,255,255]:[245,247,250];
       x=14;
-      const row=[idx+1,d.code,d.main,d.sub,d.desc||'',d.rev||'',d.status||'',d.date||'',d.approved==='yes'?'Yes':'No',d.approvedDate||''];
+      const row=[idx+1,d.code,d.main,d.sub,d.desc||'',d.rev||'',d.status||'',d.date||'',d.approved==='yes'?'Yes':'',d.approvedDate||'',d.docUrl||'',d.notes||''];
       pdf.setFillColor(...bg); pdf.rect(14,y-3,colW.reduce((a,b)=>a+b,0),5,'F');
       row.forEach((v,i)=>{
         const txt=String(v).substring(0,colW[i]>15?30:15);
