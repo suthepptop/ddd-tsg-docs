@@ -185,19 +185,21 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     const isAdmin=!!(user&&ADMIN_EMAILS.includes(user.email.toLowerCase()));
     window._isAdmin=isAdmin; window._currentUser=user;
     window._signOut=()=>signOut(auth);
+    let _signingIn=false;
     window._signIn=()=>{
+      if(_signingIn) return;
       const isMobile=/Android|iPhone|iPad/i.test(navigator.userAgent);
       if(isMobile){
         signInWithRedirect(auth,provider).catch(e=>alert('Sign in error: '+e.message));
       } else {
-        signInWithPopup(auth,provider).then(result=>{
-          // popup success - onAuthStateChanged will handle the rest
+        _signingIn=true;
+        signInWithPopup(auth,provider).then(()=>{
+          _signingIn=false;
         }).catch(e=>{
+          _signingIn=false;
           if(e.code==='auth/popup-blocked'){
             alert('Popup ถูกบล็อก — กรุณาอนุญาต popup สำหรับ site นี้แล้วลองใหม่');
-          } else if(e.code==='auth/popup-closed-by-user'){
-            // user closed — do nothing
-          } else {
+          } else if(e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request'){
             alert('Sign in error: '+e.message);
           }
         });
