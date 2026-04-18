@@ -156,6 +156,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, setDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   const firebaseConfig = {
     apiKey:"AIzaSyDMxqBXDKEBKXAdI1E200V-qodtxxJZgBk",
     authDomain:"ddd-tsg-docs.firebaseapp.com",
@@ -166,7 +167,31 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   };
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
   const colRef = collection(db, 'documents');
+  const ADMIN_EMAILS = ['suthepp.top@gmail.com','suthepptop@gmail.com'];
+
+  getRedirectResult(auth).then(result=>{
+    if(result&&result.user){
+      const isAdmin=ADMIN_EMAILS.includes(result.user.email.toLowerCase());
+      window._isAdmin=isAdmin; window._currentUser=result.user;
+      window._signOut=()=>signOut(auth);
+      if(typeof window.onAuthReady==='function') window.onAuthReady(result.user,isAdmin);
+    }
+  }).catch(e=>console.warn(e.message));
+
+  onAuthStateChanged(auth,(user)=>{
+    const isAdmin=!!(user&&ADMIN_EMAILS.includes(user.email.toLowerCase()));
+    window._isAdmin=isAdmin; window._currentUser=user;
+    window._signOut=()=>signOut(auth);
+    window._signIn=()=>{
+      const isMobile=/Android|iPhone|iPad/i.test(navigator.userAgent);
+      if(isMobile) signInWithRedirect(auth,provider).catch(e=>alert(e.message));
+      else signInWithPopup(auth,provider).catch(e=>alert(e.message));
+    };
+    window.dispatchEvent(new CustomEvent('authChanged',{detail:{user,isAdmin}}));
+  });
   window._db=db; window._fbSetDoc=setDoc; window._fbDeleteDoc=deleteDoc; window._fbDoc=doc; window._fbReady=true;
   onSnapshot(colRef, (snapshot) => {
     if(snapshot.empty && docs.length>0 && !window._fbSynced){
@@ -201,6 +226,8 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   </div>
   <div style="display:flex;align-items:center;gap:10px">
     <span id="syncStatus" style="font-size:10px;font-weight:600;color:#888">⏳ Connecting...</span>
+    <span id="userInfo"></span>
+    <button id="authBtn" onclick="window._signIn&&window._signIn()" style="font-size:10px;font-family:var(--mono);padding:4px 12px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;">Sign In</button>
     <div class="badge">ENG · 2026</div>
   </div>
 </div>
@@ -211,22 +238,22 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   <div class="main-panel">
     <!-- 4 TABS -->
     <div class="tabs">
-      <div class="tab active" onclick="switchTab('all',this)">ALL</div>
-      <div class="tab" onclick="switchTab('des',this)">DES</div>
-      <div class="tab" onclick="switchTab('mat',this)">MAT</div>
-      <div class="tab" onclick="switchTab('install',this)">INSTALL</div>
-      <div class="tab" onclick="switchTab('rq',this)">RQ</div>
-      <div class="tab" onclick="switchTab('manage',this)">⚙ Codes</div>
+      <div class="tab active" onclick="switchTab('all',this)">ALL <span id="tabCntAll" style="font-size:9px;opacity:0.7"></span></div>
+      <div class="tab" onclick="switchTab('des',this)">DES <span id="tabCntDes" style="font-size:9px;opacity:0.7"></span></div>
+      <div class="tab" onclick="switchTab('mat',this)">MAT <span id="tabCntMat" style="font-size:9px;opacity:0.7"></span></div>
+      <div class="tab" onclick="switchTab('install',this)">INSTALL <span id="tabCntInstall" style="font-size:9px;opacity:0.7"></span></div>
+      <div class="tab" onclick="switchTab('rq',this)">RQ <span id="tabCntRq" style="font-size:9px;opacity:0.7"></span></div>
+      <div class="tab admin-tab" onclick="switchTab('manage',this)" style="display:none">⚙ Codes</div>
       <div class="tab" onclick="switchTab('reference',this)">Reference</div>
     </div>
 
     <!-- TAB: ALL -->
     <div class="tab-panel active" id="tab-all">
       <div class="stats">
-        <div class="stat-card"><div class="stat-val" id="statTotal">0</div><div class="stat-label">Total</div></div>
-        <div class="stat-card"><div class="stat-val" id="statDES" style="color:var(--accent)">0</div><div class="stat-label">Design</div></div>
-        <div class="stat-card"><div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material</div></div>
-        <div class="stat-card"><div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install</div></div>
+        <div class="stat-card clickable" onclick="jumpTab('all')"><div class="stat-val" id="statTotal">0</div><div class="stat-label">Total ↗</div></div>
+        <div class="stat-card clickable" onclick="jumpTab('des')"><div class="stat-val" id="statDES" style="color:var(--accent)">0</div><div class="stat-label">Design ↗</div></div>
+        <div class="stat-card clickable" onclick="jumpTab('mat')"><div class="stat-val" id="statMAT" style="color:var(--accent2)">0</div><div class="stat-label">Material ↗</div></div>
+        <div class="stat-card clickable" onclick="jumpTab('install')"><div class="stat-val" id="statINS" style="color:var(--accent3)">0</div><div class="stat-label">Install ↗</div></div>
         <div class="stat-card clickable" onclick="jumpTab('rq')"><div class="stat-val" id="statRQ" style="color:#8B4500">0</div><div class="stat-label">RQ ↗</div></div>
       </div>
       <div class="search-wrap"><input type="text" id="search-all" placeholder="ค้นหา description..." oninput="applySearch('wrapAll')"><button class="search-clear" onclick="clearSearch('wrapAll')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-all" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapAll"></div>
@@ -314,7 +341,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   </div>
 
   <!-- ADD PANEL (RIGHT) -->
-  <div class="add-panel">
+  <div class="add-panel" id="addPanel" style="display:none">
     <div>
       <div class="section-label">Add Document</div>
       <div class="format-display">
@@ -462,6 +489,10 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     <div class="modal-field" id="approvedDateField">
       <div class="modal-label">Approved Date</div>
       <input type="date" id="editApprovedDate" style="width:100%;padding:7px;border:1px solid var(--border);font-size:12px;background:var(--bg);color:var(--text)">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Notes / หมายเหตุ</div>
+      <textarea id="editNotes" placeholder="หมายเหตุ..." style="width:100%;padding:7px;border:1px solid var(--border);font-size:12px;background:var(--bg);color:var(--text);font-family:var(--sans);resize:vertical;min-height:60px;"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn-sm" onclick="closeModal()">Cancel</button>
@@ -644,6 +675,28 @@ function getDesCode(sub,num){
 
 const STATUS_C={IFA:'#D48C00',IFR:'#7A3CB4',IFC:'#1A6FD4',AFC:'#2A9D3A',SUB:'#1A6FD4',IFI:'#4A4A4A',DDD:'#AAAAAA',VOID:'#D93025'};
 
+
+// ── AUTH ─────────────────────────────────────────────
+window.addEventListener('authChanged',(e)=>{
+  const {user,isAdmin}=e.detail;
+  const userEl=document.getElementById('userInfo');
+  const authBtn=document.getElementById('authBtn');
+  if(user){
+    if(userEl) userEl.innerHTML=isAdmin
+      ? `<span style="color:#2A9D3A;font-weight:700;font-size:10px">🔑 ${user.displayName||user.email}</span>`
+      : `<span style="color:var(--text3);font-size:10px">${user.email}</span>`;
+    if(authBtn){authBtn.textContent='Sign Out';authBtn.onclick=()=>window._signOut&&window._signOut();}
+  } else {
+    if(userEl) userEl.innerHTML='';
+    if(authBtn){authBtn.textContent='Sign In';authBtn.onclick=()=>window._signIn&&window._signIn();}
+  }
+  // Show/hide admin elements
+  const addPanel=document.getElementById('addPanel');
+  if(addPanel) addPanel.style.display=isAdmin?'flex':'none';
+  document.querySelectorAll('.admin-tab').forEach(t=>t.style.display=isAdmin?'':'none');
+  if(!isAdmin && currentTab==='manage') switchTab('all',document.querySelector('.tab'));
+  renderAllTabs();
+});
 // ── INIT ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
   rebuildMainSelect(); populateSub(); updatePreview();
@@ -657,6 +710,11 @@ function fmt4(n){return String(n).padStart(4,'0');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 // ── TABS ─────────────────────────────────────────────
+function jumpTab(name){
+  const tabEl=document.querySelector(`.tab[onclick*="'${name}'"]`);
+  switchTab(name,tabEl);
+  if(tabEl)tabEl.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
 function switchTab(name,el){
   currentTab=name;
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -669,7 +727,7 @@ function switchTab(name,el){
 
 // ── RENDER TABLE ─────────────────────────────────────
 const _sortState={};
-function buildTable(list,wrapId,sortCol,sortDir){
+function buildTable(list,wrapId,sortCol,sortDir,isAdmin){isAdmin=isAdmin||!!window._isAdmin;
   if(!list.length) return '<div class="empty"><div class="empty-icon">📄</div><div>No documents</div></div>';
   let sorted=[...list];
   if(sortCol!==undefined){
@@ -704,6 +762,7 @@ function buildTable(list,wrapId,sortCol,sortDir){
     <td style="font-size:10px;color:var(--text3);white-space:nowrap">${d.date||'—'}</td>
     <td style="text-align:center;font-size:11px;font-weight:700;color:${d.approved==='yes'?'#2A9D3A':'#CCC'}">${d.approved==='yes'?'✓':'—'}</td>
     <td style="font-size:10px;color:#2A9D3A;white-space:nowrap">${d.approved==='yes'?(d.approvedDate||''):'—'}</td>
+    <td style="font-size:10px;color:var(--text2);max-width:120px;word-break:break-word">${d.notes||''}</td>
     <td style="white-space:nowrap">
       ${window._isAdmin?`<button class="edit-btn" onclick="openModal(${d.id})" title="Edit">✏</button><button class="del-btn" onclick="delDoc(${d.id})" title="Delete">✕</button>`:''}
     </td>
@@ -742,7 +801,7 @@ function renderTab(wrapId,fullList,cntId){
   const filtered=searched(fullList,wrapId);
   const ss=_sortState[wrapId]||{};
   const el=document.getElementById(wrapId);
-  if(el) el.innerHTML=buildTable(filtered,wrapId,ss.col,ss.dir);
+  if(el) el.innerHTML=buildTable(filtered,wrapId,ss.col,ss.dir,!!window._isAdmin);
   if(cntId){
     const q=_searchState[wrapId]||'';
     const el2=document.getElementById(cntId);
@@ -762,6 +821,7 @@ function renderAllTabs(){
   const rqDocs=docs.filter(isRQ);
   const _s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   _s('statTotal',docs.length);_s('statDES',desDocs.length);_s('statMAT',matDocs.length);_s('statINS',instDocs.length);_s('statRQ',rqDocs.length);
+  _s('tabCntAll',docs.length?`(${docs.length})`:'');_s('tabCntDes',desDocs.length?`(${desDocs.length})`:'');_s('tabCntMat',matDocs.length?`(${matDocs.length})`:'');_s('tabCntInstall',instDocs.length?`(${instDocs.length})`:'');_s('tabCntRq',rqDocs.length?`(${rqDocs.length})`:'');
   renderTab('wrapAll',docs,null);
   renderTab('wrapDes',desDocs,'cntDes');
   renderTab('wrapMat',matDocs,'cntMat');
@@ -860,6 +920,7 @@ function openModal(id){
   const ad=d.approvedDate||''; const adp=ad.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   document.getElementById('editApprovedDate').value=adp?adp[3]+'-'+adp[2]+'-'+adp[1]:ad;
   document.getElementById('editDocUrl').value=d.docUrl||'';
+  if(document.getElementById('editNotes'))document.getElementById('editNotes').value=d.notes||'';
   document.getElementById('editModal').classList.add('open');
 }
 function closeModal(){document.getElementById('editModal').classList.remove('open');}
@@ -874,6 +935,7 @@ function saveEdit(){
   const av=document.getElementById('editApprovedDate').value; const ap=av?av.split('-'):null;
   d.approvedDate=d.approved==='yes'&&ap?(ap[2]+'/'+ap[1]+'/'+ap[0]):'';
   d.docUrl=(document.getElementById('editDocUrl')?.value||'').trim();
+  d.notes=(document.getElementById('editNotes')?.value||'').trim();
   if(window._fbReady)window._fbSetDoc(window._fbDoc(window._db,'documents',String(d.id)),d);
   closeModal(); renderAllTabs(); showToast('✓ Updated');
 }
