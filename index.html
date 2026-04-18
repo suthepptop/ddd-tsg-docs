@@ -149,8 +149,8 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, setDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  // อัปเดตเปลี่ยนมาใช้ signInWithRedirect เพื่อป้องกัน Popup ถูกบล็อก
-  import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  // ใช้ signInWithPopup กลับมาเพื่อความเสถียรบน Github Pages
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   
   const firebaseConfig = {
     apiKey:"AIzaSyDMxqBXDKEBKXAdI1E200V-qodtxxJZgBk",
@@ -166,17 +166,12 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
   const provider = new GoogleAuthProvider();
   
   window._db=db; window._fbSetDoc=setDoc; window._fbDeleteDoc=deleteDoc; window._fbDoc=doc; window._fbReady=true;
-  window._auth=auth; window._provider=provider; window._signInRedirect=signInWithRedirect; window._signOut=signOut;
-
-  // ตรวจจับตอน Redirect กลับมา เพื่อดักจับ Error
-  getRedirectResult(auth).catch((error) => {
-    alert('ล็อกอินผิดพลาด: ' + error.message);
-  });
+  window._auth=auth; window._provider=provider; window._signInPopup=signInWithPopup; window._signOut=signOut;
 
   // ตรวจสอบสถานะการเข้าสู่ระบบ
   onAuthStateChanged(auth, (user) => {
     const manageTabBtn = document.getElementById('tab-btn-manage');
-    const addPanelDiv = document.getElementById('addPanel'); // แผงเพิ่มข้อมูล
+    const addPanelDiv = document.getElementById('addPanel'); 
     
     if (user) {
       window._isAdmin = true;
@@ -522,13 +517,23 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 </div>
 
 <script>
-// ── AUTH (GOOGLE LOGIN - REDIRECT) ────────────────────────────────
+// ── AUTH (GOOGLE LOGIN) ────────────────────────────────
 function toggleAuth() {
   if (window._isAdmin) {
-    window._signOut(window._auth);
+    window._signOut(window._auth).then(() => {
+      showToast('Logged out');
+    });
   } else {
-    // ใช้วิธี Redirect ทะลุการบล็อก Pop-up ได้ 100%
-    window._signInRedirect(window._auth, window._provider);
+    // ใช้งาน Popup พร้อมกับดักจับ Error ที่เกิดจากผู้ใช้คลิกปิดหน้าต่างไปก่อน
+    window._signInPopup(window._auth, window._provider).then((result) => {
+      showToast('Logged in as ' + result.user.email);
+    }).catch((error) => {
+      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+        alert('การเข้าสู่ระบบถูกยกเลิก: \nหากคุณไม่ได้กดปิดหน้าต่างเอง อาจเกิดจากส่วนขยายบล็อกโฆษณา (AdBlocker) ตัดการทำงานของปุ่มล็อกอินครับ\n\nวิธีแก้: ลองเข้าเว็บไซต์นี้ใน "โหมดไม่ระบุตัวตน" (Incognito) และกดปุ่มล็อกอินอีกครั้งครับ');
+      } else {
+        alert('Login failed: ' + error.message);
+      }
+    });
   }
 }
 
@@ -857,13 +862,6 @@ function renderAllTabs(){
   document.getElementById('statMAT').textContent=matDocs.length;
   document.getElementById('statINS').textContent=instDocs.length;
   document.getElementById('statRQ').textContent=rqDocs.length;
-
-  // เอาตัวเลขออกจากหลังชื่อแท็บ
-  document.getElementById('tab-btn-all').textContent = 'ALL';
-  document.getElementById('tab-btn-des').textContent = 'DES';
-  document.getElementById('tab-btn-mat').textContent = 'MAT';
-  document.getElementById('tab-btn-install').textContent = 'INSTALL';
-  document.getElementById('tab-btn-rq').textContent = 'RQ';
 
   renderTab('wrapAll',docs,null);
   renderTab('wrapDes',desDocs,'cntDes');
