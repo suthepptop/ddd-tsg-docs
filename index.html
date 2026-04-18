@@ -126,7 +126,12 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
 .ref-code{font-family:var(--mono);font-weight:700;color:var(--text);min-width:55px;font-size:11px;}
 .ref-desc{color:var(--text2);font-size:10px;}
 
-.empty{text-align:center;padding:50px 20px;color:var(--text3);}
+.search-wrap{display:inline-flex;align-items:stretch;margin-bottom:14px;border:1px solid var(--border);background:var(--bg);}
+  .search-wrap:focus-within{border-color:var(--accent);}
+  .search-wrap input{width:200px;background:transparent;border:none;color:var(--text);padding:6px 10px;font-family:var(--mono);font-size:12px;outline:none;}
+  .search-clear{background:transparent;border:none;border-left:1px solid var(--border);color:var(--text3);cursor:pointer;font-size:11px;padding:0 8px;}
+  .search-clear:hover{color:var(--danger);background:var(--surface2);}
+  .empty{text-align:center;padding:50px 20px;color:var(--text3);}
 .empty-icon{font-size:28px;margin-bottom:10px;opacity:0.4;}
 
 /* TOAST */
@@ -641,7 +646,7 @@ let docs = [
   {id:2099,code:'TSG25-ECG00-122',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 3',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
   {id:2100,code:'TSG25-ECG00-130',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 4', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
   {id:2101,code:'TSG25-ECG00-131',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 4',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2102,code:'TSG25-ECG00-132',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 4',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},];
+];
 
 const DES_SERIES = {ELS:1,MRS:10,LTG:30,GND:40,LGT:60,SPS:70,PNL:80,HOK:200,COM:1,CCL:20};
 const DES_DRAWING_SUBS = ['ELS','COM','MRS','LTG','GND','LGT','SPS','CCL','PNL','HOK'];
