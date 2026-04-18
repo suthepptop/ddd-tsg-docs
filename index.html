@@ -709,9 +709,17 @@ function applyAdminUI(isAdmin){
 document.addEventListener('DOMContentLoaded',()=>{
   // Restore admin session
   if(sessionStorage.getItem('isAdmin')){window._isAdmin=true;}
-  rebuildMainSelect(); populateSub(); updatePreview();
-  renderAllTabs(); renderFilterChips(); renderManage(); renderReference();
-  if(window._isAdmin) applyAdminUI(true);
+  // Load config from Firestore then render
+  const _initRender=()=>{
+    rebuildMainSelect(); populateSub(); updatePreview();
+    renderAllTabs(); renderFilterChips(); renderManage(); renderReference();
+    if(window._isAdmin) applyAdminUI(true);
+  };
+  // Wait for Firebase ready then load config
+  const _waitFb=setInterval(()=>{
+    if(window._fbReady){ clearInterval(_waitFb); loadConfig(_initRender); }
+  },100);
+  setTimeout(()=>{ clearInterval(_waitFb); _initRender(); },3000);
 });
 
 // ── HELPERS ──────────────────────────────────────────
@@ -1040,14 +1048,14 @@ function addMain(){
   if(mainDiscs.find(m=>m.code===code)){showToast('⚠ Code นี้มีอยู่แล้ว');return;}
   mainDiscs.push({code,desc});if(!subMap[code])subMap[code]=['GEN'];
   document.getElementById('newMainCode').value='';document.getElementById('newMainDesc').value='';
-  renderManage();showToast('✓ Added: '+code);
+  saveConfig();renderManage();showToast('✓ Added: '+code);
 }
 function delMain(code){
   if(docs.some(d=>d.main===code)){showToast('⚠ มีเอกสารใช้งานอยู่');return;}
   if(!confirm(`Delete "${code}"?`))return;
   mainDiscs=mainDiscs.filter(m=>m.code!==code);delete subMap[code];
   if(selMain4Sub===code)selMain4Sub=null;
-  renderManage();showToast('✓ Deleted: '+code);
+  saveConfig();renderManage();showToast('✓ Deleted: '+code);
 }
 function addSubPool(){
   const code=document.getElementById('newSubPoolCode').value.trim().toUpperCase();
@@ -1056,25 +1064,46 @@ function addSubPool(){
   if(subPool[code]){showToast('⚠ มีอยู่แล้ว');return;}
   subPool[code]=desc;
   document.getElementById('newSubPoolCode').value='';document.getElementById('newSubPoolDesc').value='';
-  renderManage();showToast('✓ Added: '+code);
+  saveConfig();renderManage();showToast('✓ Added: '+code);
 }
 function delSubPool(code){
   if(Object.values(subMap).some(arr=>arr.includes(code))){showToast('⚠ ยังถูกใช้งานอยู่');return;}
   if(!confirm(`Remove "${code}"?`))return;
-  delete subPool[code];renderManage();showToast('✓ Removed: '+code);
+  delete subPool[code];saveConfig();renderManage();showToast('✓ Removed: '+code);
 }
 function addSubToMain(mainCode){
   const sel=document.getElementById('selAddSub');if(!sel)return;
   const sub=sel.value;if(!sub)return;
   if(!subMap[mainCode])subMap[mainCode]=[];
   if(!subMap[mainCode].includes(sub))subMap[mainCode].push(sub);
-  renderManage();showToast(`✓ ${sub} → ${mainCode}`);
+  saveConfig();renderManage();showToast(`✓ ${sub} → ${mainCode}`);
 }
 function removeSubFromMain(mainCode,sub){
   subMap[mainCode]=(subMap[mainCode]||[]).filter(s=>s!==sub);
-  renderManage();showToast(`✓ Removed ${sub} from ${mainCode}`);
+  saveConfig();renderManage();showToast(`✓ Removed ${sub} from ${mainCode}`);
 }
 
+
+// ── CONFIG (subPool + subMap + mainDiscs) → Firestore ─
+function saveConfig(){
+  if(!window._fbReady) return;
+  const cfg={subPool,subMap,mainDiscs};
+  window._fbSetDoc(window._fbDoc(window._db,'config','codes'), cfg);
+}
+function loadConfig(cb){
+  if(!window._fbReady){ if(cb)cb(); return; }
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js').then(({getDoc,doc})=>{
+    getDoc(doc(window._db,'config','codes')).then(snap=>{
+      if(snap.exists()){
+        const d=snap.data();
+        if(d.subPool) Object.assign(subPool, d.subPool);
+        if(d.subMap) Object.assign(subMap, d.subMap);
+        if(d.mainDiscs && d.mainDiscs.length) mainDiscs.splice(0,mainDiscs.length,...d.mainDiscs);
+      }
+      if(cb) cb();
+    }).catch(()=>{ if(cb)cb(); });
+  });
+}
 // ── REFERENCE ────────────────────────────────────────
 function renderReference(){
   document.getElementById('refContent').innerHTML=`
