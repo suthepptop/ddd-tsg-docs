@@ -201,7 +201,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         }
       });
       Object.values(remoteMap).forEach(r=>merged.push(r));
-      merged.sort((a,b)=>a.id-b.id);
+      merged.sort((a,b)=>(a.code||"").localeCompare(b.code||"",undefined,{numeric:true,sensitivity:"base"}));
       docs.length=0; merged.forEach(d=>docs.push(d));
       window._fbSynced=true;
       if(typeof renderTable==='function'){renderTable();renderFilterChips();}
@@ -243,6 +243,7 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
     <!-- 4 TABS -->
     <div class="tabs">
       <div class="tab active" onclick="switchTab('all',this)">ALL <span id="tabCntAll" style="font-size:12px;opacity:0.8"></span></div>
+      <div class="tab" onclick="switchTab('dwg',this)">DWG <span id="tabCntDwg" style="font-size:12px;opacity:0.8"></span></div>
       <div class="tab" onclick="switchTab('des',this)">DES <span id="tabCntDes" style="font-size:12px;opacity:0.8"></span></div>
       <div class="tab" onclick="switchTab('mat',this)">MAT <span id="tabCntMat" style="font-size:12px;opacity:0.8"></span></div>
       <div class="tab" onclick="switchTab('install',this)">INSTALL <span id="tabCntInstall" style="font-size:12px;opacity:0.8"></span></div>
@@ -261,6 +262,16 @@ select:focus,input:focus{outline:none;border-color:var(--accent);}
         <div class="stat-card clickable" onclick="jumpTab('rq')"><div class="stat-val" id="statRQ" style="color:#8B4500">0</div><div class="stat-label">RQ ↗</div></div>
       </div>
       <div class="search-wrap"><input type="text" id="search-all" placeholder="ค้นหา description..." oninput="applySearch('wrapAll')"><button class="search-clear" onclick="clearSearch('wrapAll')" title="ล้าง">✕</button></div>      <div class="search-hint" id="hint-all" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>      <div class="tbl-wrap" id="wrapAll"></div>
+    </div>
+
+    <!-- TAB: DWG -->
+    <div class="tab-panel" id="tab-dwg">
+      <div class="log-header">
+        <div class="log-title">Drawing Documents <span id="cntDwg" style="font-size:10px;color:var(--text3)"></span></div>
+      </div>
+      <div class="search-wrap"><input type="text" id="search-dwg" placeholder="ค้นหา description..." oninput="applySearch('wrapDwg')"><button class="search-clear" onclick="clearSearch('wrapDwg')" title="ล้าง">&#10005;</button></div>
+      <div class="search-hint" id="hint-dwg" style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);"></div>
+      <div class="tbl-wrap" id="wrapDwg"></div>
     </div>
 
     <!-- TAB: DES -->
@@ -557,119 +568,132 @@ let counters = {}, selMain4Sub = null;
 let currentTab = 'all';
 
 let docs = [
-  // ELECTRICAL SYSTEM (ELS) — ECG00-00~05
-  {id:2001,code:'TSG25-ECG00-00',main:'DES',sub:'ELS',desc:'List of Drawing',                                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2002,code:'TSG25-ECG00-01',main:'DES',sub:'ELS',desc:'Single Line Diagram',                                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2003,code:'TSG25-ECG00-02',main:'DES',sub:'ELS',desc:'Load Schedule Sheet 1 of 2',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2004,code:'TSG25-ECG00-03',main:'DES',sub:'ELS',desc:'Load Schedule Sheet 2 of 2',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2005,code:'TSG25-ECG00-04',main:'DES',sub:'ELS',desc:'Riser Diagram',                                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2006,code:'TSG25-ECG00-05',main:'DES',sub:'ELS',desc:'Diagram for Lightning Protection',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  // COMMUNICATION SYSTEM (COM) — OCG00-01~09
-  {id:2007,code:'TSG25-OCG00-01',main:'DES',sub:'COM',desc:'Schematic Diagram for CCTV',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:20070,code:'TSG25-OCG00-02',main:'DES',sub:'COM',desc:'SCADA System Interfacing Schematic Diagram',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2008,code:'TSG25-OCG00-03',main:'DES',sub:'COM',desc:'SCADA System Diagram 1 of 2',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2009,code:'TSG25-OCG00-04',main:'DES',sub:'COM',desc:'SCADA System Diagram 2 of 2',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2010,code:'TSG25-OCG00-05',main:'DES',sub:'COM',desc:'SCADA Point Schedule 1 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2011,code:'TSG25-OCG00-06',main:'DES',sub:'COM',desc:'SCADA Point Schedule 2 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2012,code:'TSG25-OCG00-07',main:'DES',sub:'COM',desc:'SCADA Point Schedule 3 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2013,code:'TSG25-OCG00-08',main:'DES',sub:'COM',desc:'SCADA Point Schedule 4 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2014,code:'TSG25-OCG00-09',main:'DES',sub:'COM',desc:'SCADA Point Schedule 5 of 5',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  // MAIN ROUTE SYSTEM (MRS) — ECG00-10~29
-  {id:2015,code:'TSG25-ECG00-10',main:'DES',sub:'MRS',desc:'Main Route System AC1/AC2 Reference Plan',                 rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2016,code:'TSG25-ECG00-11',main:'DES',sub:'MRS',desc:'Foundation for Distribution Board AC1',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2017,code:'TSG25-ECG00-12',main:'DES',sub:'MRS',desc:'Main Route System AC1 1st Floor Plan',                     rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2018,code:'TSG25-ECG00-13',main:'DES',sub:'MRS',desc:'Main Route System AC1 2nd Floor Plan',                     rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2019,code:'TSG25-ECG00-14',main:'DES',sub:'MRS',desc:'Main Route System AC1 Section A-B',                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2020,code:'TSG25-ECG00-15',main:'DES',sub:'MRS',desc:'Main Route System AC1 Section C-D',                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2021,code:'TSG25-ECG00-16',main:'DES',sub:'MRS',desc:'Main Route System Reference Plan',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2022,code:'TSG25-ECG00-17',main:'DES',sub:'MRS',desc:'Main Route System Sheet 1 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2023,code:'TSG25-ECG00-18',main:'DES',sub:'MRS',desc:'Main Route System Sheet 2 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2024,code:'TSG25-ECG00-19',main:'DES',sub:'MRS',desc:'Main Route System Sheet 3 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2025,code:'TSG25-ECG00-20',main:'DES',sub:'MRS',desc:'Main Route System Sheet 4 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2026,code:'TSG25-ECG00-21',main:'DES',sub:'MRS',desc:'Main Route System Sheet 5 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2027,code:'TSG25-ECG00-22',main:'DES',sub:'MRS',desc:'Main Route System Sheet 6 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2028,code:'TSG25-ECG00-23',main:'DES',sub:'MRS',desc:'Main Route System Sheet 7 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2029,code:'TSG25-ECG00-24',main:'DES',sub:'MRS',desc:'Main Route System Sheet 8 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2030,code:'TSG25-ECG00-25',main:'DES',sub:'MRS',desc:'Main Route System Sheet 9 of 12',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2031,code:'TSG25-ECG00-26',main:'DES',sub:'MRS',desc:'Main Route System Sheet 10 of 12',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2032,code:'TSG25-ECG00-27',main:'DES',sub:'MRS',desc:'Main Route System Sheet 11 of 12',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2033,code:'TSG25-ECG00-28',main:'DES',sub:'MRS',desc:'Main Route System Sheet 12 of 12',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2034,code:'TSG25-ECG00-29',main:'DES',sub:'MRS',desc:'Main Route System Section and Detail Sheet 1',             rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  // LIGHTNING PROTECTION SYSTEM (LTG) — ECG00-30~36
-  {id:2035,code:'TSG25-ECG00-30',main:'DES',sub:'LTG',desc:'Lightning Protection System Reference Plan',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2036,code:'TSG25-ECG00-31',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Ground Level',             rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2037,code:'TSG25-ECG00-32',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System 2nd Level',                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2038,code:'TSG25-ECG00-33',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Roof Level',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2039,code:'TSG25-ECG00-34',main:'DES',sub:'LTG',desc:'AC1 Lightning Protection System Section A-A',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2040,code:'TSG25-ECG00-35',main:'DES',sub:'LTG',desc:'AC2 Lightning Protection System 1st Level',                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2041,code:'TSG25-ECG00-36',main:'DES',sub:'LTG',desc:'Lightning Protection Typical Detail',                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  // GROUNDING AND BONDING SYSTEM (GND) — ECG00-40~53
-  {id:2042,code:'TSG25-ECG00-40',main:'DES',sub:'GND',desc:'Grounding and Bonding System Reference Plan',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2043,code:'TSG25-ECG00-41',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 1 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2044,code:'TSG25-ECG00-42',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 2 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2045,code:'TSG25-ECG00-43',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 3 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2046,code:'TSG25-ECG00-44',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 4 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2047,code:'TSG25-ECG00-45',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 5 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2048,code:'TSG25-ECG00-46',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 6 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2049,code:'TSG25-ECG00-47',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 7 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2050,code:'TSG25-ECG00-48',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 8 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2051,code:'TSG25-ECG00-49',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 9 of 12',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2052,code:'TSG25-ECG00-50',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 10 of 12',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2053,code:'TSG25-ECG00-51',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 11 of 12',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2054,code:'TSG25-ECG00-52',main:'DES',sub:'GND',desc:'Grounding and Bonding System Sheet 12 of 12',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2055,code:'TSG25-ECG00-53',main:'DES',sub:'GND',desc:'Grounding and Bonding System Typical Detail',              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  // LIGHTING SYSTEM (LGT) — ECG00-60~67
-  {id:2056,code:'TSG25-ECG00-60',main:'DES',sub:'LGT',desc:'Lighting System Reference Plan',                           rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2057,code:'TSG25-ECG00-61',main:'DES',sub:'LGT',desc:'AC1 Lighting System 1st Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2058,code:'TSG25-ECG00-62',main:'DES',sub:'LGT',desc:'AC1 Lighting System 2nd Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2059,code:'TSG25-ECG00-63',main:'DES',sub:'LGT',desc:'AC1 Lighting System 3rd Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2060,code:'TSG25-ECG00-64',main:'DES',sub:'LGT',desc:'AC1 Lighting System 4th Floor',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2061,code:'TSG25-ECG00-65',main:'DES',sub:'LGT',desc:'AC1 Lighting System Section A-B',                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2062,code:'TSG25-ECG00-66',main:'DES',sub:'LGT',desc:'AC2 Lighting System',                                      rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2063,code:'TSG25-ECG00-67',main:'DES',sub:'LGT',desc:'Lighting System Typical and Detail Sheet 1',               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  // SMALL POWER SYSTEM (SPS) — ECG00-70~77
-  {id:2064,code:'TSG25-ECG00-70',main:'DES',sub:'SPS',desc:'Small Power System Reference Plan',                        rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2065,code:'TSG25-ECG00-71',main:'DES',sub:'SPS',desc:'AC1 Small Power System 1st Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2066,code:'TSG25-ECG00-72',main:'DES',sub:'SPS',desc:'AC1 Small Power System 2nd Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2067,code:'TSG25-ECG00-73',main:'DES',sub:'SPS',desc:'AC1 Small Power System 3rd Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2068,code:'TSG25-ECG00-74',main:'DES',sub:'SPS',desc:'AC1 Small Power System 4th Floor',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2069,code:'TSG25-ECG00-75',main:'DES',sub:'SPS',desc:'AC1 Small Power System Section A-B',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2070,code:'TSG25-ECG00-76',main:'DES',sub:'SPS',desc:'AC2 Small Power System',                                   rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2071,code:'TSG25-ECG00-77',main:'DES',sub:'SPS',desc:'Small Power System Typical and Detail Sheet 1',            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  // CCTV SYSTEM (CCL) — OCG00-20~27
-  {id:2072,code:'TSG25-OCG00-20',main:'DES',sub:'CCL',desc:'CCTV System Reference Plan',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2073,code:'TSG25-OCG00-21',main:'DES',sub:'CCL',desc:'AC1 CCTV System 1st Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2074,code:'TSG25-OCG00-22',main:'DES',sub:'CCL',desc:'AC1 CCTV System 2nd Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2075,code:'TSG25-OCG00-23',main:'DES',sub:'CCL',desc:'AC1 CCTV System 3rd Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2076,code:'TSG25-OCG00-24',main:'DES',sub:'CCL',desc:'AC1 CCTV System 4th Floor',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2077,code:'TSG25-OCG00-25',main:'DES',sub:'CCL',desc:'AC1 CCTV System Section A-B',                              rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2078,code:'TSG25-OCG00-26',main:'DES',sub:'CCL',desc:'AC2 CCTV System',                                          rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2079,code:'TSG25-OCG00-27',main:'DES',sub:'CCL',desc:'CCTV System Typical and Detail Sheet 1',                   rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  // PANEL GA & WIRING (PNL) — ECG00-80~132
-  {id:2080,code:'TSG25-ECG00-80',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for MDB',         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2081,code:'TSG25-ECG00-81',main:'DES',sub:'PNL',desc:'Equipment & Load List for MDB',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2082,code:'TSG25-ECG00-82',main:'DES',sub:'PNL',desc:'Switchboard Layout for MDB',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2083,code:'TSG25-ECG00-83',main:'DES',sub:'PNL',desc:'Schematic Diagram for MDB',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2084,code:'TSG25-ECG00-84',main:'DES',sub:'PNL',desc:'Wiring Control for MDB',                                   rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2085,code:'TSG25-ECG00-90',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for MCC',         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2086,code:'TSG25-ECG00-91',main:'DES',sub:'PNL',desc:'Equipment & Load List for MCC',                            rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2087,code:'TSG25-ECG00-92',main:'DES',sub:'PNL',desc:'Switchboard Layout for MCC',                               rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2088,code:'TSG25-ECG00-93',main:'DES',sub:'PNL',desc:'Schematic Diagram for MCC',                                rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2089,code:'TSG25-ECG00-94',main:'DES',sub:'PNL',desc:'Wiring Control for Motor (D.O.L)',                         rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2090,code:'TSG25-ECG00-95',main:'DES',sub:'PNL',desc:'Wiring Control for Motor (Star-Delta)',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2091,code:'TSG25-ECG00-100',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 1', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2092,code:'TSG25-ECG00-101',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 1',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2093,code:'TSG25-ECG00-102',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 1',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2094,code:'TSG25-ECG00-110',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 2', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2095,code:'TSG25-ECG00-111',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 2',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2096,code:'TSG25-ECG00-112',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 2',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2097,code:'TSG25-ECG00-120',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 3', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2098,code:'TSG25-ECG00-121',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 3',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2099,code:'TSG25-ECG00-122',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 3',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2100,code:'TSG25-ECG00-130',main:'DES',sub:'PNL',desc:'Wall Mount & Box Enclosure Specification for PLC Zone 4', rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2101,code:'TSG25-ECG00-131',main:'DES',sub:'PNL',desc:'Equipment & Load List for PLC Zone 4',                    rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
-  {id:2102,code:'TSG25-ECG00-132',main:'DES',sub:'PNL',desc:'Switchboard Layout for PLC Zone 4',                       rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:''},
+  {id:3000,code:'TSG25-ECG00-00-1',main:'DES',sub:'ELS',desc:'LIST OF DRAWING OVERALL SHEET 1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3001,code:'TSG25-ECG00-00-2',main:'DES',sub:'ELS',desc:'LIST OF DRAWING OVERALL SHEET 2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3002,code:'TSG25-ECG00-01-A',main:'DES',sub:'ELS',desc:'COVER ELECTRICAL SYSTEM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3003,code:'TSG25-ECG00-01-B',main:'DES',sub:'ELS',desc:'LIST OF DRAWING',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3004,code:'TSG25-ECG00-01',main:'DES',sub:'ELS',desc:'SINGLE LINE DIAGRAM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3005,code:'TSG25-ECG00-02',main:'DES',sub:'ELS',desc:'LOAD SCHEDULE SHEET 1 OF 2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3006,code:'TSG25-ECG00-03',main:'DES',sub:'ELS',desc:'LOAD SCHEDULE SHEET 2 OF 2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3007,code:'TSG25-ECG00-04',main:'DES',sub:'ELS',desc:'RISER DIAGRAM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3008,code:'TSG25-ECG00-05',main:'DES',sub:'ELS',desc:'DIAGRAM FOR LIGHTNING PROTECTION',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3009,code:'TSG25-OCG00-01-A',main:'DES',sub:'COM',desc:'COVER COMMUNICATION SYSTEM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3010,code:'TSG25-OCG00-01-B',main:'DES',sub:'COM',desc:'LIST OF DRAWING',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3011,code:'TSG25-OCG00-01',main:'DES',sub:'COM',desc:'SCHEMATIC DIAGRAM FOR CCTV.',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3012,code:'TSG25-OCG00-02',main:'DES',sub:'COM',desc:'SCADA SYSTEM INTERFACING SCHEMATIC DIAGRAM',rev:'Rev.0',status:'IFA',date:'5/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3013,code:'TSG25-OCG00-03',main:'DES',sub:'COM',desc:'SCADA SYSTEM DIAGRAM 1 OF 2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3014,code:'TSG25-OCG00-04',main:'DES',sub:'COM',desc:'SCADA SYSTEM DIAGRAM 2 OF 2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3015,code:'TSG25-OCG00-05',main:'DES',sub:'COM',desc:'SCADA POINT SCHEDULE 1 OF 5',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3016,code:'TSG25-OCG00-06',main:'DES',sub:'COM',desc:'SCADA POINT SCHEDULE 2 OF 5',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3017,code:'TSG25-OCG00-07',main:'DES',sub:'COM',desc:'SCADA POINT SCHEDULE 3 OF 5',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3018,code:'TSG25-OCG00-08',main:'DES',sub:'COM',desc:'SCADA POINT SCHEDULE 4 OF 5',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3019,code:'TSG25-OCG00-09',main:'DES',sub:'COM',desc:'SCADA POINT SCHEDULE 5 OF 5',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3020,code:'TSG25-ECG00-10-A',main:'DES',sub:'MRS',desc:'COVER MAIN ROUTE SYSTEM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3021,code:'TSG25-ECG00-10-B',main:'DES',sub:'MRS',desc:'LIST OF DRAWING',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3022,code:'TSG25-ECG00-10',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM AC1,AC2 REFERENCE PLAN',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3023,code:'TSG25-ECG00-11',main:'DES',sub:'MRS',desc:'FOUNDATION FOR DISTRIBUTION BOARD AC1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3024,code:'TSG25-ECG00-12',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM AC1 1st FLOOR PLAN',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3025,code:'TSG25-ECG00-13',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM AC1 2nd FLOOR PLAN',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3026,code:'TSG25-ECG00-14',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM AC1 SECTION A,B',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3027,code:'TSG25-ECG00-15',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM AC1 SECTION C,D',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3028,code:'TSG25-ECG00-16',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM REFERENCE PLAN',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3029,code:'TSG25-ECG00-17',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SHEET 1 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3030,code:'TSG25-ECG00-18',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SHEET 2 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3031,code:'TSG25-ECG00-19',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SHEET 3 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3032,code:'TSG25-ECG00-20',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SHEET 4 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3033,code:'TSG25-ECG00-21',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SHEET 5 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3034,code:'TSG25-ECG00-22',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SHEET 6 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3035,code:'TSG25-ECG00-23',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SHEET 7 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3036,code:'TSG25-ECG00-24',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SHEET 8 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3037,code:'TSG25-ECG00-25',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SHEET 9 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3038,code:'TSG25-ECG00-26',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SHEET 10 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3039,code:'TSG25-ECG00-27',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SHEET 11 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3040,code:'TSG25-ECG00-28',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SHEET 12 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3041,code:'TSG25-ECG00-29',main:'DES',sub:'MRS',desc:'MAIN ROUTE SYSTEM SECTION AND DETAIL SHEET 1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3042,code:'TSG25-ECG00-30-A',main:'DES',sub:'LTG',desc:'COVER LIGHTNING PROTECTION SYSTEM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3043,code:'TSG25-ECG00-30-B',main:'DES',sub:'LTG',desc:'LIST OF DRAWING',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3044,code:'TSG25-ECG00-30',main:'DES',sub:'LTG',desc:'LIGHTNING PROTECTION SYSTEM REFERENCE PLAN',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3045,code:'TSG25-ECG00-31',main:'DES',sub:'LTG',desc:'AC1 LIGHTNING PROTECTION SYSTEM GROUND LEVEL',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3046,code:'TSG25-ECG00-32',main:'DES',sub:'LTG',desc:'AC1 LIGHTNING PROTECTION SYSTEM 1st LEVEL',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3047,code:'TSG25-ECG00-33',main:'DES',sub:'LTG',desc:'AC1 LIGHTNING PROTECTION SYSTEM ROOF LEVEL',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3048,code:'TSG25-ECG00-34',main:'DES',sub:'LTG',desc:'AC1 LIGHTNING PROTECTION SYSTEM SECTION A-A',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3049,code:'TSG25-ECG00-35',main:'DES',sub:'LTG',desc:'AC2 LIGHTNING PROTECTION SYSTEM 1st LEVEL',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3050,code:'TSG25-ECG00-36',main:'DES',sub:'LTG',desc:'LIGHTNING PROTECTION TYPICAL DETAIL',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3051,code:'TSG25-ECG00-40-A',main:'DES',sub:'GND',desc:'COVER GROUNDING AND BONDING SYSTEM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3052,code:'TSG25-ECG00-40-B',main:'DES',sub:'GND',desc:'LIST OF DRAWING',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3053,code:'TSG25-ECG00-40',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM REFERENCE PLAN',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3054,code:'TSG25-ECG00-41',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM SHEET 1 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3055,code:'TSG25-ECG00-42',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM SHEET 2 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3056,code:'TSG25-ECG00-43',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM SHEET 3 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3057,code:'TSG25-ECG00-44',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM SHEET 4 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3058,code:'TSG25-ECG00-45',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM SHEET 5 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3059,code:'TSG25-ECG00-46',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM SHEET 6 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3060,code:'TSG25-ECG00-47',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM SHEET 7 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3061,code:'TSG25-ECG00-48',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM SHEET 8 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3062,code:'TSG25-ECG00-49',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM SHEET 9 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3063,code:'TSG25-ECG00-50',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM SHEET 10 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3064,code:'TSG25-ECG00-51',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM SHEET 11 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3065,code:'TSG25-ECG00-52',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM SHEET 12 OF 12',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3066,code:'TSG25-ECG00-53',main:'DES',sub:'GND',desc:'GROUNDING AND BONDING SYSTEM TYPICAL DETAIL',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3067,code:'TSG25-ECG00-60-A',main:'DES',sub:'LGT',desc:'COVER LIGHTING SYSTEM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3068,code:'TSG25-ECG00-60-B',main:'DES',sub:'LGT',desc:'LIST OF DRAWING',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3069,code:'TSG25-ECG00-60',main:'DES',sub:'LGT',desc:'LIGHTING SYSTEM REFERENCE PLAN',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3070,code:'TSG25-ECG00-61',main:'DES',sub:'LGT',desc:'AC1 LIGHTING SYSTEM 1st FLOOR',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3071,code:'TSG25-ECG00-62',main:'DES',sub:'LGT',desc:'AC1 LIGHTING SYSTEM 2nd FLOOR',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3072,code:'TSG25-ECG00-63',main:'DES',sub:'LGT',desc:'AC1 LIGHTING SYSTEM 3rd FLOOR',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3073,code:'TSG25-ECG00-64',main:'DES',sub:'LGT',desc:'AC1 LIGHTING SYSTEM 4th FLOOR',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3074,code:'TSG25-ECG00-65',main:'DES',sub:'LGT',desc:'AC1 LIGHTING SYSTEM SECTION A,B',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3075,code:'TSG25-ECG00-66',main:'DES',sub:'LGT',desc:'LIGHTING SYSTEM AC2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3076,code:'TSG25-ECG00-67',main:'DES',sub:'LGT',desc:'LIGHTING SYSTEM TYPICAL AND DETAIL SHEET 1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3077,code:'TSG25-ECG00-70-A',main:'DES',sub:'SPS',desc:'COVER SMALL POWER SYSTEM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3078,code:'TSG25-ECG00-70-B',main:'DES',sub:'SPS',desc:'LIST OF DRAWING',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3079,code:'TSG25-ECG00-70',main:'DES',sub:'SPS',desc:'SMALL POWER SYSTEM REFERENCE PLAN',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3080,code:'TSG25-ECG00-71',main:'DES',sub:'SPS',desc:'AC1 SMALL POWER SYSTEM 1st FLOOR',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3081,code:'TSG25-ECG00-72',main:'DES',sub:'SPS',desc:'AC1 SMALL POWER SYSTEM 2nd FLOOR',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3082,code:'TSG25-ECG00-73',main:'DES',sub:'SPS',desc:'AC1 SMALL POWER SYSTEM 3rd FLOOR',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3083,code:'TSG25-ECG00-74',main:'DES',sub:'SPS',desc:'AC1 SMALL POWER SYSTEM 4th FLOOR',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3084,code:'TSG25-ECG00-75',main:'DES',sub:'SPS',desc:'AC1 SMALL POWER SYSTEM SECTION A,B',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3085,code:'TSG25-ECG00-76',main:'DES',sub:'SPS',desc:'AC2 SMALL POWER SYSTEM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3086,code:'TSG25-ECG00-77',main:'DES',sub:'SPS',desc:'SMALL POWER SYSTEM TYPICAL AND DETAIL SHEET 1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3087,code:'TSG25-OCG00-20-A',main:'DES',sub:'CCL',desc:'COVER CCTV. SYSTEM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3088,code:'TSG25-OCG00-20-B',main:'DES',sub:'CCL',desc:'LIST OF DRAWING',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3089,code:'TSG25-OCG00-20',main:'DES',sub:'CCL',desc:'CCTV. SYSTEM REFERENCE PLAN',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3090,code:'TSG25-OCG00-21',main:'DES',sub:'CCL',desc:'AC1 CCTV. SYSTEM 1st FLOOR',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3091,code:'TSG25-OCG00-22',main:'DES',sub:'CCL',desc:'AC1 CCTV. SYSTEM 2nd FLOOR',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3092,code:'TSG25-OCG00-23',main:'DES',sub:'CCL',desc:'AC1 CCTV. SYSTEM 3rd FLOOR',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3093,code:'TSG25-OCG00-24',main:'DES',sub:'CCL',desc:'AC1 CCTV. SYSTEM 4th FLOOR',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3094,code:'TSG25-OCG00-25',main:'DES',sub:'CCL',desc:'AC1 CCTV. SYSTEM SECTION A,B',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3095,code:'TSG25-OCG00-26',main:'DES',sub:'CCL',desc:'AC2 CCTV. SYSTEM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3096,code:'TSG25-OCG00-27',main:'DES',sub:'CCL',desc:'CCTV. SYSTEM TYPICAL AND DETAIL SHEET 1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3097,code:'TSG25-ECG00-80-A',main:'DES',sub:'PNL',desc:'COVER PANEL GENERAL ARRANGEMENT & WIRING DIAGRAM',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3098,code:'TSG25-ECG00-80-B',main:'DES',sub:'PNL',desc:'LIST OF DRAWING',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3099,code:'TSG25-ECG00-80',main:'DES',sub:'PNL',desc:'WALL MOUNT & BOX ENCLOSURE SPECIFICATION FOR MDB',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3100,code:'TSG25-ECG00-81',main:'DES',sub:'PNL',desc:'EQUIPMENT & LOAD LIST FOR MDB SHEET 1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3101,code:'TSG25-ECG00-82',main:'DES',sub:'PNL',desc:'EQUIPMENT & LOAD LIST FOR MDB SHEET 2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3102,code:'TSG25-ECG00-83',main:'DES',sub:'PNL',desc:'SWITCHBOARD LAYOUT FOR MDB SHEET 1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3103,code:'TSG25-ECG00-84',main:'DES',sub:'PNL',desc:'SWITCHBOARD LAYOUT FOR MDB SHEET 2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3104,code:'TSG25-ECG00-85',main:'DES',sub:'PNL',desc:'SCHEMATIC DIAGRAM & WIRING CONTROL FOR MDB',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3105,code:'TSG25-ECG00-86',main:'DES',sub:'PNL',desc:'WIRING CONTROL FOR MOTOR (D/Y) SHEET 1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3106,code:'TSG25-ECG00-87',main:'DES',sub:'PNL',desc:'WIRING CONTROL FOR MOTOR (D/Y) SHEET 2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3107,code:'TSG25-ECG00-88',main:'DES',sub:'PNL',desc:'WIRING CONTROL FOR MOTOR (D/Y) SHEET 3',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3108,code:'TSG25-ECG00-89',main:'DES',sub:'PNL',desc:'WIRING CONTROL FOR MOTOR (D/Y) SHEET 4',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3109,code:'TSG25-ECG00-90',main:'DES',sub:'PNL',desc:'WIRING CONTROL FOR MOTOR (DIRECT) SHEET 1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3110,code:'TSG25-ECG00-91',main:'DES',sub:'PNL',desc:'WIRING CONTROL FOR MOTOR (DIRECT) SHEET 2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3111,code:'TSG25-ECG00-92',main:'DES',sub:'PNL',desc:'WIRING CONTROL FOR SPARE',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3112,code:'TSG25-ECG00-100',main:'DES',sub:'PNL',desc:'WALL MOUNT & BOX ENCLOSURE SPECIFICATION FOR PLC ZONE 1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3113,code:'TSG25-ECG00-101',main:'DES',sub:'PNL',desc:'EQUIPMENT & LOAD LIST FOR PLC ZONE 1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3114,code:'TSG25-ECG00-102',main:'DES',sub:'PNL',desc:'SWITCHBOARD LAYOUT FOR PLC ZONE 1',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3115,code:'TSG25-ECG00-110',main:'DES',sub:'PNL',desc:'WALL MOUNT & BOX ENCLOSURE SPECIFICATION FOR PLC ZONE 2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3116,code:'TSG25-ECG00-111',main:'DES',sub:'PNL',desc:'EQUIPMENT & LOAD LIST FOR PLC ZONE 2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3117,code:'TSG25-ECG00-112',main:'DES',sub:'PNL',desc:'SWITCHBOARD LAYOUT FOR PLC ZONE 2',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3118,code:'TSG25-ECG00-120',main:'DES',sub:'PNL',desc:'WALL MOUNT & BOX ENCLOSURE SPECIFICATION FOR PLC ZONE 3',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3119,code:'TSG25-ECG00-121',main:'DES',sub:'PNL',desc:'EQUIPMENT & LOAD LIST FOR PLC ZONE 3',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3120,code:'TSG25-ECG00-122',main:'DES',sub:'PNL',desc:'SWITCHBOARD LAYOUT FOR PLC ZONE 3',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3121,code:'TSG25-ECG00-130',main:'DES',sub:'PNL',desc:'WALL MOUNT & BOX ENCLOSURE SPECIFICATION FOR PLC ZONE 4',rev:'Rev.0',status:'IFA',date:'16/04/2026',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3122,code:'TSG25-ECG00-131',main:'DES',sub:'PNL',desc:'EQUIPMENT & LOAD LIST FOR PLC ZONE 4',rev:'Rev.0',status:'IFA',date:'',approved:'no',approvedDate:'',docUrl:'',notes:''},
+  {id:3123,code:'TSG25-ECG00-132',main:'DES',sub:'PNL',desc:'SWITCHBOARD LAYOUT FOR PLC ZONE 4',rev:'Rev.0',status:'IFA',date:'',approved:'no',approvedDate:'',docUrl:'',notes:''},
 ];
+window._localDocs=[...docs];
 
 const DES_SERIES = {ELS:1,MRS:10,LTG:30,GND:40,LGT:60,SPS:70,PNL:80,HOK:200,COM:1,CCL:20};
 const DES_DRAWING_SUBS = ['ELS','COM','MRS','LTG','GND','LGT','SPS','CCL','PNL','HOK'];
@@ -768,11 +792,10 @@ function buildTable(list,wrapId,sortCol,sortDir,isAdmin){isAdmin=isAdmin||!!wind
     const keys=['','code','main','sub','desc','rev','status','date','approved','approvedDate'];
     const key=keys[sortCol]||'';
     sorted.sort((a,b)=>{
-      const va=(a[key]||'').toString().toLowerCase();
-      const vb=(b[key]||'').toString().toLowerCase();
-      if(va<vb)return sortDir==='asc'?-1:1;
-      if(va>vb)return sortDir==='asc'?1:-1;
-      return 0;
+      const va=(a[key]||'').toString();
+      const vb=(b[key]||'').toString();
+      const cmp=va.localeCompare(vb,undefined,{numeric:true,sensitivity:'base'});
+      return sortDir==='asc'?cmp:-cmp;
     });
   }
   const sc=(col,label)=>{
@@ -819,13 +842,13 @@ function searched(list,wrapId){
     (d.sub||'').toLowerCase().includes(q));
 }
 function applySearch(wrapId){
-  const map={wrapAll:'search-all',wrapDes:'search-des',wrapMat:'search-mat',wrapRq:'search-rq',wrapInstall:'search-install'};
+  const map={wrapAll:'search-all',wrapDwg:'search-dwg',wrapDes:'search-des',wrapMat:'search-mat',wrapRq:'search-rq',wrapInstall:'search-install'};
   const inp=document.getElementById(map[wrapId]);
   _searchState[wrapId]=inp?inp.value:'';
   renderAllTabs();
 }
 function clearSearch(wrapId){
-  const map={wrapAll:'search-all',wrapDes:'search-des',wrapMat:'search-mat',wrapRq:'search-rq',wrapInstall:'search-install'};
+  const map={wrapAll:'search-all',wrapDwg:'search-dwg',wrapDes:'search-des',wrapMat:'search-mat',wrapRq:'search-rq',wrapInstall:'search-install'};
   const inp=document.getElementById(map[wrapId]);
   if(inp)inp.value='';
   _searchState[wrapId]='';
@@ -841,7 +864,7 @@ function renderTab(wrapId,fullList,cntId){
     const el2=document.getElementById(cntId);
     if(el2) el2.textContent=q?`${filtered.length}/${fullList.length} docs`:`${fullList.length} docs`;
   }
-  const hintMap={wrapAll:'hint-all',wrapDes:'hint-des',wrapMat:'hint-mat',wrapRq:'hint-rq',wrapInstall:'hint-install'};
+  const hintMap={wrapAll:'hint-all',wrapDwg:'hint-dwg',wrapDes:'hint-des',wrapMat:'hint-mat',wrapRq:'hint-rq',wrapInstall:'hint-install'};
   const hint=document.getElementById(hintMap[wrapId]);
   if(hint){
     const q=_searchState[wrapId]||'';
@@ -849,14 +872,17 @@ function renderTab(wrapId,fullList,cntId){
   }
 }
 function renderAllTabs(){
+  const dwgDocs=docs.filter(d=>d.main==='DES');
   const desDocs=docs.filter(d=>d.main==='DES'&&!isRQ(d));
   const matDocs=docs.filter(d=>MAT_MAINS.includes(d.main));
   const instDocs=docs.filter(d=>INSTALL_MAINS.includes(d.main));
   const rqDocs=docs.filter(isRQ);
   const _s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   _s('statTotal',docs.length);_s('statDES',desDocs.length);_s('statMAT',matDocs.length);_s('statINS',instDocs.length);_s('statRQ',rqDocs.length);
-  _s('tabCntAll',docs.length?`(${docs.length})`:'');_s('tabCntDes',desDocs.length?`(${desDocs.length})`:'');_s('tabCntMat',matDocs.length?`(${matDocs.length})`:'');_s('tabCntInstall',instDocs.length?`(${instDocs.length})`:'');_s('tabCntRq',rqDocs.length?`(${rqDocs.length})`:'');
+  _s('tabCntAll',docs.length?`(${docs.length})`:'');
+  _s('tabCntDwg',dwgDocs.length?`(${dwgDocs.length})`:'');_s('tabCntDes',desDocs.length?`(${desDocs.length})`:'');_s('tabCntMat',matDocs.length?`(${matDocs.length})`:'');_s('tabCntInstall',instDocs.length?`(${instDocs.length})`:'');_s('tabCntRq',rqDocs.length?`(${rqDocs.length})`:'');
   renderTab('wrapAll',docs,null);
+  renderTab('wrapDwg',dwgDocs,'cntDwg');
   renderTab('wrapDes',desDocs,'cntDes');
   renderTab('wrapMat',matDocs,'cntMat');
   renderTab('wrapInstall',instDocs,'cntInstall');
